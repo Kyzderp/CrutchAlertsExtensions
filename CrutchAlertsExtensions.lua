@@ -10,13 +10,31 @@ local CAE = CrutchAlertsExtensions
 
 -- Defaults
 local defaultOptions = {
+    --[[
+    {
+        [profileId] = {
+            profileName = "Default",
+            circles = {}, -- {[1] = {rgb = false, color = {1, 1, 1}, radius = 5, yOffset = 0}}
+        },
+    }
+    ]]
+    profiles = {
+        [1] = {
+            profileName = "Default",
+            circles = {}
+        },
+    },
+    currentProfile = 1,
 }
 
 
 ---------------------------------------------------------------------
 -- Zone change
 ---------------------------------------------------------------------
-local function OnPlayerActivated()
+local function OnPlayerActivatedFirstTime()
+    EVENT_MANAGER:UnregisterForEvent(CAE.name .. "ActivatedFirstTime", EVENT_PLAYER_ACTIVATED)
+
+    CAE.InitializeCircles()
 end
 
 
@@ -24,11 +42,11 @@ end
 -- Initialize 
 ---------------------------------------------------------------------
 local function Initialize()
-    CAE.savedOptions = ZO_SavedVars:NewAccountWide("CrutchAlertsExtensionsSavedVariables", 1, "Options", defaultOptions)
+    CAE.svs = ZO_SavedVars:NewAccountWide("CrutchAlertsExtensionsSavedVariables", 1, "Options", defaultOptions)
 
     -- CAE.CreateSettingsMenu()
 
-    EVENT_MANAGER:RegisterForEvent(CAE.name .. "Activated", EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "ActivatedFirstTime", EVENT_PLAYER_ACTIVATED, OnPlayerActivatedFirstTime)
 end
 
 

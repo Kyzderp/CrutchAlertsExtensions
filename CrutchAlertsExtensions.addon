@@ -11,7 +11,7 @@
 ## AddOnVersion: 0
 ## APIVersion: 101049 101050
 
-## DependsOn: CrutchAlerts LibAddonMenu-2.0>=43
+## DependsOn: CrutchAlerts>=21900 LibAddonMenu-2.0>=43
 
 ## SavedVariables: CrutchAlertsExtensionsSavedVariables
 
