@@ -27,7 +27,7 @@ local function RefreshShapes()
     ZO_ClearTable(shapeIds)
     local profile = CAE.svs.profiles[CAE.svs.currentProfile]
     for id, data in pairs(profile.circles) do
-        table.insert(shapeNames, "Circle: " .. data.size) -- TODO: color
+        table.insert(shapeNames, "Circle: " .. data.radius) -- TODO: color
         table.insert(shapeIds, id)
     end
 
@@ -60,6 +60,7 @@ function CAE.CreateSettingsMenu()
             end,
             setFunc = function(value)
                 CAE.svs.currentProfile = value
+                CAE.LoadCurrentProfile()
             end,
             width = "half",
             reference = "CAE_ProfilesDropdown",
@@ -165,6 +166,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a circle with the above color and radius to the current profile",
             func = function()
                 CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset)
+                CAE.LoadCurrentProfile()
             end,
             width = "full",
         },

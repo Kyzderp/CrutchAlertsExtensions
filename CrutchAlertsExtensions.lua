@@ -3,7 +3,7 @@
 -- @author Kyzeragon
 -----------------------------------------------------------
 CrutchAlertsExtensions = {
-    name = "CrutchAlerts Extensions",
+    name = "CrutchAlertsExtensions",
     version = "0.0.0",
 }
 local CAE = CrutchAlertsExtensions
@@ -54,7 +54,7 @@ end
 local function Initialize()
     CAE.svs = ZO_SavedVars:NewAccountWide("CrutchAlertsExtensionsSavedVariables", 1, "Options", defaultOptions)
 
-    -- CAE.CreateSettingsMenu()
+    CAE.CreateSettingsMenu()
 
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "ActivatedFirstTime", EVENT_PLAYER_ACTIVATED, OnPlayerActivatedFirstTime)
 end

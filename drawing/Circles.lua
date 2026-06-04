@@ -39,6 +39,7 @@ local function LoadCurrentProfile()
     for _, circleData in ipairs(profile.circles) do
         CreateCircle(circleData.radius, circleData.rgb, circleData.color, circleData.yOffset)
     end
+    CAE.msg("Loaded profile " .. profile.profileName)
 end
 CAE.LoadCurrentProfile = LoadCurrentProfile
 
