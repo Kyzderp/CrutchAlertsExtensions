@@ -56,10 +56,10 @@ function CAE.CreateSettingsMenu()
             choicesValues = {},
             getFunc = function()
                 RefreshProfiles()
-                return CAE.svs.currentProfile
+                return CAE.csvs.currentProfile
             end,
             setFunc = function(value)
-                CAE.svs.currentProfile = value
+                CAE.csvs.currentProfile = value
                 CAE.LoadCurrentProfile()
             end,
             width = "full",
@@ -69,18 +69,18 @@ function CAE.CreateSettingsMenu()
             type = "editbox",
             name = "Rename current profile",
             tooltip = "Rename the profile by changing this text",
-            getFunc = function() return CAE.svs.profiles[CAE.svs.currentProfile].profileName end,
+            getFunc = function() return CAE.profiles[CAE.csvs.currentProfile].profileName end,
             setFunc = function(name)
                 if (not name or name == "") then return end
 
-                CAE.svs.profiles[CAE.svs.currentProfile].profileName = name
+                CAE.profiles[CAE.csvs.currentProfile].profileName = name
 
                 RefreshProfiles()
             end,
             isMultiline = false,
             isExtraWide = false,
             width = "full",
-            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow renaming default
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow renaming default
         },
         {
             type = "button",
@@ -97,13 +97,13 @@ function CAE.CreateSettingsMenu()
             name = "Delete current profile",
             tooltip = "Delete the currently selected profile. This cannot be undone!",
             func = function()
-                CAE.DeleteProfile(CAE.svs.currentProfile)
+                CAE.DeleteProfile(CAE.csvs.currentProfile)
                 RefreshProfiles()
             end,
             warning = "Delete the currently selected profile. This cannot be undone!",
             isDangerous = true,
             width = "half",
-            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow deleting default
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow deleting default
         },
         {
             type = "description",
@@ -121,7 +121,7 @@ function CAE.CreateSettingsMenu()
                 currentRgb = value
             end,
             width = "half",
-            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
             type = "slider",
@@ -136,7 +136,7 @@ function CAE.CreateSettingsMenu()
             setFunc = function(value)
                 currentSize = value / 100
             end,
-            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
             type = "colorpicker",
@@ -148,7 +148,7 @@ function CAE.CreateSettingsMenu()
                 currentColor = {r, g, b, a}
             end,
             width = "half",
-            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
             type = "slider",
@@ -163,7 +163,7 @@ function CAE.CreateSettingsMenu()
             setFunc = function(value)
                 currentYOffset = value
             end,
-            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
             type = "button",
@@ -174,7 +174,7 @@ function CAE.CreateSettingsMenu()
                 CAE.LoadCurrentProfile()
             end,
             width = "full",
-            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
             type = "description",
@@ -196,7 +196,7 @@ function CAE.CreateSettingsMenu()
             end,
             width = "half",
             reference = "CAE_ShapesDropdown",
-            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
             type = "button",
@@ -207,7 +207,7 @@ function CAE.CreateSettingsMenu()
                 CAE.LoadCurrentProfile()
             end,
             width = "full",
-            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
         },
     }
 

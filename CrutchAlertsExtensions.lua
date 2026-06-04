@@ -9,7 +9,7 @@ CrutchAlertsExtensions = {
 local CAE = CrutchAlertsExtensions
 
 -- Defaults
-local defaultOptions = {
+local defaultGlobalOptions = {
     --[[
     {
         [profileId] = {
@@ -20,10 +20,13 @@ local defaultOptions = {
     ]]
     profiles = {
         [-1] = {
-            profileName = "Empty",
+            profileName = "<Empty>",
             circles = {}
         },
     },
+}
+
+local defaultCharOptions = {
     currentProfile = -1,
 }
 
@@ -52,7 +55,8 @@ end
 -- Initialize 
 ---------------------------------------------------------------------
 local function Initialize()
-    CAE.svs = ZO_SavedVars:NewAccountWide("CrutchAlertsExtensionsSavedVariables", 1, "Options", defaultOptions)
+    CAE.profiles = ZO_SavedVars:NewAccountWide("CrutchAlertsExtensionsSavedProfiles", 1, nil, defaultGlobalOptions)
+    CAE.csvs = ZO_SavedVars:NewCharacterIdSettings("CrutchAlertsExtensionsSavedVariables", 1, nil, defaultCharOptions)
 
     CAE.CreateSettingsMenu()
 

@@ -13,6 +13,7 @@
 
 ## DependsOn: CrutchAlerts>=21900 LibAddonMenu-2.0>=43
 
+## SavedVariables: CrutchAlertsExtensionsSavedProfiles
 ## SavedVariables: CrutchAlertsExtensionsSavedVariables
 
 CrutchAlertsExtensions.lua

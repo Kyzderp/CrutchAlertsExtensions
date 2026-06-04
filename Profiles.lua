@@ -14,7 +14,7 @@ end
 
 ---------------------------------------------------------------------
 function CAE.AddCircleToProfile(rgb, color, radius, yOffset)
-    local profile = CAE.svs.profiles[CAE.svs.currentProfile]
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = FindFreeId(profile.circles)
     profile.circles[index] = {
@@ -28,7 +28,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset)
 end
 
 function CAE.RemoveCircleFromProfile(index)
-    local profile = CAE.svs.profiles[CAE.svs.currentProfile]
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
     CAE.msg(zo_strformat("Removing circle of radius <<1>> from profile <<2>>", profile.circles[index].radius, profile.profileName))
     profile.circles[index] = nil
 end
@@ -36,24 +36,31 @@ end
 
 ---------------------------------------------------------------------
 function CAE.CreateProfile()
-    local id = FindFreeId(CAE.svs.profiles)
+    local id = FindFreeId(CAE.profiles)
 
-    CAE.svs.profiles[id] = {
+    CAE.profiles[id] = {
         profileName = "Profile " .. id,
         circles = {},
     }
 
     -- Select new
-    CAE.svs.currentProfile = id
+    CAE.csvs.currentProfile = id
 
     return id
 end
 
 function CAE.DeleteProfile(id)
-    CAE.svs.profiles[id] = nil
+    CAE.profiles[id] = nil
 
-    -- Select empty
-    if (CAE.svs.currentProfile == id) then
-        CAE.svs.currentProfile = -1
+    -- Change all that were using this profile to the default
+    local svs = CrutchAlertsExtensionsSavedVariables
+    for _, serverData in pairs(svs) do
+        for _, accData in pairs(serverData) do
+            for _, charData in pairs(accData) do
+                if (charData.currentProfile == id) then
+                    charData.currentProfile = -1
+                end
+            end
+        end
     end
 end

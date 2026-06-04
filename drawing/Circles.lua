@@ -34,7 +34,7 @@ end
 local function LoadCurrentProfile()
     CleanCircles()
 
-    local profile = CAE.svs.profiles[CAE.svs.currentProfile]
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     for _, circleData in ipairs(profile.circles) do
         CreateCircle(circleData.radius, circleData.rgb, circleData.color, circleData.yOffset)
