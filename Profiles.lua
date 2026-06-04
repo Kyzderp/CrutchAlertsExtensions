@@ -27,6 +27,12 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset)
     CAE.msg(zo_strformat("Added circle of radius <<1>> to profile <<2>>", radius, profile.profileName))
 end
 
+function CAE.RemoveCircleFromProfile(index)
+    local profile = CAE.svs.profiles[CAE.svs.currentProfile]
+    CAE.msg(zo_strformat("Removing circle of radius <<1>> from profile <<2>>", profile.circles[index].radius, profile.profileName))
+    profile.circles[index] = nil
+end
+
 
 ---------------------------------------------------------------------
 function CAE.CreateProfile()

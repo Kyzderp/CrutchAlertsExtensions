@@ -50,7 +50,7 @@ function CAE.CreateSettingsMenu()
     local optionsData = {
         {
             type = "dropdown",
-            name = "Profiles",
+            name = "Current profile for " .. GetUnitDisplayName("player"),
             tooltip = "Choose a profile. The default empty profile is provided for convenience, so you can turn off all shapes by loading the empty profile. In order to add shapes, create a new profile.",
             choices = {},
             choicesValues = {},
@@ -62,12 +62,12 @@ function CAE.CreateSettingsMenu()
                 CAE.svs.currentProfile = value
                 CAE.LoadCurrentProfile()
             end,
-            width = "half",
+            width = "full",
             reference = "CAE_ProfilesDropdown",
         },
         {
             type = "editbox",
-            name = "Profile name",
+            name = "Rename current profile",
             tooltip = "Rename the profile by changing this text",
             getFunc = function() return CAE.svs.profiles[CAE.svs.currentProfile].profileName end,
             setFunc = function(name)
@@ -79,11 +79,12 @@ function CAE.CreateSettingsMenu()
             end,
             isMultiline = false,
             isExtraWide = false,
-            width = "half",
+            width = "full",
+            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow renaming default
         },
         {
             type = "button",
-            name = "Create profile",
+            name = "Create new profile",
             tooltip = "Create a new profile",
             func = function()
                 CAE.CreateProfile()
@@ -93,7 +94,7 @@ function CAE.CreateSettingsMenu()
         },
         {
             type = "button",
-            name = "Delete profile",
+            name = "Delete current profile",
             tooltip = "Delete the currently selected profile. This cannot be undone!",
             func = function()
                 CAE.DeleteProfile(CAE.svs.currentProfile)
@@ -120,17 +121,7 @@ function CAE.CreateSettingsMenu()
                 currentRgb = value
             end,
             width = "half",
-        },
-        {
-            type = "colorpicker",
-            name = "Shape color",
-            tooltip = "The color of the shape to add. Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
-            default = ZO_ColorDef:New(1, 1, 1, 1),
-            getFunc = function() return unpack(currentColor) end,
-            setFunc = function(r, g, b, a)
-                currentColor = {r, g, b, a}
-            end,
-            width = "half",
+            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
             type = "slider",
@@ -145,6 +136,19 @@ function CAE.CreateSettingsMenu()
             setFunc = function(value)
                 currentSize = value / 100
             end,
+            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
+        },
+        {
+            type = "colorpicker",
+            name = "Shape color",
+            tooltip = "The color of the shape to add. Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
+            default = ZO_ColorDef:New(1, 1, 1, 1),
+            getFunc = function() return unpack(currentColor) end,
+            setFunc = function(r, g, b, a)
+                currentColor = {r, g, b, a}
+            end,
+            width = "half",
+            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
             type = "slider",
@@ -159,16 +163,18 @@ function CAE.CreateSettingsMenu()
             setFunc = function(value)
                 currentYOffset = value
             end,
+            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
             type = "button",
-            name = "Add Circle",
+            name = "Add circle",
             tooltip = "Add a circle with the above color and radius to the current profile",
             func = function()
                 CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset)
                 CAE.LoadCurrentProfile()
             end,
             width = "full",
+            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
             type = "description",
@@ -190,6 +196,18 @@ function CAE.CreateSettingsMenu()
             end,
             width = "half",
             reference = "CAE_ShapesDropdown",
+            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
+        },
+        {
+            type = "button",
+            name = "Remove shape",
+            tooltip = "Remove the currently selected shape",
+            func = function()
+                CAE.RemoveCircleFromProfile(currentShape)
+                CAE.LoadCurrentProfile()
+            end,
+            width = "full",
+            disabled = function() return CAE.svs.currentProfile == -1 end, -- Don't allow editing default
         },
     }
 
