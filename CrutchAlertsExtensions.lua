@@ -19,13 +19,23 @@ local defaultOptions = {
     }
     ]]
     profiles = {
-        [1] = {
-            profileName = "Default",
+        [-1] = {
+            profileName = "Empty",
             circles = {}
         },
     },
-    currentProfile = 1,
+    currentProfile = -1,
 }
+
+
+---------------------------------------------------------------------
+function CAE.msg(msg)
+    if (not msg) then return end
+    msg = "|c3bdb5e[CAE]|caaaaaa " .. tostring(msg) .. "|r"
+    if (CHAT_ROUTER) then
+        CHAT_ROUTER:AddSystemMessage(msg)
+    end
+end
 
 
 ---------------------------------------------------------------------

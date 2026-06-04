@@ -16,3 +16,8 @@
 ## SavedVariables: CrutchAlertsExtensionsSavedVariables
 
 CrutchAlertsExtensions.lua
+Profiles.lua
+
+PC/Settings.lua
+
+drawing/Circles.lua

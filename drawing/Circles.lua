@@ -1,5 +1,7 @@
 local CAE = CrutchAlertsExtensions
 local Crutch = CrutchAlerts
+
+
 ---------------------------------------------------------------------
 local currentKeys = {}
 local function CleanCircles()
@@ -38,6 +40,7 @@ local function LoadCurrentProfile()
         CreateCircle(circleData.radius, circleData.rgb, circleData.color, circleData.yOffset)
     end
 end
+CAE.LoadCurrentProfile = LoadCurrentProfile
 
 
 function CAE.InitializeCircles()
