@@ -21,7 +21,7 @@ local defaultGlobalOptions = {
     profiles = {
         [-1] = {
             profileName = "<Empty>",
-            circles = {}
+            circles = {},
         },
     },
 }
@@ -54,8 +54,23 @@ end
 ---------------------------------------------------------------------
 -- Initialize 
 ---------------------------------------------------------------------
+local function FillAllDefaults(tab, defaults)
+    for k, v in pairs(defaults) do
+        if (tab[k] == nil) then
+            if (type(v) == "table") then
+                tab[k] = ZO_DeepTableCopy(v)
+            else
+                tab[k] = v
+            end
+        end
+    end
+end
+
 local function Initialize()
-    CAE.profiles = ZO_SavedVars:NewAccountWide("CrutchAlertsExtensionsSavedProfiles", 1, nil, defaultGlobalOptions)
+    CrutchAlertsExtensionsSavedProfiles = CrutchAlertsExtensionsSavedProfiles or {}
+    FillAllDefaults(CrutchAlertsExtensionsSavedProfiles, defaultGlobalOptions)
+    CAE.profiles = CrutchAlertsExtensionsSavedProfiles.profiles
+
     CAE.csvs = ZO_SavedVars:NewCharacterIdSettings("CrutchAlertsExtensionsSavedVariables", 1, nil, defaultCharOptions)
 
     CAE.CreateSettingsMenu()

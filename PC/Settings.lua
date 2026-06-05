@@ -12,7 +12,7 @@ local profileIds = {}
 local function RefreshProfiles()
     ZO_ClearTable(profileNames)
     ZO_ClearTable(profileIds)
-    for id, data in pairs(CAE.svs.profiles) do
+    for id, data in pairs(CAE.profiles) do
         table.insert(profileNames, data.profileName)
         table.insert(profileIds, id)
     end
@@ -35,7 +35,7 @@ local function ColorCircleText(rgb, color, radius)
                "|c00FF00c" ..
                "|c0000FFl" ..
                "|c2E2B5Fe" ..
-               "|c8B00FF: " .. radius
+               "|c8B00FF:|r " .. radius
     else
         return zo_strformat("|c<<1>>Circle|r: <<2>>", ColorToHexString(color), radius)
     end
@@ -46,7 +46,7 @@ local shapeIds = {}
 local function RefreshShapes()
     ZO_ClearTable(shapeNames)
     ZO_ClearTable(shapeIds)
-    local profile = CAE.svs.profiles[CAE.svs.currentProfile]
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
     for id, data in pairs(profile.circles) do
         table.insert(shapeNames, ColorCircleText(data.rgb, data.color, data.radius))
         table.insert(shapeIds, id)
