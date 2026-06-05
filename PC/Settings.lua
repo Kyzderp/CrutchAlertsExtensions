@@ -20,6 +20,27 @@ local function RefreshProfiles()
     CAE_ProfilesDropdown:UpdateChoices(profileNames, profileIds)
 end
 
+local function ColorToHexString(color)
+    return string.format("%02x%02x%02x",
+        math.floor(color[1] * 255),
+        math.floor(color[2] * 255),
+        math.floor(color[3] * 255))
+end
+
+local function ColorCircleText(rgb, color, radius)
+    if (rgb) then
+        return "|cFF0000C" ..
+               "|cFF7F00i" ..
+               "|cFFFF00r" ..
+               "|c00FF00c" ..
+               "|c0000FFl" ..
+               "|c2E2B5Fe" ..
+               "|c8B00FF: " .. radius
+    else
+        return zo_strformat("|c<<1>>Circle|r: <<2>>", ColorToHexString(color), radius)
+    end
+end
+
 local shapeNames = {}
 local shapeIds = {}
 local function RefreshShapes()
@@ -27,7 +48,7 @@ local function RefreshShapes()
     ZO_ClearTable(shapeIds)
     local profile = CAE.svs.profiles[CAE.svs.currentProfile]
     for id, data in pairs(profile.circles) do
-        table.insert(shapeNames, "Circle: " .. data.radius) -- TODO: color
+        table.insert(shapeNames, ColorCircleText(data.rgb, data.color, data.radius))
         table.insert(shapeIds, id)
     end
 
@@ -51,7 +72,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "dropdown",
             name = "Current profile for " .. GetUnitDisplayName("player"),
-            tooltip = "Choose a profile. The default empty profile is provided for convenience, so you can turn off all shapes by loading the empty profile. In order to add shapes, create a new profile.",
+            tooltip = "Choose a profile. The default <Empty> profile is provided for convenience, so you can turn off all shapes by loading the empty profile. In order to add shapes, create a new profile.",
             choices = {},
             choicesValues = {},
             getFunc = function()
