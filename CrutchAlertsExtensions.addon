@@ -18,6 +18,7 @@
 
 CrutchAlertsExtensions.lua
 Profiles.lua
+Commands.lua
 
 PC/Settings.lua
 
