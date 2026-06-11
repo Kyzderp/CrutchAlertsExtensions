@@ -57,6 +57,26 @@ end
 
 
 ---------------------------------------------------------------------
+local lineTag1, lineTag2
+local groupMemberTags = {}
+local groupMemberNames = {}
+local function RefreshGroupMembers()
+    ZO_ClearTable(groupMemberTags)
+    ZO_ClearTable(groupMemberNames)
+    for i = 1, GetGroupSize() do
+        local tag = GetGroupUnitTagByIndex(i)
+        if (tag and IsUnitOnline(tag)) then
+            table.insert(groupMemberTags, tag)
+            table.insert(groupMemberNames, zo_strformat("<<1>> <<2>> (<<3>>)", GetUnitName(tag), GetUnitDisplayName(tag), tag))
+        end
+    end
+
+    CAE_Line1Dropdown:UpdateChoices(groupMemberNames, groupMemberTags)
+    CAE_Line2Dropdown:UpdateChoices(groupMemberNames, groupMemberTags)
+end
+
+
+---------------------------------------------------------------------
 function CAE.CreateSettingsMenu()
     local LAM = LibAddonMenu2
     local panelData = {
@@ -229,6 +249,46 @@ function CAE.CreateSettingsMenu()
             end,
             width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
+        },
+        {
+            type = "description",
+            title = "|c08BD1DOther Utilities|r",
+            text = "These \"settings\" are not part of the settings profile above.",
+            width = "full",
+        },
+        {
+            type = "dropdown",
+            name = "Draw line player 1",
+            tooltip = "Choose group members to draw a line between. Because M0R really wants this in a dropdown. Hint: you can show the distance in the main CrutchAlerts settings > Debug > Show line distance. Note that this is assigned by unit tag, so the players connected by the line may change when unit tags change",
+            choices = {},
+            choicesValues = {},
+            getFunc = function()
+                RefreshGroupMembers()
+                return lineTag1
+            end,
+            setFunc = function(value)
+                lineTag1 = value
+                CAE.DrawLine(lineTag1, lineTag2)
+            end,
+            width = "full",
+            reference = "CAE_Line1Dropdown",
+        },
+        {
+            type = "dropdown",
+            name = "Draw line player 2",
+            tooltip = "Choose group members to draw a line between. Because M0R really wants this in a dropdown. Hint: you can show the distance in the main CrutchAlerts settings > Debug > Show line distance. Note that this is assigned by unit tag, so the players connected by the line may change when unit tags change",
+            choices = {},
+            choicesValues = {},
+            getFunc = function()
+                RefreshGroupMembers()
+                return lineTag2
+            end,
+            setFunc = function(value)
+                lineTag2 = value
+                CAE.DrawLine(lineTag1, lineTag2)
+            end,
+            width = "full",
+            reference = "CAE_Line2Dropdown",
         },
     }
 
