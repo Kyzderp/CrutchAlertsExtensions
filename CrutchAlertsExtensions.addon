@@ -9,7 +9,7 @@
 ## Author: Kyzeragon
 ## Version: 0.0.0
 ## AddOnVersion: 0
-## APIVersion: 101049 101050
+## APIVersion: 101050
 
 ## DependsOn: CrutchAlerts>=21900 LibAddonMenu-2.0>=43
 
@@ -19,6 +19,7 @@
 CrutchAlertsExtensions.lua
 Profiles.lua
 Commands.lua
+ConditionalChecker.lua
 
 PC/Settings.lua
 

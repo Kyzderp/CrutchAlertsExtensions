@@ -6,6 +6,7 @@ local currentRgb = false
 local currentColor = {1, 1, 1, 1}
 local currentSize = 8
 local currentYOffset = 5
+local currentConditionalAbility
 
 local profileNames = {}
 local profileIds = {}
@@ -169,6 +170,7 @@ function CAE.CreateSettingsMenu()
                     currentColor = profile[value].color
                     currentSize = profile[value].radius
                     currentYOffset = profile[value].yOffset
+                    currentConditionalAbility = profile[value].conditionalAbilityId
                 end
             end,
             width = "half",
@@ -192,7 +194,7 @@ function CAE.CreateSettingsMenu()
             name = "Add circle",
             tooltip = "Add a circle with the below color and radius to the current profile. The properties can be edited later",
             func = function()
-                CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset)
+                CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentConditionalAbility)
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
@@ -263,6 +265,22 @@ function CAE.CreateSettingsMenu()
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "editbox",
+            name = "Conditional ability ID",
+            tooltip = "If specified, this shape will only show when this ability is slotted. Use |c99FF99/crutch printskills|r to see currently slotted IDs",
+            getFunc = function() return currentConditionalAbility end,
+            setFunc = function(name)
+                currentConditionalAbility = tonumber(value)
+                CAE.profiles[CAE.csvs.currentProfile][currentShape].conditionalAbilityId = currentConditionalAbility
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            isMultiline = false,
+            isExtraWide = false,
+            width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
 ---------------------------------------------------------------------

@@ -74,8 +74,10 @@ local function Initialize()
     CAE.csvs = ZO_SavedVars:NewCharacterIdSettings("CrutchAlertsExtensionsSavedVariables", 1, nil, defaultCharOptions)
 
     CAE.CreateSettingsMenu()
+    CAE.InitializeConditionalChecker()
 
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "ActivatedFirstTime", EVENT_PLAYER_ACTIVATED, OnPlayerActivatedFirstTime)
+
 end
 
 

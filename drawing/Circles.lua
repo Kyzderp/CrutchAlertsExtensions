@@ -5,14 +5,14 @@ local Crutch = CrutchAlerts
 ---------------------------------------------------------------------
 local currentKeys = {}
 local function CleanCircles()
-    for _, key in ipairs(currentKeys) do
+    for _, key in pairs(currentKeys) do
         Crutch.Drawing.RemoveWorldTexture(key)
     end
     ZO_ClearTable(currentKeys)
 end
 
 -- yOffset default 5
-local function CreateCircle(radius, rgb, color, yOffset)
+local function CreateCircle(id, radius, rgb, color, yOffset)
     local _, x, y, z = GetUnitRawWorldPosition("player")
 
     -- Places circle at player's feet
@@ -28,16 +28,39 @@ local function CreateCircle(radius, rgb, color, yOffset)
         end
     end
 
-    table.insert(currentKeys, Crutch.Drawing.CreateGroundCircle(x, y + yOffset, z, radius, color, nil, CircleFunc))
+    currentKeys[id] = Crutch.Drawing.CreateGroundCircle(x, y + yOffset, z, radius, color, nil, CircleFunc))
 end
+
+local function CreateCircleById(id)
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+    local circleData = profile[id]
+    CreateCircle(id, circleData.radius, circleData.rgb, circleData.color, circleData.yOffset)
+end
+
+local function ShowCircle(id)
+    if (currentKeys[id]) then return end -- already showing
+    CreateCircleById(id)
+end
+CAE.ShowCircle = ShowCircle
+
+local function HideCircle(id)
+    if (not currentKeys[id]) then return end -- already hidden
+    Crutch.Drawing.RemoveWorldTexture(currentKeys[id])
+    currentKeys[id] = nil
+end
+CAE.HideCircle = HideCircle
 
 local function LoadCurrentProfile()
     CleanCircles()
 
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
-    for _, circleData in ipairs(profile.circles) do
-        CreateCircle(circleData.radius, circleData.rgb, circleData.color, circleData.yOffset)
+    for id, circleData in pairs(profile.circles) do
+        if (not circleData.conditionalAbilityId or CAE.IsSlotted(circleData.conditionalAbilityId)) then
+            CreateCircleById(id)
+        else
+            Crutch.dbgSpam("Not drawing because not slotted: " .. circleData.conditionalAbilityId)
+        end
     end
     CAE.msg("Loaded profile " .. profile.profileName)
 end

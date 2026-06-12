@@ -13,7 +13,7 @@ end
 
 
 ---------------------------------------------------------------------
-function CAE.AddCircleToProfile(rgb, color, radius, yOffset)
+function CAE.AddCircleToProfile(rgb, color, radius, yOffset, conditionalAbilityId)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = FindFreeId(profile.circles)
@@ -22,6 +22,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset)
         color = color,
         radius = radius,
         yOffset = yOffset,
+        conditionalAbilityId = conditionalAbilityId,
     }
 
     CAE.msg(zo_strformat("Added circle of radius <<1>> to profile <<2>>", radius, profile.profileName))
