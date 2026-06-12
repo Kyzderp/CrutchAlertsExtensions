@@ -148,9 +148,56 @@ function CAE.CreateSettingsMenu()
         },
         {
             type = "description",
-            title = "|c08BD1DAdd Shape|r",
-            text = "Add a shape here by adjusting the color and size, then clicking the Add button",
+            title = "|c08BD1DShapes|r",
+            text = "Add or edit a shape here by clicking the Add button or selecting from the dropdown, then editing the properties.",
             width = "full",
+        },
+        {
+            type = "dropdown",
+            name = "Current shape",
+            choices = {},
+            choicesValues = {},
+            getFunc = function()
+                RefreshShapes()
+                return currentShape
+            end,
+            setFunc = function(value)
+                currentShape = value
+                local profile = CAE.profiles[CAE.csvs.currentProfile]
+                if (value and profile[value]) then
+                    currentRgb = profile[value].rgb
+                    currentColor = profile[value].color
+                    currentSize = profile[value].radius
+                    currentYOffset = profile[value].yOffset
+                end
+            end,
+            width = "half",
+            reference = "CAE_ShapesDropdown",
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
+        },
+        {
+            type = "button",
+            name = "Remove shape",
+            tooltip = "Remove the currently selected shape",
+            func = function()
+                CAE.RemoveCircleFromProfile(currentShape)
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "button",
+            name = "Add circle",
+            tooltip = "Add a circle with the below color and radius to the current profile. The properties can be edited later",
+            func = function()
+                CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset)
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
             type = "checkbox",
@@ -160,9 +207,12 @@ function CAE.CreateSettingsMenu()
             getFunc = function() return currentRgb end,
             setFunc = function(value)
                 currentRgb = value
+                CAE.profiles[CAE.csvs.currentProfile][currentShape].rgb = currentRgb
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
             end,
             width = "half",
-            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
         {
             type = "slider",
@@ -176,8 +226,11 @@ function CAE.CreateSettingsMenu()
             getFunc = function() return currentSize * 100 end,
             setFunc = function(value)
                 currentSize = value / 100
+                CAE.profiles[CAE.csvs.currentProfile][currentShape].radius = currentSize
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
             end,
-            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
         {
             type = "colorpicker",
@@ -187,9 +240,12 @@ function CAE.CreateSettingsMenu()
             getFunc = function() return unpack(currentColor) end,
             setFunc = function(r, g, b, a)
                 currentColor = {r, g, b, a}
+                CAE.profiles[CAE.csvs.currentProfile][currentShape].radius = currentColor
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
             end,
             width = "half",
-            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
         {
             type = "slider",
@@ -203,53 +259,13 @@ function CAE.CreateSettingsMenu()
             getFunc = function() return currentYOffset end,
             setFunc = function(value)
                 currentYOffset = value
-            end,
-            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
-        },
-        {
-            type = "button",
-            name = "Add circle",
-            tooltip = "Add a circle with the above color and radius to the current profile",
-            func = function()
-                CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset)
+                CAE.profiles[CAE.csvs.currentProfile][currentShape].yOffset = currentYOffset
                 CAE.LoadCurrentProfile()
-            end,
-            width = "full",
-            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
-        },
-        {
-            type = "description",
-            title = "|c08BD1DRemove Shape|r",
-            text = "Remove a shape here by selecting it from the dropdown, then clicking the Remove button",
-            width = "full",
-        },
-        {
-            type = "dropdown",
-            name = "Shapes",
-            choices = {},
-            choicesValues = {},
-            getFunc = function()
                 RefreshShapes()
-                return currentShape
             end,
-            setFunc = function(value)
-                currentShape = value
-            end,
-            width = "half",
-            reference = "CAE_ShapesDropdown",
-            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
-        {
-            type = "button",
-            name = "Remove shape",
-            tooltip = "Remove the currently selected shape",
-            func = function()
-                CAE.RemoveCircleFromProfile(currentShape)
-                CAE.LoadCurrentProfile()
-            end,
-            width = "full",
-            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
-        },
+---------------------------------------------------------------------
         {
             type = "description",
             title = "|c08BD1DOther Utilities|r",
