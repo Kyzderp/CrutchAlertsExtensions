@@ -28,12 +28,12 @@ local function CreateCircle(id, radius, rgb, color, yOffset)
         end
     end
 
-    currentKeys[id] = Crutch.Drawing.CreateGroundCircle(x, y + yOffset, z, radius, color, nil, CircleFunc))
+    currentKeys[id] = Crutch.Drawing.CreateGroundCircle(x, y + yOffset, z, radius, color, nil, CircleFunc)
 end
 
 local function CreateCircleById(id)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
-    local circleData = profile[id]
+    local circleData = profile.circles[id]
     CreateCircle(id, circleData.radius, circleData.rgb, circleData.color, circleData.yOffset)
 end
 

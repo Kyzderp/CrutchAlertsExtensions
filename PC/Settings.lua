@@ -71,9 +71,6 @@ local function RefreshGroupMembers()
             table.insert(groupMemberNames, zo_strformat("<<1>> <<2>> (<<3>>)", GetUnitName(tag), GetUnitDisplayName(tag), tag))
         end
     end
-
-    CAE_Line1Dropdown:UpdateChoices(groupMemberNames, groupMemberTags)
-    CAE_Line2Dropdown:UpdateChoices(groupMemberNames, groupMemberTags)
 end
 
 
@@ -165,15 +162,15 @@ function CAE.CreateSettingsMenu()
             setFunc = function(value)
                 currentShape = value
                 local profile = CAE.profiles[CAE.csvs.currentProfile]
-                if (value and profile[value]) then
-                    currentRgb = profile[value].rgb
-                    currentColor = profile[value].color
-                    currentSize = profile[value].radius
-                    currentYOffset = profile[value].yOffset
-                    currentConditionalAbility = profile[value].conditionalAbilityId
+                if (value and profile.circles[value]) then
+                    currentRgb = profile.circles[value].rgb
+                    currentColor = profile.circles[value].color
+                    currentSize = profile.circles[value].radius
+                    currentYOffset = profile.circles[value].yOffset
+                    currentConditionalAbility = profile.circles[value].conditionalAbilityId
                 end
             end,
-            width = "half",
+            width = "full",
             reference = "CAE_ShapesDropdown",
             disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
         },
@@ -186,6 +183,8 @@ function CAE.CreateSettingsMenu()
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
+            warning = "Remove the selected shape from the profile",
+            isDangerous = true,
             width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
@@ -209,7 +208,7 @@ function CAE.CreateSettingsMenu()
             getFunc = function() return currentRgb end,
             setFunc = function(value)
                 currentRgb = value
-                CAE.profiles[CAE.csvs.currentProfile][currentShape].rgb = currentRgb
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].rgb = currentRgb
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
@@ -228,7 +227,7 @@ function CAE.CreateSettingsMenu()
             getFunc = function() return currentSize * 100 end,
             setFunc = function(value)
                 currentSize = value / 100
-                CAE.profiles[CAE.csvs.currentProfile][currentShape].radius = currentSize
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].radius = currentSize
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
@@ -242,7 +241,7 @@ function CAE.CreateSettingsMenu()
             getFunc = function() return unpack(currentColor) end,
             setFunc = function(r, g, b, a)
                 currentColor = {r, g, b, a}
-                CAE.profiles[CAE.csvs.currentProfile][currentShape].radius = currentColor
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].radius = currentColor
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
@@ -261,7 +260,7 @@ function CAE.CreateSettingsMenu()
             getFunc = function() return currentYOffset end,
             setFunc = function(value)
                 currentYOffset = value
-                CAE.profiles[CAE.csvs.currentProfile][currentShape].yOffset = currentYOffset
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].yOffset = currentYOffset
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
@@ -274,7 +273,7 @@ function CAE.CreateSettingsMenu()
             getFunc = function() return currentConditionalAbility end,
             setFunc = function(name)
                 currentConditionalAbility = tonumber(value)
-                CAE.profiles[CAE.csvs.currentProfile][currentShape].conditionalAbilityId = currentConditionalAbility
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalAbilityId = currentConditionalAbility
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
@@ -298,6 +297,7 @@ function CAE.CreateSettingsMenu()
             choicesValues = {},
             getFunc = function()
                 RefreshGroupMembers()
+                CAE_Line1Dropdown:UpdateChoices(groupMemberNames, groupMemberTags)
                 return lineTag1
             end,
             setFunc = function(value)
@@ -315,6 +315,7 @@ function CAE.CreateSettingsMenu()
             choicesValues = {},
             getFunc = function()
                 RefreshGroupMembers()
+                CAE_Line2Dropdown:UpdateChoices(groupMemberNames, groupMemberTags)
                 return lineTag2
             end,
             setFunc = function(value)
@@ -323,6 +324,15 @@ function CAE.CreateSettingsMenu()
             end,
             width = "full",
             reference = "CAE_Line2Dropdown",
+        },
+        {
+            type = "button",
+            name = "Remove line",
+            tooltip = "Remove the line if there is one",
+            func = function()
+                CAE.RemoveLine()
+            end,
+            width = "full",
         },
     }
 
