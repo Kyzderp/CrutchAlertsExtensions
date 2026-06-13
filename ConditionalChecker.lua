@@ -9,6 +9,13 @@ local function IsSlotted(id)
         if (abilityId == id) then return true end
     end
 
+    if (IsPlayerInWerewolfForm()) then
+        for i = 3, 8 do
+            local abilityId = Crutch.GetSlotTrueBoundId(i, HOTBAR_CATEGORY_WEREWOLF)
+            if (abilityId == id) then return true end
+        end
+    end
+
     -- FAB: Check the inactive bar too
     if (FancyActionBar) then
         local otherBar = (GetActiveHotbarCategory() == HOTBAR_CATEGORY_PRIMARY) and HOTBAR_CATEGORY_BACKUP or HOTBAR_CATEGORY_PRIMARY
@@ -30,8 +37,10 @@ local function OnHotbarsUpdated()
     for id, circleData in pairs(profile.circles) do
         if (circleData.conditionalAbilityId) then
             if (IsSlotted(circleData.conditionalAbilityId)) then
+                Crutch.dbgSpam(circleData.conditionalAbilityId .. " is slotted")
                 CAE.ShowCircle(id)
             else
+                Crutch.dbgSpam(circleData.conditionalAbilityId .. " is not slotted")
                 CAE.HideCircle(id)
             end
         end
@@ -40,5 +49,6 @@ end
 
 function CAE.InitializeConditionalChecker()
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "Conditional", EVENT_ACTION_SLOTS_ALL_HOTBARS_UPDATED, OnHotbarsUpdated)
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "ConditionalWW", EVENT_WEREWOLF_STATE_CHANGED, OnHotbarsUpdated)
     -- TODO: check sets
 end

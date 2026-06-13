@@ -26,6 +26,8 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, conditionalAbilityI
     }
 
     CAE.msg(zo_strformat("Added circle of radius <<1>> to profile <<2>>", radius, profile.profileName))
+
+    return index
 end
 
 function CAE.RemoveCircleFromProfile(index)

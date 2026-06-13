@@ -8,6 +8,8 @@ local currentSize = 8
 local currentYOffset = 5
 local currentConditionalAbility
 
+local currentShape
+
 local profileNames = {}
 local profileIds = {}
 local function RefreshProfiles()
@@ -193,9 +195,10 @@ function CAE.CreateSettingsMenu()
             name = "Add circle",
             tooltip = "Add a circle with the below color and radius to the current profile. The properties can be edited later",
             func = function()
-                CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentConditionalAbility)
+                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentConditionalAbility)
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
+                currentShape = id
             end,
             width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
@@ -241,7 +244,7 @@ function CAE.CreateSettingsMenu()
             getFunc = function() return unpack(currentColor) end,
             setFunc = function(r, g, b, a)
                 currentColor = {r, g, b, a}
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].radius = currentColor
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].color = currentColor
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
@@ -271,7 +274,7 @@ function CAE.CreateSettingsMenu()
             name = "Conditional ability ID",
             tooltip = "If specified, this shape will only show when this ability is slotted. Use |c99FF99/crutch printskills|r to see currently slotted IDs",
             getFunc = function() return currentConditionalAbility end,
-            setFunc = function(name)
+            setFunc = function(value)
                 currentConditionalAbility = tonumber(value)
                 CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalAbilityId = currentConditionalAbility
                 CAE.LoadCurrentProfile()
