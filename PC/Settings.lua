@@ -75,6 +75,12 @@ local function RefreshGroupMembers()
     end
 end
 
+local function ConcatTables(tab1, tab2)
+    for _, v in ipairs(tab2) do
+        table.insert(tab1, v)
+    end
+end
+
 
 ---------------------------------------------------------------------
 function CAE.CreateSettingsMenu()
@@ -146,6 +152,11 @@ function CAE.CreateSettingsMenu()
             width = "half",
             disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow deleting default
         },
+    }
+---------------------------------------------------------------------
+    ConcatTables(optionsData, CAE.GetSynergySettings())
+---------------------------------------------------------------------
+    ConcatTables(optionsData, {
         {
             type = "description",
             title = "|c08BD1DShapes|r",
@@ -337,7 +348,7 @@ function CAE.CreateSettingsMenu()
             end,
             width = "full",
         },
-    }
+    })
 
     LAM:RegisterAddonPanel("CrutchAlertsExtensionsOptions", panelData)
     LAM:RegisterOptionControls("CrutchAlertsExtensionsOptions", optionsData)

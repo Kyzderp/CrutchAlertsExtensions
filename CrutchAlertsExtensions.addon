@@ -20,8 +20,12 @@ CrutchAlertsExtensions.lua
 Profiles.lua
 Commands.lua
 ConditionalChecker.lua
+Bindings.xml
 
 PC/Settings.lua
 
 drawing/Circles.lua
 drawing/Line.lua
+
+synergy/Synergy.lua
+synergy/Synergy.xml

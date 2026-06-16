@@ -22,6 +22,9 @@ local defaultGlobalOptions = {
         [-1] = {
             profileName = "<Empty>",
             circles = {},
+            hungerRequireModifier = false,
+            lowerHunger = false,
+            higherFrenzyAndAtro = false,
         },
     },
 }
@@ -75,9 +78,11 @@ local function Initialize()
 
     CAE.CreateSettingsMenu()
     CAE.InitializeConditionalChecker()
+    CAE.InitializeSynergy()
 
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "ActivatedFirstTime", EVENT_PLAYER_ACTIVATED, OnPlayerActivatedFirstTime)
 
+    ZO_CreateStringId("SI_BINDING_NAME_CAE_SYNERGY_MODIFIER", "Werewolf Synergy Modifier")
 end
 
 

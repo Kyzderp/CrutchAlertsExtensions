@@ -44,6 +44,9 @@ function CAE.CreateProfile()
     CAE.profiles[id] = {
         profileName = "Profile " .. id,
         circles = {},
+        hungerRequireModifier = false,
+        lowerHunger = false,
+        higherFrenzyAndAtro = false,
     }
 
     -- Select new
