@@ -3,6 +3,7 @@ local Crutch = CrutchAlerts
 
 
 ---------------------------------------------------------------------
+-- TODO: make these configurable
 local KNOWN_PETS = { -- TODO: gender tags?
     ["Feral Guardian"] = "esoui/art/icons/ability_warden_018.dds",
     ["Eternal Guardian"] = "esoui/art/icons/ability_warden_018_b.dds",
@@ -11,20 +12,24 @@ local KNOWN_PETS = { -- TODO: gender tags?
     -- TODO: other nb might be named the same
 }
 
+-- TODO: just use whatever collectible is active
 local KNOWN_TITLES = {
     ["Banker"] = "esoui/art/icons/servicemappins/servicepin_bank.dds",
     ["Merchant"] = "esoui/art/icons/servicemappins/servicepin_vendor.dds",
+    ["Planar Purveyor"] = "esoui/art/icons/servicemappins/servicepin_vendor.dds",
+    ["Ragpicker"] = "/esoui/art/crafting/gamepad/gp_crafting_menuicon_deconstruct.dds",
+    ["Master-At-Arms"] = "/esoui/art/icons/servicemappins/servicepin_armory.dds",
 }
 
 local function GetKnownTexture(unitTag)
     local knownTexture = KNOWN_PETS[GetUnitName(unitTag)]
     if (knownTexture) then return knownTexture end
 
-    local title = GetUnitTitle(unitTag)
+    local title = GetUnitCaption(unitTag)
     if (title) then -- probably an assistant
         local knownTitleTexture = KNOWN_TITLES[title]
         if (knownTitleTexture) then return knownTitleTexture end
-        return "esoui/art/icons/targetdummy_voriplasm_01.dds" -- TODO: ally or something icon
+        return "esoui/art/companion/gamepad/gp_category_u30_allies.dds" -- TODO: ally or something icon
     end
 end
 
