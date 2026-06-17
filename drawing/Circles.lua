@@ -12,7 +12,7 @@ local function CleanCircles()
 end
 
 -- yOffset default 5
-local function CreateCircle(id, radius, rgb, color, yOffset)
+local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers)
     local _, x, y, z = GetUnitRawWorldPosition("player")
 
     -- Places circle at player's feet
@@ -28,13 +28,24 @@ local function CreateCircle(id, radius, rgb, color, yOffset)
         end
     end
 
-    currentKeys[id] = Crutch.Drawing.CreateGroundCircle(x, y + yOffset, z, radius, color, nil, CircleFunc)
+    currentKeys[id] = Crutch.Drawing.CreateWorldTexture(
+        "CrutchAlerts/assets/floor/circle.dds",
+        x,
+        y + yOffset,
+        z,
+        radius * 2,
+        radius * 2,
+        color,
+        depthBuffers,
+        false,
+        {math.pi/2, 0, 0},
+        CircleFunc)
 end
 
 local function CreateCircleById(id)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     local circleData = profile.circles[id]
-    CreateCircle(id, circleData.radius, circleData.rgb, circleData.color, circleData.yOffset)
+    CreateCircle(id, circleData.radius, circleData.rgb, circleData.color, circleData.yOffset, circleData.depthBuffers)
 end
 
 local function ShowCircle(id)

@@ -7,6 +7,7 @@ local currentColor = {1, 1, 1, 1}
 local currentSize = 8
 local currentYOffset = 5
 local currentConditionalAbility
+local currentDepthBuffers = false
 
 local currentShape
 
@@ -182,6 +183,7 @@ function CAE.CreateSettingsMenu()
                     currentSize = profile.circles[value].radius
                     currentYOffset = profile.circles[value].yOffset
                     currentConditionalAbility = profile.circles[value].conditionalAbilityId
+                    currentDepthBuffers = profile.circles[value].depthBuffers
                 end
             end,
             width = "full",
@@ -207,10 +209,10 @@ function CAE.CreateSettingsMenu()
             name = "Add circle",
             tooltip = "Add a circle with the below color and radius to the current profile. The properties can be edited later",
             func = function()
-                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentConditionalAbility)
+                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentConditionalAbility, currentDepthBuffers)
                 CAE.LoadCurrentProfile()
-                RefreshShapes()
                 currentShape = id
+                RefreshShapes()
             end,
             width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
@@ -279,6 +281,21 @@ function CAE.CreateSettingsMenu()
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "checkbox",
+            name = "Hide behind objects",
+            tooltip = "Whether to use depth buffers to have icons be hidden by objects. For example, if this is ON, parts of the circle can be covered by hills. In order for this setting to work while ON, you must have \"SubSampling Quality\" set to \"High\" in your Video settings",
+            default = false,
+            getFunc = function() return currentDepthBuffers end,
+            setFunc = function(value)
+                currentDepthBuffers = value
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].depthBuffers = currentDepthBuffers
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            width = "half",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
         {
