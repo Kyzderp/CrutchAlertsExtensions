@@ -155,6 +155,7 @@ function CAE.CreateSettingsMenu()
     }
 ---------------------------------------------------------------------
     ConcatTables(optionsData, CAE.GetSynergySettings())
+    ConcatTables(optionsData, CAE.GetUnitIconsSettings())
 ---------------------------------------------------------------------
     ConcatTables(optionsData, {
         {

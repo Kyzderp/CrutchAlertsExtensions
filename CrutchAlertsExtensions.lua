@@ -25,6 +25,9 @@ local defaultGlobalOptions = {
             hungerRequireModifier = false,
             lowerHunger = false,
             higherFrenzyAndAtro = false,
+            iconsForKnownPets = false, -- hardcoded ones
+            iconsForPets = false, -- fallback poop
+            iconsForCompanions = false,
         },
     },
 }
@@ -79,6 +82,7 @@ local function Initialize()
     CAE.CreateSettingsMenu()
     CAE.InitializeConditionalChecker()
     CAE.InitializeSynergy()
+    CAE.InitializeUnitIcons()
 
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "ActivatedFirstTime", EVENT_PLAYER_ACTIVATED, OnPlayerActivatedFirstTime)
 

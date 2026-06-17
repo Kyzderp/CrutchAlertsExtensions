@@ -47,6 +47,9 @@ function CAE.CreateProfile()
         hungerRequireModifier = false,
         lowerHunger = false,
         higherFrenzyAndAtro = false,
+        iconsForKnownPets = false,
+        iconsForPets = false,
+        iconsForCompanions = false,
     }
 
     -- Select new
