@@ -7,6 +7,8 @@ local KNOWN_PETS = { -- TODO: gender tags?
     ["Feral Guardian"] = "esoui/art/icons/ability_warden_018.dds",
     ["Eternal Guardian"] = "esoui/art/icons/ability_warden_018_b.dds",
     ["Wild Guardian"] = "esoui/art/icons/ability_warden_018_c.dds",
+    ["Gloom Wraith"] = "esoui/art/icons/ability_nightblade_001_a.dds",
+    -- TODO: other nb might be named the same
 }
 
 local KNOWN_TITLES = {
