@@ -153,6 +153,7 @@ function CAE.CreateSettingsMenu()
             width = "half",
             disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow deleting default
         },
+        -- TODO: duplicate button
     }
 ---------------------------------------------------------------------
     ConcatTables(optionsData, CAE.GetSynergySettings())
