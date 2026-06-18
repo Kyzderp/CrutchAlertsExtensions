@@ -11,14 +11,56 @@ local KNOWN_PETS = {
     -- TODO: other nb might be named the same
 }
 
+local BANKER = 1
+local MERCHANT = 2
+local DECON = 3
+local ARMORY = 4
+local FENCE = 5
+
+local ASSISTANT_TEXTURES = {
+    [BANKER] = "esoui/art/icons/servicemappins/servicepin_bank.dds",
+    [MERCHANT] = "esoui/art/icons/servicemappins/servicepin_vendor.dds",
+    [DECON] = "esoui/art/crafting/gamepad/gp_crafting_menuicon_deconstruct.dds",
+    [ARMORY] = "esoui/art/icons/servicemappins/servicepin_armory.dds",
+    [FENCE] = "esoui/art/icons/mapkey/mapkey_fence.dds",
+}
+
 -- TODO: just use whatever collectible is active
--- local KNOWN_TITLES = {
---     ["Banker"] = "esoui/art/icons/servicemappins/servicepin_bank.dds",
---     ["Merchant"] = "esoui/art/icons/servicemappins/servicepin_vendor.dds",
---     ["Planar Purveyor"] = "esoui/art/icons/servicemappins/servicepin_vendor.dds",
---     ["Ragpicker"] = "/esoui/art/crafting/gamepad/gp_crafting_menuicon_deconstruct.dds",
---     ["Master-At-Arms"] = "/esoui/art/icons/servicemappins/servicepin_armory.dds",
--- }
+local KNOWN_COLLECTIBLES = {
+    -- Armory
+    [9745] = ARMORY, -- Ghrasharog, Armory Assistant
+    [10618] = ARMORY, -- Zuqoth, Armory Advisor
+    [11876] = ARMORY, -- Drinweth, Valenwood Armorer
+    [13518] = ARMORY, -- Voko, Carnaval Weapondancer
+
+    -- Banker
+    [267] = BANKER, -- Tythis Andromo, the Banker
+    [6376] = BANKER, -- Ezabi the Banker
+    [8994] = BANKER, -- Baron Jangleplume, the Banker
+    [9743] = BANKER, -- Factotum Property Steward
+    [11097] = BANKER, -- Pyroclast, Infernace Conservator
+    [12413] = BANKER, -- Eri, Barking Banker
+    [13517] = BANKER, -- Celia Tyde, Lost Fleet Bursar
+
+    -- Decon
+    [10184] = DECON, -- Giladil the Ragpick8995er
+    [10617] = DECON, -- Aderene, Fargrave Dregs Dealer
+    [11877] = DECON, -- Tzozabrar, Dwarven Deconstructor
+    [13063] = DECON, -- Siluruz, Realm Craftsmaster
+    [14018] = DECON, -- Pontius Remus, Lupine Scavenger
+
+    -- Merchant
+    [301] = MERCHANT, -- Nuzhimeh the Merchant
+    [6378] = MERCHANT, -- Fezez the Merchant
+    [8995] = MERCHANT, -- Peddler of Prizes, the Merchant
+    [9744] = MERCHANT, -- Factotum Commerce Delegate
+    [11059] = MERCHANT, -- Hoarfrost, Takubar Trader
+    [12414] = MERCHANT, -- Xyn, Planar Purveyor
+    [13066] = MERCHANT, -- Terilorne, Dibellan Freetrader
+
+    -- Fence
+    [300] = FENCE, -- Pirharri the Smuggler
+}
 
 
 ---------------------------------------------------------------------
@@ -26,7 +68,7 @@ local KNOWN_PETS = {
 local function GetActiveAssistantTexture()
     local collectibleId = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_ASSISTANT, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
     if (not collectibleId) then return end
-    return "esoui/art/companion/gamepad/gp_category_u30_allies.dds" -- TODO: detect by type
+    return KNOWN_COLLECTIBLES[collectibleId] or "esoui/art/companion/gamepad/gp_category_u30_allies.dds"
 end
 
 
