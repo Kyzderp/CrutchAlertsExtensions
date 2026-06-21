@@ -68,7 +68,9 @@ local KNOWN_COLLECTIBLES = {
 local function GetActiveAssistantTexture()
     local collectibleId = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_ASSISTANT, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
     if (not collectibleId) then return end
-    return KNOWN_COLLECTIBLES[collectibleId] or "esoui/art/companion/gamepad/gp_category_u30_allies.dds"
+    local collectibleType = KNOWN_COLLECTIBLES[collectibleId]
+    if (not collectibleType) then return "esoui/art/companion/gamepad/gp_category_u30_allies.dds" end
+    return ASSISTANT_TEXTURES[collectibleType]
 end
 
 

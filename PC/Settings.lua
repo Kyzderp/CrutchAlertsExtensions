@@ -199,6 +199,12 @@ function CAE.CreateSettingsMenu()
                 CAE.RemoveCircleFromProfile(currentShape)
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
+                currentRgb = false
+                currentColor = {1, 1, 1, 1}
+                currentSize = 8
+                currentYOffset = 5
+                currentConditionalAbility = nil
+                currentDepthBuffers = false
             end,
             warning = "Remove the selected shape from the profile",
             isDangerous = true,
