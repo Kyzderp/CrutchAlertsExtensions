@@ -9,7 +9,7 @@ function CAE.DrawLine(tag1, tag2)
 
     Crutch.RemoveLine(LINE_NUM)
     Crutch.SetLineColor(1, 0, 0, 1, 1, Crutch.savedOptions.debugLineDistance, LINE_NUM)
-    Crutch.DrawLineBetweenPlayers(tag1, tag2, LINE_NUM)
+    Crutch.DrawLineBetweenPlayers(tag1, tag2, nil, LINE_NUM)
 end
 
 function CAE.RemoveLine()

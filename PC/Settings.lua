@@ -59,6 +59,15 @@ local function RefreshShapes()
     CAE_ShapesDropdown:UpdateChoices(shapeNames, shapeIds)
 end
 
+local function ResetCurrentValues()
+    currentRgb = false
+    currentColor = {1, 1, 1, 1}
+    currentSize = 8
+    currentYOffset = 5
+    currentConditionalAbility = nil
+    currentDepthBuffers = false
+end
+
 
 ---------------------------------------------------------------------
 local lineTag1, lineTag2
@@ -142,6 +151,16 @@ function CAE.CreateSettingsMenu()
         },
         {
             type = "button",
+            name = "Duplicate profile",
+            tooltip = "Duplicate the current profile",
+            func = function()
+                CAE.DuplicateProfile()
+                RefreshProfiles()
+            end,
+            width = "half",
+        },
+        {
+            type = "button",
             name = "Delete current profile",
             tooltip = "Delete the currently selected profile. This cannot be undone!",
             func = function()
@@ -153,7 +172,6 @@ function CAE.CreateSettingsMenu()
             width = "half",
             disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow deleting default
         },
-        -- TODO: duplicate button
     }
 ---------------------------------------------------------------------
     ConcatTables(optionsData, CAE.GetSynergySettings())
@@ -197,14 +215,10 @@ function CAE.CreateSettingsMenu()
             tooltip = "Remove the currently selected shape",
             func = function()
                 CAE.RemoveCircleFromProfile(currentShape)
+                currentShape = nil
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
-                currentRgb = false
-                currentColor = {1, 1, 1, 1}
-                currentSize = 8
-                currentYOffset = 5
-                currentConditionalAbility = nil
-                currentDepthBuffers = false
+                ResetCurrentValues()
             end,
             warning = "Remove the selected shape from the profile",
             isDangerous = true,
@@ -216,6 +230,7 @@ function CAE.CreateSettingsMenu()
             name = "Add circle",
             tooltip = "Add a circle with the below color and radius to the current profile. The properties can be edited later",
             func = function()
+                ResetCurrentValues()
                 local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentConditionalAbility, currentDepthBuffers)
                 CAE.LoadCurrentProfile()
                 currentShape = id

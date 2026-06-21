@@ -59,6 +59,18 @@ function CAE.CreateProfile()
     return id
 end
 
+function CAE.DuplicateProfile()
+    local id = FindFreeId(CAE.profiles)
+
+    CAE.profiles[id] = ZO_DeepTableCopy(CAE.profiles[CAE.csvs.currentProfile])
+    CAE.profiles[id].profileName = "Copy of " .. CAE.profiles[id].profileName
+
+    -- Select new
+    CAE.csvs.currentProfile = id
+
+    return id
+end
+
 function CAE.DeleteProfile(id)
     CAE.profiles[id] = nil
 
