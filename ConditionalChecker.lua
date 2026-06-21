@@ -4,28 +4,23 @@ local Crutch = CrutchAlerts
 
 ---------------------------------------------------------------------
 local function IsSlotted(id)
-    for i = 3, 8 do
-        local abilityId = Crutch.GetSlotTrueBoundId(i, GetActiveHotbarCategory())
-        if (abilityId == id) then return true end
-    end
-
+    -- If ww, check only ww and not regular bars
     if (IsPlayerInWerewolfForm()) then
         for i = 3, 8 do
             local abilityId = Crutch.GetSlotTrueBoundId(i, HOTBAR_CATEGORY_WEREWOLF)
             if (abilityId == id) then return true end
         end
+        return false
     end
 
-    -- FAB: Check the inactive bar too
-    if (FancyActionBar) then
-        local otherBar = (GetActiveHotbarCategory() == HOTBAR_CATEGORY_PRIMARY) and HOTBAR_CATEGORY_BACKUP or HOTBAR_CATEGORY_PRIMARY
-        for i = 3, 8 do
-            local otherBarAbilityId = Crutch.GetSlotTrueBoundId(i, otherBar)
-            -- 20 offset gets the inactive bar's slot
-            if (otherBarAbilityId == id) then return true end
-        end
-    end
+    local otherBar = (GetActiveHotbarCategory() == HOTBAR_CATEGORY_PRIMARY) and HOTBAR_CATEGORY_BACKUP or HOTBAR_CATEGORY_PRIMARY
+    for i = 3, 8 do
+        local abilityId = Crutch.GetSlotTrueBoundId(i, GetActiveHotbarCategory())
+        if (abilityId == id) then return true end
 
+        local otherBarAbilityId = Crutch.GetSlotTrueBoundId(i, otherBar)
+        if (otherBarAbilityId == id) then return true end
+    end
     return false
 end
 CAE.IsSlotted = IsSlotted
