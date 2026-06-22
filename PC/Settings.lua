@@ -68,23 +68,6 @@ local function ResetCurrentValues()
     currentDepthBuffers = false
 end
 
-
----------------------------------------------------------------------
-local lineTag1, lineTag2
-local groupMemberTags = {}
-local groupMemberNames = {}
-local function RefreshGroupMembers()
-    ZO_ClearTable(groupMemberTags)
-    ZO_ClearTable(groupMemberNames)
-    for i = 1, GetGroupSize() do
-        local tag = GetGroupUnitTagByIndex(i)
-        if (tag and IsUnitOnline(tag)) then
-            table.insert(groupMemberTags, tag)
-            table.insert(groupMemberNames, zo_strformat("<<1>> <<2>> (<<3>>)", GetUnitName(tag), GetUnitDisplayName(tag), tag))
-        end
-    end
-end
-
 local function ConcatTables(tab1, tab2)
     for _, v in ipairs(tab2) do
         table.insert(tab1, v)
@@ -106,9 +89,14 @@ function CAE.CreateSettingsMenu()
 
     local optionsData = {
         {
+            type = "description",
+            text = "These are persistent settings that are saved in installation-wide profiles, which can be chosen on a per-character basis. The default <Empty> profile is provided for convenience, so you can turn off all shapes by loading the empty profile. In order to add shapes, create a new profile.",
+            width = "full",
+        },
+        {
             type = "dropdown",
             name = "Current profile for " .. GetUnitDisplayName("player"),
-            tooltip = "Choose a profile. The default <Empty> profile is provided for convenience, so you can turn off all shapes by loading the empty profile. In order to add shapes, create a new profile.",
+            tooltip = "Choose a profile to edit, duplicate, or delete",
             choices = {},
             choicesValues = {},
             getFunc = function()
@@ -220,7 +208,7 @@ function CAE.CreateSettingsMenu()
                 RefreshShapes()
                 ResetCurrentValues()
             end,
-            warning = "Remove the selected shape from the profile",
+            warning = "Remove the selected shape from the profile?",
             isDangerous = true,
             width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
@@ -335,58 +323,6 @@ function CAE.CreateSettingsMenu()
             isExtraWide = false,
             width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
-        },
----------------------------------------------------------------------
-        {
-            type = "description",
-            title = "|c08BD1DOther Utilities|r",
-            text = "These \"settings\" are not part of the settings profile above.",
-            width = "full",
-        },
-        {
-            type = "dropdown",
-            name = "Draw line player 1",
-            tooltip = "Choose group members to draw a line between. Because M0R really wants this in a dropdown. Hint: you can show the distance in the main CrutchAlerts settings > Debug > Show line distance. Note that this is assigned by unit tag, so the players connected by the line may change when unit tags change",
-            choices = {},
-            choicesValues = {},
-            getFunc = function()
-                RefreshGroupMembers()
-                CAE_Line1Dropdown:UpdateChoices(groupMemberNames, groupMemberTags)
-                return lineTag1
-            end,
-            setFunc = function(value)
-                lineTag1 = value
-                CAE.DrawLine(lineTag1, lineTag2)
-            end,
-            width = "full",
-            reference = "CAE_Line1Dropdown",
-        },
-        {
-            type = "dropdown",
-            name = "Draw line player 2",
-            tooltip = "Choose group members to draw a line between. Because M0R really wants this in a dropdown. Hint: you can show the distance in the main CrutchAlerts settings > Debug > Show line distance. Note that this is assigned by unit tag, so the players connected by the line may change when unit tags change",
-            choices = {},
-            choicesValues = {},
-            getFunc = function()
-                RefreshGroupMembers()
-                CAE_Line2Dropdown:UpdateChoices(groupMemberNames, groupMemberTags)
-                return lineTag2
-            end,
-            setFunc = function(value)
-                lineTag2 = value
-                CAE.DrawLine(lineTag1, lineTag2)
-            end,
-            width = "full",
-            reference = "CAE_Line2Dropdown",
-        },
-        {
-            type = "button",
-            name = "Remove line",
-            tooltip = "Remove the line if there is one",
-            func = function()
-                CAE.RemoveLine()
-            end,
-            width = "full",
         },
     })
 

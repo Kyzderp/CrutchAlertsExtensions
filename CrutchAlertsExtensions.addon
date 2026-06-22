@@ -23,6 +23,7 @@ ConditionalChecker.lua
 Bindings.xml
 
 PC/Settings.lua
+PC/UtilsSettings.lua
 
 drawing/Circles.lua
 drawing/Line.lua

@@ -80,6 +80,7 @@ local function Initialize()
     CAE.csvs = ZO_SavedVars:NewCharacterIdSettings("CrutchAlertsExtensionsSavedVariables", 1, nil, defaultCharOptions)
 
     CAE.CreateSettingsMenu()
+    CAE.CreateUtilsSettingsMenu()
     CAE.InitializeConditionalChecker()
     CAE.InitializeSynergy()
     CAE.InitializeUnitIcons()

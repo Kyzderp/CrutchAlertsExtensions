@@ -5,6 +5,7 @@ local CAE = CrutchAlertsExtensions
 local function PrintUsage()
     CAE.msg([[Usage:
 |cAAAAAA/cae settings
+|cAAAAAA/cae utils
 |cAAAAAA/cae]])
 end
 
@@ -24,6 +25,9 @@ SLASH_COMMANDS["/cae"] = function(argString)
     ------------
     if (args[1] == "settings") then
         LibAddonMenu2:OpenToPanel(CrutchAlertsExtensionsOptions)
+
+    elseif (args[1] == "utils") then
+        LibAddonMenu2:OpenToPanel(CrutchAlertsExtensionsUtils)
 
     else
         PrintUsage()
