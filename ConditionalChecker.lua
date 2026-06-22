@@ -3,6 +3,8 @@ local Crutch = CrutchAlerts
 
 
 ---------------------------------------------------------------------
+-- Ability
+---------------------------------------------------------------------
 local function IsSlotted(id)
     -- If ww, check only ww and not regular bars
     if (IsPlayerInWerewolfForm()) then
@@ -42,8 +44,101 @@ local function OnHotbarsUpdated()
     end
 end
 
+
+---------------------------------------------------------------------
+-- Set
+---------------------------------------------------------------------
+-- This code *would've* been really easy, but GetItemSetInfo only returns the num equipped for the active bar, and I want both bars...
+local ITEM_SLOTS_BODY = {
+    EQUIP_SLOT_HEAD,
+    EQUIP_SLOT_NECK,
+    EQUIP_SLOT_CHEST,
+    EQUIP_SLOT_SHOULDERS,
+    EQUIP_SLOT_WAIST,
+    EQUIP_SLOT_LEGS,
+    EQUIP_SLOT_FEET,
+    EQUIP_SLOT_RING1,
+    EQUIP_SLOT_RING2,
+    EQUIP_SLOT_HAND,
+}
+
+local ITEM_SLOTS_FRONTBAR = {
+    EQUIP_SLOT_MAIN_HAND,
+    EQUIP_SLOT_OFF_HAND,
+}
+
+local ITEM_SLOTS_BACKBAR = {
+    EQUIP_SLOT_BACKUP_MAIN,
+    EQUIP_SLOT_BACKUP_OFF,
+}
+
+local equipped = {}
+
+local function GetNumSetBonuses(itemLink)
+    local _, _, _, equipType = GetItemLinkInfo(itemLink)
+    -- 2H weapons, staves, bows count as two set pieces
+    if equipType == EQUIP_TYPE_TWO_HAND then
+        return 2
+    else
+        return 1
+    end
+end
+
+-- {[setId] = {body = 3, frontbar = 2, backbar = 0}}
+local function AddEquippedSetsInSlots(tab, key)
+    for _, slot in ipairs(tab) do
+        local itemLink = GetItemLink(BAG_WORN, slot)
+        local hasSet, setName, _, _, _, setId = GetItemLinkSetInfo(itemLink, true)
+        if (hasSet) then
+            if (not equipped[setId]) then
+                equipped[setId] = {setName = setName, body = 0, frontbar = 0, backbar = 0}
+            end
+            equipped[setId][key] = equipped[setId][key] + GetNumSetBonuses(itemLink)
+        end
+    end
+end
+
+local function CalculateEquippedSets()
+    EVENT_MANAGER:UnregisterForUpdate(CAE.name .. "EquippedTimeout")
+    ZO_ClearTable(equipped)
+
+    AddEquippedSetsInSlots(ITEM_SLOTS_BODY, "body")
+    AddEquippedSetsInSlots(ITEM_SLOTS_FRONTBAR, "frontbar")
+    AddEquippedSetsInSlots(ITEM_SLOTS_BACKBAR, "backbar")
+
+    d("-----")
+    d(equipped)
+end
+
+local function IsEquipped(setId)
+    local _, setName, _, _, _, maxEquipped = GetItemSetInfo(setId)
+    return (equipped[setId].body + equipped[setId].frontbar >= maxEquipped) or (equipped[setId].body + equipped[setId].backbar >= maxEquipped)
+end
+CAE.IsEquipped = IsEquipped
+
+--------------
+-- Set updates
+local function OnSlotUpdated(_, _, slotId)
+    -- Ignore costume updates, poison updates
+    if (slotId == EQUIP_SLOT_COSTUME or slotId == EQUIP_SLOT_POISON or slotId == EQUIP_SLOT_BACKUP_POISON) then return end
+
+    EVENT_MANAGER:RegisterForUpdate(CAE.name .. "EquippedTimeout", 1000, CalculateEquippedSets)
+end
+
+
+---------------------------------------------------------------------
+-- Init
+---------------------------------------------------------------------
 function CAE.InitializeConditionalChecker()
+    -- Check skills
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "Conditional", EVENT_ACTION_SLOTS_ALL_HOTBARS_UPDATED, OnHotbarsUpdated)
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "ConditionalWW", EVENT_WEREWOLF_STATE_CHANGED, OnHotbarsUpdated)
-    -- TODO: check sets
+
+    -- Check sets
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "Equipped", EVENT_INVENTORY_SINGLE_SLOT_UPDATE, OnSlotUpdated)
+    EVENT_MANAGER:AddFilterForEvent(CAE.name .. "Equipped", EVENT_INVENTORY_SINGLE_SLOT_UPDATE,
+        REGISTER_FILTER_BAG_ID, BAG_WORN,
+        REGISTER_FILTER_INVENTORY_UPDATE_REASON, INVENTORY_UPDATE_REASON_DEFAULT)
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "ArmoryEquipped", EVENT_ARMORY_BUILD_RESTORE_RESPONSE, CalculateEquippedSets)
+    CalculateEquippedSets()
 end

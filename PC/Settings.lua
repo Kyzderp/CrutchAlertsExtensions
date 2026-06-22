@@ -7,6 +7,7 @@ local currentColor = {1, 1, 1, 1}
 local currentSize = 8
 local currentYOffset = 5
 local currentConditionalAbility
+local currentConditionalSetId
 local currentDepthBuffers = false
 
 local currentShape
@@ -65,6 +66,7 @@ local function ResetCurrentValues()
     currentSize = 8
     currentYOffset = 5
     currentConditionalAbility = nil
+    currentConditionalSetId = nil
     currentDepthBuffers = false
 end
 
@@ -190,6 +192,7 @@ function CAE.CreateSettingsMenu()
                     currentSize = profile.circles[value].radius
                     currentYOffset = profile.circles[value].yOffset
                     currentConditionalAbility = profile.circles[value].conditionalAbilityId
+                    currentConditionalSetId = profile.circles[value].conditionalSetId
                     currentDepthBuffers = profile.circles[value].depthBuffers
                 end
             end,
@@ -219,7 +222,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a circle with the below color and radius to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentConditionalAbility, currentDepthBuffers)
+                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentConditionalAbility, currentConditionalSetId, currentDepthBuffers)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -316,6 +319,22 @@ function CAE.CreateSettingsMenu()
             setFunc = function(value)
                 currentConditionalAbility = tonumber(value)
                 CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalAbilityId = currentConditionalAbility
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            isMultiline = false,
+            isExtraWide = false,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "editbox",
+            name = "Conditional set ID",
+            tooltip = "If specified, this shape will only show when this set is equipped",
+            getFunc = function() return currentConditionalSetId end,
+            setFunc = function(value)
+                currentConditionalSetId = tonumber(value)
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalSetId = currentConditionalSetId
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
