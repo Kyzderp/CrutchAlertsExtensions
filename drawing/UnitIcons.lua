@@ -119,6 +119,7 @@ local UNIT_ICON_UNIQUE_NAME = "CrutchAlertsExtensionsUnitIcon"
 local createdTags = {} -- Keep track of all possible in case of unregistering
 
 local function OnUnitCreated(_, unitTag)
+    Crutch.dbgSpam(unitTag .. " - " .. tostring(GetUnitName(unitTag)))
     local texture = GetIconTexture(unitTag)
     if (texture) then
         Crutch.SetAttachedIconForUnit(unitTag, UNIT_ICON_UNIQUE_NAME, 50, texture, nil, nil, true)
@@ -130,11 +131,24 @@ local function OnUnitDestroyed(_, unitTag)
     Crutch.RemoveAttachedIconForUnit(unitTag, UNIT_ICON_UNIQUE_NAME)
 end
 
+-- Units can change when going into another zone, e.g. with a banker
+-- summoned as playerpet1, we don't get unit destroyed event after
+-- rezoning. So clean up all the pets and redo them.
+local function OnPlayerActivated()
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+    for i = 1, MAX_PET_UNIT_TAGS do
+        local tag = "playerpet" .. i
+        OnUnitDestroyed(nil, tag)
+        if ((profile.iconsForPets or profile.iconsForKnownPets) and DoesUnitExist(tag)) then
+            OnUnitCreated(nil, tag)
+        end
+    end
+end
+
 
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 local function InitializeUnitIcons()
-    -- TODO: refresh all on player activation too
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     if (profile.iconsForPets or profile.iconsForKnownPets) then
@@ -146,6 +160,8 @@ local function InitializeUnitIcons()
         EVENT_MANAGER:RegisterForEvent(CAE.name .. "CompanionActivated", EVENT_COMPANION_ACTIVATED, function() OnUnitCreated(nil, "companion") end)
         EVENT_MANAGER:RegisterForEvent(CAE.name .. "CompanionDeactivated", EVENT_COMPANION_DEACTIVATED, function() OnUnitDestroyed(nil, "companion") end)
     end
+
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "UnitIconsPlayerActivated", EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
 end
 CAE.InitializeUnitIcons = InitializeUnitIcons
 
@@ -154,6 +170,7 @@ local function UnregisterUnitIcons()
     EVENT_MANAGER:UnregisterForEvent(CAE.name .. "UnitDestroyed", EVENT_UNIT_DESTROYED)
     EVENT_MANAGER:UnregisterForEvent(CAE.name .. "CompanionActivated", EVENT_COMPANION_ACTIVATED)
     EVENT_MANAGER:UnregisterForEvent(CAE.name .. "CompanionDeactivated", EVENT_COMPANION_DEACTIVATED)
+    EVENT_MANAGER:UnregisterForEvent(CAE.name .. "UnitIconsPlayerActivated", EVENT_PLAYER_ACTIVATED)
 
     for tag, _ in pairs(createdTags) do
         Crutch.RemoveAttachedIconForUnit(tag, UNIT_ICON_UNIQUE_NAME)
