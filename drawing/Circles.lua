@@ -61,18 +61,25 @@ local function HideCircle(id)
 end
 CAE.HideCircle = HideCircle
 
-local function LoadCurrentProfile()
-    CleanCircles()
-
+local function UpdateCircles()
     local profile = CAE.profiles[CAE.csvs.currentProfile]
-
     for id, circleData in pairs(profile.circles) do
-        if (not circleData.conditionalAbilityId or CAE.IsSlotted(circleData.conditionalAbilityId)) then
-            CreateCircleById(id)
+        if (CAE.ShouldCircleBeShown(circleData.conditionalAbilityId, circleData.conditionalSetId)) then
+            Crutch.dbgSpam("attempting to show circle " .. id)
+            ShowCircle(id)
         else
-            Crutch.dbgSpam("Not drawing because not slotted: " .. circleData.conditionalAbilityId)
+            Crutch.dbgSpam("attempting to hide circle " .. id)
+            HideCircle(id)
         end
     end
+end
+CAE.UpdateCircles = UpdateCircles
+
+local function LoadCurrentProfile()
+    CleanCircles()
+    UpdateCircles()
+
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
     CAE.msg("Loaded profile " .. profile.profileName)
 end
 CAE.LoadCurrentProfile = LoadCurrentProfile

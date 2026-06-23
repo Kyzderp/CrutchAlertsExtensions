@@ -40,7 +40,7 @@ local defaultCharOptions = {
 ---------------------------------------------------------------------
 function CAE.msg(msg)
     if (not msg) then return end
-    msg = "|c3bdb5e[CAE]|caaaaaa " .. tostring(msg) .. "|r"
+    msg = "|c3bdb5e[CAE]|caaaaaa " .. tostring(msg)
     if (CHAT_ROUTER) then
         CHAT_ROUTER:AddSystemMessage(msg)
     end

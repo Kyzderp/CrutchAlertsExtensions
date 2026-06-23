@@ -330,7 +330,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "editbox",
             name = "Conditional set ID",
-            tooltip = "If specified, this shape will only show when this set is equipped",
+            tooltip = "If specified, this shape will only show when this set is equipped with the max bonus (front or back bar). Use |c99FF99/cae printsets|r to see currently equipped set IDs",
             getFunc = function() return currentConditionalSetId end,
             setFunc = function(value)
                 currentConditionalSetId = tonumber(value)

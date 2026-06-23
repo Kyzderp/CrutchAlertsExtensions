@@ -27,23 +27,6 @@ local function IsSlotted(id)
 end
 CAE.IsSlotted = IsSlotted
 
-local function OnHotbarsUpdated()
-    Crutch.dbgSpam("hotbars updated") -- TODO: needs debouncing?
-
-    local profile = CAE.profiles[CAE.csvs.currentProfile]
-    for id, circleData in pairs(profile.circles) do
-        if (circleData.conditionalAbilityId) then
-            if (IsSlotted(circleData.conditionalAbilityId)) then
-                Crutch.dbgSpam(circleData.conditionalAbilityId .. " is slotted")
-                CAE.ShowCircle(id)
-            else
-                Crutch.dbgSpam(circleData.conditionalAbilityId .. " is not slotted")
-                CAE.HideCircle(id)
-            end
-        end
-    end
-end
-
 
 ---------------------------------------------------------------------
 -- Set
@@ -88,10 +71,10 @@ end
 local function AddEquippedSetsInSlots(tab, key)
     for _, slot in ipairs(tab) do
         local itemLink = GetItemLink(BAG_WORN, slot)
-        local hasSet, setName, _, _, _, setId = GetItemLinkSetInfo(itemLink, true)
+        local hasSet, _, _, _, _, setId = GetItemLinkSetInfo(itemLink, true)
         if (hasSet) then
             if (not equipped[setId]) then
-                equipped[setId] = {setName = setName, body = 0, frontbar = 0, backbar = 0}
+                equipped[setId] = {body = 0, frontbar = 0, backbar = 0}
             end
             equipped[setId][key] = equipped[setId][key] + GetNumSetBonuses(itemLink)
         end
@@ -106,15 +89,27 @@ local function CalculateEquippedSets()
     AddEquippedSetsInSlots(ITEM_SLOTS_FRONTBAR, "frontbar")
     AddEquippedSetsInSlots(ITEM_SLOTS_BACKBAR, "backbar")
 
-    d("-----")
-    d(equipped)
+    CAE.UpdateCircles()
 end
 
 local function IsEquipped(setId)
+    if (not equipped[setId]) then return false end
     local _, setName, _, _, _, maxEquipped = GetItemSetInfo(setId)
     return (equipped[setId].body + equipped[setId].frontbar >= maxEquipped) or (equipped[setId].body + equipped[setId].backbar >= maxEquipped)
 end
 CAE.IsEquipped = IsEquipped
+
+local function GetEquippedSetsString()
+    local result = ""
+    for setId, _ in pairs(equipped) do
+        if (IsEquipped(setId)) then
+            local _, setName = GetItemSetInfo(setId)
+            result = string.format("%s\n%d - %s", result, setId, setName)
+        end
+    end
+    return result
+end
+CAE.GetEquippedSetsString = GetEquippedSetsString
 
 --------------
 -- Set updates
@@ -127,12 +122,27 @@ end
 
 
 ---------------------------------------------------------------------
+-- called
+---------------------------------------------------------------------
+local function ShouldCircleBeShown(conditionalAbilityId, conditionalSetId)
+    if (conditionalAbilityId ~= nil and not IsSlotted(conditionalAbilityId)) then
+        return false
+    end
+    if (conditionalSetId ~= nil and not IsEquipped(conditionalSetId)) then
+        return false
+    end
+    return true
+end
+CAE.ShouldCircleBeShown = ShouldCircleBeShown
+
+
+---------------------------------------------------------------------
 -- Init
 ---------------------------------------------------------------------
 function CAE.InitializeConditionalChecker()
     -- Check skills
-    EVENT_MANAGER:RegisterForEvent(CAE.name .. "Conditional", EVENT_ACTION_SLOTS_ALL_HOTBARS_UPDATED, OnHotbarsUpdated)
-    EVENT_MANAGER:RegisterForEvent(CAE.name .. "ConditionalWW", EVENT_WEREWOLF_STATE_CHANGED, OnHotbarsUpdated)
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "Conditional", EVENT_ACTION_SLOTS_ALL_HOTBARS_UPDATED, CAE.UpdateCircles)
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "ConditionalWW", EVENT_WEREWOLF_STATE_CHANGED, CAE.UpdateCircles)
 
     -- Check sets
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "Equipped", EVENT_INVENTORY_SINGLE_SLOT_UPDATE, OnSlotUpdated)
