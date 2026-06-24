@@ -40,12 +40,37 @@ end
 
 
 ---------------------------------------------------------------------
+-- TODO: prob move to line file
+function CAE.AddLineToProfile(player1, player2, color)
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+
+    local index = FindFreeId(profile.lines)
+    profile.lines[index] = {
+        player1 = player1,
+        player2 = player2,
+        color = color,
+    }
+
+    CAE.msg(zo_strformat("Added line between <<1>> and <<2>> to profile <<3>>", player1, player2, profile.profileName))
+
+    return index
+end
+
+function CAE.RemoveLineFromProfile(index)
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+    CAE.msg(zo_strformat("Removing circle of radius <<1>> from profile <<2>>", profile.circles[index].radius, profile.profileName))
+    profile.circles[index] = nil
+end
+
+
+---------------------------------------------------------------------
 function CAE.CreateProfile()
     local id = FindFreeId(CAE.profiles)
 
     CAE.profiles[id] = {
         profileName = "Profile " .. id,
         circles = {},
+        lines = {},
         hungerRequireModifier = false,
         lowerHunger = false,
         higherFrenzyAndAtro = false,

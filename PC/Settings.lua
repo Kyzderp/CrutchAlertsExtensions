@@ -60,6 +60,25 @@ local function RefreshShapes()
     CAE_ShapesDropdown:UpdateChoices(shapeNames, shapeIds)
 end
 
+---------------------------------------------------------------------
+local currentLine, currentPlayer1, currentPlayer2
+
+local lineNames = {}
+local lineIds = {}
+local function RefreshLines()
+    ZO_ClearTable(lineNames)
+    ZO_ClearTable(lineIds)
+
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+    for id, data in pairs(profile.lines) do
+        table.insert(lineNames, zo_strformat("|c<<1>><<2>> - <<3>>", ColorToHexString(data.color), data.player1 or "self", data.player2 or "self"))
+        table.insert(lineIds, id)
+    end
+
+    CAE_LinesDropdown:UpdateChoices(lineNames, lineIds)
+end
+
+---------------------------------------------------------------------
 local function ResetCurrentValues()
     currentRgb = false
     currentColor = {1, 1, 1, 1}
@@ -68,6 +87,12 @@ local function ResetCurrentValues()
     currentConditionalAbility = nil
     currentConditionalSetId = nil
     currentDepthBuffers = false
+end
+
+local function ResetCurrentLineValues()
+    currentPlayer1 = nil
+    currentPlayer2 = nil
+    currentLineColor = {1, 1, 1, 1}
 end
 
 local function ConcatTables(tab1, tab2)
@@ -219,7 +244,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "button",
             name = "Add circle",
-            tooltip = "Add a circle with the below color and radius to the current profile. The properties can be edited later",
+            tooltip = "Add a new circle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
                 local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentConditionalAbility, currentConditionalSetId, currentDepthBuffers)
@@ -342,6 +367,80 @@ function CAE.CreateSettingsMenu()
             isExtraWide = false,
             width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+---------------------------------------------------------------------
+        {
+            type = "description",
+            title = "|c08BD1DLines|r",
+            text = "Add or edit a line between players here by clicking the Add button or selecting from the dropdown, then editing the properties.",
+            width = "full",
+        },
+        {
+            type = "dropdown",
+            name = "Current line",
+            choices = {},
+            choicesValues = {},
+            getFunc = function()
+                RefreshLines()
+                return currentLine
+            end,
+            setFunc = function(value)
+                currentLine = value
+                local profile = CAE.profiles[CAE.csvs.currentProfile]
+                if (value and profile.lines[value]) then
+                    currentPlayer1 = profile.lines[value].player1
+                    currentPlayer2 = profile.lines[value].player2
+                    currentLineColor = profile.lines[value].color
+                end
+            end,
+            width = "full",
+            reference = "CAE_LinesDropdown",
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
+        },
+        {
+            type = "button",
+            name = "Remove line",
+            tooltip = "Remove the currently selected line",
+            func = function()
+                CAE.RemoveLineFromProfile(currentShape)
+                currentShape = nil
+                CAE.LoadCurrentLines()
+                RefreshLines()
+                ResetCurrentLineValues()
+            end,
+            warning = "Remove the selected line from the profile?",
+            isDangerous = true,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentLine == nil end, -- Don't allow editing default
+        },
+        {
+            type = "button",
+            name = "Add line",
+            tooltip = "Add a new line to the current profile. The properties can be edited later",
+            func = function()
+                ResetCurrentLineValues()
+                local id = CAE.AddLineToProfile(currentPlayer1, currentPlayer2, currentLineColor)
+                CAE.LoadCurrentLines()
+                currentLine = id
+                RefreshLines()
+            end,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
+        },
+        {
+            type = "colorpicker",
+            name = "Line color",
+            tooltip = "The color of the line to add. Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
+            default = ZO_ColorDef:New(1, 1, 1, 1),
+            getFunc = function() return unpack(currentLineColor) end,
+            setFunc = function(r, g, b, a)
+                currentLineColor = {r, g, b, a}
+                CAE.profiles[CAE.csvs.currentProfile].lines[currentLine].color = currentLineColor
+                CAE.LoadCurrentLines()
+                RefreshLines()
+            end,
+            width = "half",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentLine == nil end, -- Don't allow editing default
         },
     })
 

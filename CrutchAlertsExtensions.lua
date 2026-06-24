@@ -10,18 +10,11 @@ local CAE = CrutchAlertsExtensions
 
 -- Defaults
 local defaultGlobalOptions = {
-    --[[
-    {
-        [profileId] = {
-            profileName = "Default",
-            circles = {}, -- {[1] = {rgb = false, color = {1, 1, 1}, radius = 5, yOffset = 0}}
-        },
-    }
-    ]]
     profiles = {
         [-1] = {
             profileName = "<Empty>",
-            circles = {},
+            circles = {}, -- {[1] = {rgb = false, color = {1, 1, 1}, radius = 5, yOffset = 0}}
+            lines = {}, -- {[1] = {player1 = nil (self), player2 = "@Kyzeragone", color = {1, 1, 1, 1}}}
             hungerRequireModifier = false,
             lowerHunger = false,
             higherFrenzyAndAtro = false,
