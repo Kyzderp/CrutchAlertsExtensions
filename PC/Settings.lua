@@ -62,6 +62,7 @@ end
 
 ---------------------------------------------------------------------
 local currentLine, currentPlayer1, currentPlayer2
+local currentLineColor = {1, 1, 1, 1}
 
 local lineNames = {}
 local lineIds = {}
@@ -402,8 +403,8 @@ function CAE.CreateSettingsMenu()
             name = "Remove line",
             tooltip = "Remove the currently selected line",
             func = function()
-                CAE.RemoveLineFromProfile(currentShape)
-                currentShape = nil
+                CAE.RemoveLineFromProfile(currentLine)
+                currentLine = nil
                 CAE.LoadCurrentLines()
                 RefreshLines()
                 ResetCurrentLineValues()
@@ -428,6 +429,40 @@ function CAE.CreateSettingsMenu()
             disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
+            type = "editbox",
+            name = "Line player 1",
+            tooltip = "One of the two account names to draw a line between, when they are in your group. Case sensitive! Leave blank to set it as yourself",
+            getFunc = function() return currentPlayer1 end,
+            setFunc = function(value)
+                if (value == "") then value = nil end
+                currentPlayer1 = value
+                CAE.profiles[CAE.csvs.currentProfile].lines[currentLine].player1 = currentPlayer1
+                CAE.LoadCurrentLines()
+                RefreshLines()
+            end,
+            isMultiline = false,
+            isExtraWide = false,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentLine == nil end, -- Don't allow editing default
+        },
+        {
+            type = "editbox",
+            name = "Line player 2",
+            tooltip = "One of the two account names to draw a line between, when they are in your group. Case sensitive! Leave blank to set it as yourself",
+            getFunc = function() return currentPlayer2 end,
+            setFunc = function(value)
+                if (value == "") then value = nil end
+                currentPlayer2 = value
+                CAE.profiles[CAE.csvs.currentProfile].lines[currentLine].player2 = currentPlayer2
+                CAE.LoadCurrentLines()
+                RefreshLines()
+            end,
+            isMultiline = false,
+            isExtraWide = false,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentLine == nil end, -- Don't allow editing default
+        },
+        {
             type = "colorpicker",
             name = "Line color",
             tooltip = "The color of the line to add. Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
@@ -439,7 +474,7 @@ function CAE.CreateSettingsMenu()
                 CAE.LoadCurrentLines()
                 RefreshLines()
             end,
-            width = "half",
+            width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentLine == nil end, -- Don't allow editing default
         },
     })

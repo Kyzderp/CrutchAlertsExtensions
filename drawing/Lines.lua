@@ -7,11 +7,11 @@ local activeLines = {}
 
 -- Gets the unit tag for account name in group, or player if name is nil
 local function GetUnitTagForName(name)
-    if (name == nil) then return "player" end
+    if (name == nil or name == "") then return "player" end
 
     for i = 1, GetGroupSize() do
         local tag = GetGroupUnitTagByIndex(i)
-        if (tag and IsUnitOnline(tag)) then
+        if (tag and IsUnitOnline(tag) and GetUnitDisplayName(tag) == name) then
             return tag
         end
     end
@@ -25,7 +25,8 @@ local function UpdateLines()
     for id, lineData in pairs(profile.lines) do
         local tag1 = GetUnitTagForName(lineData.player1)
         local tag2 = GetUnitTagForName(lineData.player2)
-        if (tag1 and tag2) then
+        -- TODO: don't draw if not in same zone
+        if (tag1 and tag2 and tag1 ~= tag2) then
             local lineNum = "CAELine" .. id
             local color = lineData.color
             Crutch.DrawLineBetweenPlayers(tag1, tag2, nil, lineNum)
@@ -48,8 +49,26 @@ local function LoadCurrentLines()
 end
 CAE.LoadCurrentLines = LoadCurrentLines
 
+
+---------------------------------------------------------------------
+-- Init
+---------------------------------------------------------------------
+local function RefreshGroupTimeout()
+    EVENT_MANAGER:RegisterForUpdate(CAE.name .. "LinesGroupRefreshTimeout", 1000, function()
+        EVENT_MANAGER:UnregisterForUpdate(CAE.name .. "LinesGroupRefreshTimeout")
+        LoadCurrentLines()
+    end)
+end
+
+
 function CAE.InitializeLines()
     LoadCurrentLines()
 
-    EVENT_MANAGER:RegisterForEvent(CAE.name .. "LinesPlayerActivated", EVENT_PLAYER_ACTIVATED, LoadCurrentLines)
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "LinesPlayerActivated", EVENT_PLAYER_ACTIVATED, RefreshGroupTimeout)
+
+    -- Group changes
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "LinesGroupJoined", EVENT_GROUP_MEMBER_JOINED, RefreshGroupTimeout)
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "LinesGroupLeft", EVENT_GROUP_MEMBER_LEFT, RefreshGroupTimeout)
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "LinesGroupUpdate", EVENT_GROUP_UPDATE, RefreshGroupTimeout)
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "LinesGroupConnectedStatus", EVENT_GROUP_MEMBER_CONNECTED_STATUS, RefreshGroupTimeout)
 end

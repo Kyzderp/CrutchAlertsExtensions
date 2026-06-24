@@ -47,6 +47,7 @@ local function OnPlayerActivatedFirstTime()
     EVENT_MANAGER:UnregisterForEvent(CAE.name .. "ActivatedFirstTime", EVENT_PLAYER_ACTIVATED)
 
     CAE.InitializeCircles()
+    CAE.InitializeLines()
 end
 
 
@@ -65,10 +66,20 @@ local function FillAllDefaults(tab, defaults)
     end
 end
 
+-- Later added things
+local function FillMissingDefaults()
+    for _, profileData in pairs(CAE.profiles) do
+        if (profileData.lines == nil) then
+            profileData.lines = {}
+        end
+    end
+end
+
 local function Initialize()
     CrutchAlertsExtensionsSavedProfiles = CrutchAlertsExtensionsSavedProfiles or {}
     FillAllDefaults(CrutchAlertsExtensionsSavedProfiles, defaultGlobalOptions)
     CAE.profiles = CrutchAlertsExtensionsSavedProfiles.profiles
+    FillMissingDefaults()
 
     CAE.csvs = ZO_SavedVars:NewCharacterIdSettings("CrutchAlertsExtensionsSavedVariables", 1, nil, defaultCharOptions)
 

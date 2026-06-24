@@ -28,6 +28,7 @@ PC/UtilsSettings.lua
 
 drawing/Circles.lua
 drawing/Line.lua
+drawing/Lines.lua
 drawing/UnitIcons.lua
 
 synergy/Synergy.lua
