@@ -25,12 +25,11 @@ local function UpdateLines()
     for id, lineData in pairs(profile.lines) do
         local tag1 = GetUnitTagForName(lineData.player1)
         local tag2 = GetUnitTagForName(lineData.player2)
-        -- TODO: don't draw if not in same zone
-        if (tag1 and tag2 and tag1 ~= tag2) then
+        if (tag1 and tag2 and tag1 ~= tag2 and GetUnitZoneIndex(tag1) == GetUnitZoneIndex(tag2)) then
             local lineNum = "CAELine" .. id
             local color = lineData.color
             Crutch.DrawLineBetweenPlayers(tag1, tag2, nil, lineNum)
-            Crutch.SetLineColor(color[1], color[2], color[3], color[4], 1, Crutch.savedOptions.debugLineDistance, lineNum)
+            Crutch.SetLineColor(color[1], color[2], color[3], color[4], color[4], lineData.showDistance, lineNum)
             table.insert(activeLines, lineNum)
         end
     end

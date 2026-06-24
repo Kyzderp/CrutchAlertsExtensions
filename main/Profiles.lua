@@ -41,7 +41,7 @@ end
 
 ---------------------------------------------------------------------
 -- TODO: prob move to line file
-function CAE.AddLineToProfile(player1, player2, color)
+function CAE.AddLineToProfile(player1, player2, color, showDistance)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = FindFreeId(profile.lines)
@@ -49,6 +49,7 @@ function CAE.AddLineToProfile(player1, player2, color)
         player1 = player1,
         player2 = player2,
         color = color,
+        showDistance = showDistance,
     }
 
     CAE.msg(zo_strformat("Added line between <<1>> and <<2>> to profile <<3>>", player1, player2, profile.profileName))

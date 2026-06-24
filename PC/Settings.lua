@@ -63,6 +63,7 @@ end
 ---------------------------------------------------------------------
 local currentLine, currentPlayer1, currentPlayer2
 local currentLineColor = {1, 1, 1, 1}
+local currentShowDistance = false
 
 local lineNames = {}
 local lineIds = {}
@@ -94,6 +95,7 @@ local function ResetCurrentLineValues()
     currentPlayer1 = nil
     currentPlayer2 = nil
     currentLineColor = {1, 1, 1, 1}
+    currentShowDistance = false
 end
 
 local function ConcatTables(tab1, tab2)
@@ -392,6 +394,7 @@ function CAE.CreateSettingsMenu()
                     currentPlayer1 = profile.lines[value].player1
                     currentPlayer2 = profile.lines[value].player2
                     currentLineColor = profile.lines[value].color
+                    currentShowDistance = profile.lines[value].showDistance
                 end
             end,
             width = "full",
@@ -420,7 +423,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new line to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentLineValues()
-                local id = CAE.AddLineToProfile(currentPlayer1, currentPlayer2, currentLineColor)
+                local id = CAE.AddLineToProfile(currentPlayer1, currentPlayer2, currentLineColor, currentShowDistance)
                 CAE.LoadCurrentLines()
                 currentLine = id
                 RefreshLines()
@@ -471,6 +474,21 @@ function CAE.CreateSettingsMenu()
             setFunc = function(r, g, b, a)
                 currentLineColor = {r, g, b, a}
                 CAE.profiles[CAE.csvs.currentProfile].lines[currentLine].color = currentLineColor
+                CAE.LoadCurrentLines()
+                RefreshLines()
+            end,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentLine == nil end, -- Don't allow editing default
+        },
+        {
+            type = "checkbox",
+            name = "Show distance",
+            tooltip = "Show the distance in meters attached to the line",
+            default = false,
+            getFunc = function() return currentShowDistance end,
+            setFunc = function(value)
+                currentShowDistance = value
+                CAE.profiles[CAE.csvs.currentProfile].lines[currentLine].showDistance = currentShowDistance
                 CAE.LoadCurrentLines()
                 RefreshLines()
             end,
