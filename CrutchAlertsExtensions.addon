@@ -17,10 +17,11 @@
 ## SavedVariables: CrutchAlertsExtensionsSavedVariables
 
 CrutchAlertsExtensions.lua
-Profiles.lua
-Commands.lua
-ConditionalChecker.lua
 Bindings.xml
+
+main/Profiles.lua
+main/Commands.lua
+main/ConditionalChecker.lua
 
 PC/Settings.lua
 PC/UtilsSettings.lua
