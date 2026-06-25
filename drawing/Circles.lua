@@ -3,6 +3,37 @@ local Crutch = CrutchAlerts
 
 
 ---------------------------------------------------------------------
+-- Profile data
+---------------------------------------------------------------------
+function CAE.AddCircleToProfile(rgb, color, radius, yOffset, conditionalAbilityId, conditionalSetId, depthBuffers)
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+
+    local index = CAE.FindFreeId(profile.circles)
+    profile.circles[index] = {
+        rgb = rgb,
+        color = color,
+        radius = radius,
+        yOffset = yOffset,
+        conditionalAbilityId = conditionalAbilityId,
+        conditionalSetId = conditionalSetId,
+        depthBuffers = depthBuffers,
+    }
+
+    CAE.msg(zo_strformat("Added circle of radius <<1>> to profile <<2>>", radius, profile.profileName))
+
+    return index
+end
+
+function CAE.RemoveCircleFromProfile(index)
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+    CAE.msg(zo_strformat("Removing circle of radius <<1>> from profile <<2>>", profile.circles[index].radius, profile.profileName))
+    profile.circles[index] = nil
+end
+
+
+---------------------------------------------------------------------
+-- Loading / Drawing
+---------------------------------------------------------------------
 local currentKeys = {}
 local function CleanCircles()
     for _, key in pairs(currentKeys) do
@@ -75,6 +106,10 @@ local function UpdateCircles()
 end
 CAE.UpdateCircles = UpdateCircles
 
+
+---------------------------------------------------------------------
+-- Init
+---------------------------------------------------------------------
 local function LoadCurrentProfile()
     CleanCircles()
     UpdateCircles()
@@ -83,7 +118,6 @@ local function LoadCurrentProfile()
     CAE.msg("Loaded profile " .. profile.profileName)
 end
 CAE.LoadCurrentProfile = LoadCurrentProfile
-
 
 function CAE.InitializeCircles()
     LoadCurrentProfile()

@@ -3,6 +3,34 @@ local Crutch = CrutchAlerts
 
 
 ---------------------------------------------------------------------
+-- Profile data
+---------------------------------------------------------------------
+function CAE.AddLineToProfile(player1, player2, color, showDistance)
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+
+    local index = CAE.FindFreeId(profile.lines)
+    profile.lines[index] = {
+        player1 = player1,
+        player2 = player2,
+        color = color,
+        showDistance = showDistance,
+    }
+
+    CAE.msg(zo_strformat("Added line between <<1>> and <<2>> to profile <<3>>", player1, player2, profile.profileName))
+
+    return index
+end
+
+function CAE.RemoveLineFromProfile(index)
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+    CAE.msg(zo_strformat("Removing circle of radius <<1>> from profile <<2>>", profile.circles[index].radius, profile.profileName))
+    profile.circles[index] = nil
+end
+
+
+---------------------------------------------------------------------
+-- Loading / Drawing
+---------------------------------------------------------------------
 local activeLines = {}
 
 -- Gets the unit tag for account name in group, or player if name is nil
