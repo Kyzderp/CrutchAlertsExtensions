@@ -5,7 +5,6 @@ local CAE = CrutchAlertsExtensions
 local currentRgb = false
 local currentColor = {1, 1, 1, 1}
 local currentSize = 8
-local currentWidth = 8
 local currentHeight = 8
 local currentYOffset = 5
 local currentConditionalAbility
@@ -48,6 +47,14 @@ local function ColorCircleText(rgb, color, radius)
     end
 end
 
+local function ColorShapeText(shapeData)
+    if (shapeData.type == CAE.CIRCLE) then
+        return ColorCircleText(shapeData.rgb, shapeData.color, shapeData.radius)
+    end
+    -- TODO: rgb for rectangle
+    return zo_strformat("|c<<1>>Rectangle|r: <<2>> × <<3>>", ColorToHexString(color), shapeData.radius, shapeData.height)
+end
+
 local shapeNames = {}
 local shapeIds = {}
 local function RefreshShapes()
@@ -55,7 +62,7 @@ local function RefreshShapes()
     ZO_ClearTable(shapeIds)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     for id, data in pairs(profile.circles) do
-        table.insert(shapeNames, ColorCircleText(data.rgb, data.color, data.radius))
+        table.insert(shapeNames, ColorShapeText(data))
         table.insert(shapeIds, id)
     end
 
@@ -87,7 +94,6 @@ local function ResetCurrentValues()
     currentRgb = false
     currentColor = {1, 1, 1, 1}
     currentSize = 8
-    currentWidth = 8
     currentHeight = 8
     currentYOffset = 5
     currentConditionalAbility = nil
@@ -222,7 +228,6 @@ function CAE.CreateSettingsMenu()
                     currentRgb = profile.circles[value].rgb
                     currentColor = profile.circles[value].color
                     currentSize = profile.circles[value].radius
-                    currentWidth = profile.circles[value].width
                     currentHeight = profile.circles[value].height
                     currentYOffset = profile.circles[value].yOffset
                     currentConditionalAbility = profile.circles[value].conditionalAbilityId
@@ -270,7 +275,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new rectangle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentWidth, currentHeight, currentYOffset, currentConditionalAbility, currentConditionalSetId)
+                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentSize, currentHeight, currentYOffset, currentConditionalAbility, currentConditionalSetId)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -296,7 +301,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "slider",
             name = "Size (cm)",
-            tooltip = "The size in centimeters of the shape. For circles, this indicates the radius",
+            tooltip = "The size in centimeters of the shape. For circles, this is the radius. For rectangles, this is the width",
             min = 0,
             max = 4800,
             step = 50,
@@ -310,6 +315,24 @@ function CAE.CreateSettingsMenu()
                 RefreshShapes()
             end,
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "slider",
+            name = "Length (cm)",
+            tooltip = "The size in centimeters of the shape. For rectangles, this is the length",
+            min = 0,
+            max = 4800,
+            step = 50,
+            default = 800,
+            width = "half",
+            getFunc = function() return currentHeight * 100 end,
+            setFunc = function(value)
+                currentHeight = value / 100
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].height = currentHeight
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.CIRCLE end, -- Don't allow editing default, not valid for circles
         },
         {
             type = "colorpicker",

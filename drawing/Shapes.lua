@@ -34,14 +34,14 @@ function CAE.AddRectangleToProfile(rgb, color, width, height, yOffset, condition
         type = CAE.RECTANGLE,
         rgb = rgb,
         color = color,
-        width = width,
+        radius = width, -- width is called radius, just to reuse the circle property
         height = height,
         yOffset = yOffset,
         conditionalAbilityId = conditionalAbilityId,
         conditionalSetId = conditionalSetId,
     }
 
-    CAE.msg(zo_strformat("Added rectangle <<1>> x <<2>> to profile <<3>>", width, height, profile.profileName))
+    CAE.msg(zo_strformat("Added rectangle <<1>> × <<2>> to profile <<3>>", width, height, profile.profileName))
 
     return index
 end
@@ -94,7 +94,6 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers)
         CircleFunc)
 end
 
--- TODO: don't allow depth buffers when configuring
 local function CreateRectangle(id, width, height, rgb, color, yOffset)
     local _, x, y, z = GetUnitRawWorldPosition("player")
     local _, _, heading = GetMapPlayerPosition("player")
@@ -108,11 +107,10 @@ local function CreateRectangle(id, width, height, rgb, color, yOffset)
         icon:SetOrientation(-math.pi/2, heading, 0)
 
         -- Make color change every update
-        -- TODO
-        -- if (rgb) then
-        --     local time = GetGameTimeMilliseconds() % 2000 / 2000
-        --     icon:SetColor(Crutch.ConvertHSLToRGB(time, 1, 0.5))
-        -- end
+        if (rgb) then
+            local time = GetGameTimeMilliseconds() % 2000 / 2000
+            icon:SetBackdropColors(nil, nil, nil, nil, Crutch.ConvertHSLToRGB(time, 1, 0.5))
+        end
     end
 
     currentKeys[id] = Crutch.Drawing.CreateSpaceControl(
@@ -123,8 +121,8 @@ local function CreateRectangle(id, width, height, rgb, color, yOffset)
         {-math.pi/2, heading, 0},
         {
             backdrop = {
-                width = width,
-                height = height,
+                width = width * 100,
+                height = height * 100,
                 centerColor = {1, 1, 1, 0.1},
                 edgeColor = color,
             },
@@ -138,7 +136,7 @@ local function CreateShapeById(id)
     if (shapeData.type == CAE.CIRCLE) then
         CreateCircle(id, shapeData.radius, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers)
     elseif (shapeData.type == CAE.RECTANGLE) then
-        CreateRectangle(id, shapeData.width, shapeData.height, shapeData.rgb, shapeData.color, shapeData.yOffset)
+        CreateRectangle(id, shapeData.radius, shapeData.height, shapeData.rgb, shapeData.color, shapeData.yOffset)
     end
 end
 
