@@ -10,6 +10,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, conditionalAbilityI
 
     local index = CAE.FindFreeId(profile.circles)
     profile.circles[index] = {
+        type = CAE.CIRCLE,
         rgb = rgb,
         color = color,
         radius = radius,

@@ -26,7 +26,7 @@ main/ConditionalChecker.lua
 PC/Settings.lua
 PC/UtilsSettings.lua
 
-drawing/Circles.lua
+drawing/Shapes.lua
 drawing/Line.lua
 drawing/Lines.lua
 drawing/UnitIcons.lua
