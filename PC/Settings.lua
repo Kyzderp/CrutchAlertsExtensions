@@ -5,6 +5,8 @@ local CAE = CrutchAlertsExtensions
 local currentRgb = false
 local currentColor = {1, 1, 1, 1}
 local currentSize = 8
+local currentWidth = 8
+local currentHeight = 8
 local currentYOffset = 5
 local currentConditionalAbility
 local currentConditionalSetId
@@ -85,6 +87,8 @@ local function ResetCurrentValues()
     currentRgb = false
     currentColor = {1, 1, 1, 1}
     currentSize = 8
+    currentWidth = 8
+    currentHeight = 8
     currentYOffset = 5
     currentConditionalAbility = nil
     currentConditionalSetId = nil
@@ -218,6 +222,8 @@ function CAE.CreateSettingsMenu()
                     currentRgb = profile.circles[value].rgb
                     currentColor = profile.circles[value].color
                     currentSize = profile.circles[value].radius
+                    currentWidth = profile.circles[value].width
+                    currentHeight = profile.circles[value].height
                     currentYOffset = profile.circles[value].yOffset
                     currentConditionalAbility = profile.circles[value].conditionalAbilityId
                     currentConditionalSetId = profile.circles[value].conditionalSetId
@@ -251,6 +257,20 @@ function CAE.CreateSettingsMenu()
             func = function()
                 ResetCurrentValues()
                 local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentConditionalAbility, currentConditionalSetId, currentDepthBuffers)
+                CAE.LoadCurrentProfile()
+                currentShape = id
+                RefreshShapes()
+            end,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
+        },
+        {
+            type = "button",
+            name = "Add rectangle",
+            tooltip = "Add a new rectangle to the current profile. The properties can be edited later",
+            func = function()
+                ResetCurrentValues()
+                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentWidth, currentHeight, currentYOffset, currentConditionalAbility, currentConditionalSetId)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -337,7 +357,8 @@ function CAE.CreateSettingsMenu()
                 RefreshShapes()
             end,
             width = "half",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or 
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.RECTANGLE end, -- Don't allow editing default
         },
         {
             type = "editbox",
