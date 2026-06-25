@@ -4,6 +4,7 @@ local CAE = CrutchAlertsExtensions
 ---------------------------------------------------------------------
 local currentRgb = false
 local currentColor = {1, 1, 1, 1}
+local currentFillColor = {1, 1, 1, 0.1}
 local currentSize = 8
 local currentHeight = 8
 local currentYOffset = 5
@@ -52,7 +53,7 @@ local function ColorShapeText(shapeData)
         return ColorCircleText(shapeData.rgb, shapeData.color, shapeData.radius)
     end
     -- TODO: rgb for rectangle
-    return zo_strformat("|c<<1>>Rectangle|r: <<2>> × <<3>>", ColorToHexString(color), shapeData.radius, shapeData.height)
+    return zo_strformat("|c<<1>>Rectangle|r: <<2>> × <<3>>", ColorToHexString(shapeData.color), shapeData.radius, shapeData.height)
 end
 
 local shapeNames = {}
@@ -93,6 +94,7 @@ end
 local function ResetCurrentValues()
     currentRgb = false
     currentColor = {1, 1, 1, 1}
+    currentFillColor = {1, 1, 1, 0.1}
     currentSize = 8
     currentHeight = 8
     currentYOffset = 5
@@ -227,6 +229,7 @@ function CAE.CreateSettingsMenu()
                 if (value and profile.circles[value]) then
                     currentRgb = profile.circles[value].rgb
                     currentColor = profile.circles[value].color
+                    currentFillColor = profile.circles[value].fillColor or {1, 1, 1, 0.1}
                     currentSize = profile.circles[value].radius
                     currentHeight = profile.circles[value].height
                     currentYOffset = profile.circles[value].yOffset
@@ -275,28 +278,13 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new rectangle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentSize, currentHeight, currentYOffset, currentConditionalAbility, currentConditionalSetId)
+                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentYOffset, currentConditionalAbility, currentConditionalSetId)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
             end,
             width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
-        },
-        {
-            type = "checkbox",
-            name = "Use RGB",
-            tooltip = "Whether to cycle through all colors instead of being a static color",
-            default = false,
-            getFunc = function() return currentRgb end,
-            setFunc = function(value)
-                currentRgb = value
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].rgb = currentRgb
-                CAE.LoadCurrentProfile()
-                RefreshShapes()
-            end,
-            width = "half",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
         {
             type = "slider",
@@ -325,7 +313,7 @@ function CAE.CreateSettingsMenu()
             step = 50,
             default = 800,
             width = "half",
-            getFunc = function() return currentHeight * 100 end,
+            getFunc = function() return currentHeight and currentHeight * 100 or nil end,
             setFunc = function(value)
                 currentHeight = value / 100
                 CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].height = currentHeight
@@ -336,13 +324,43 @@ function CAE.CreateSettingsMenu()
         },
         {
             type = "colorpicker",
-            name = "Shape color",
-            tooltip = "The color of the shape to add. Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
+            name = "Outline color",
+            tooltip = "The color of the shape. Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
             default = ZO_ColorDef:New(1, 1, 1, 1),
             getFunc = function() return unpack(currentColor) end,
             setFunc = function(r, g, b, a)
                 currentColor = {r, g, b, a}
                 CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].color = currentColor
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            width = "half",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "colorpicker",
+            name = "Fill color",
+            tooltip = "The center fill color of the rectangle (does not work for circle). Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
+            default = ZO_ColorDef:New(1, 1, 1, 0.1),
+            getFunc = function() return unpack(currentFillColor) end,
+            setFunc = function(r, g, b, a)
+                currentFillColor = {r, g, b, a}
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].fillColor = currentFillColor
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            width = "half",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.CIRCLE end, -- Don't allow editing default, not valid for circles
+        },
+        {
+            type = "checkbox",
+            name = "Use RGB",
+            tooltip = "Whether to cycle through all colors instead of being a static color",
+            default = false,
+            getFunc = function() return currentRgb end,
+            setFunc = function(value)
+                currentRgb = value
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].rgb = currentRgb
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
