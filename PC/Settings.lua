@@ -7,6 +7,7 @@ local currentColor = {1, 1, 1, 1}
 local currentFillColor = {1, 1, 1, 0.1}
 local currentSize = 8
 local currentHeight = 8
+local currentEdgeSize = 8
 local currentYOffset = 5
 local currentForwardOffset = 5
 local currentConditionalAbility
@@ -98,6 +99,7 @@ local function ResetCurrentValues()
     currentFillColor = {1, 1, 1, 0.1}
     currentSize = 8
     currentHeight = 8
+    currentEdgeSize = 8
     currentYOffset = 5
     currentForwardOffset = 0
     currentConditionalAbility = nil
@@ -234,6 +236,7 @@ function CAE.CreateSettingsMenu()
                     currentFillColor = profile.circles[value].fillColor or {1, 1, 1, 0.1}
                     currentSize = profile.circles[value].radius
                     currentHeight = profile.circles[value].height
+                    currentEdgeSize = profile.circles[value].edgeSize
                     currentYOffset = profile.circles[value].yOffset
                     currentForwardOffset = profile.circles[value].forwardOffset
                     currentConditionalAbility = profile.circles[value].conditionalAbilityId
@@ -281,7 +284,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new rectangle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId)
+                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentEdgeSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -421,6 +424,24 @@ function CAE.CreateSettingsMenu()
                 RefreshShapes()
             end,
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "slider",
+            name = "Outline thickness",
+            tooltip = "The thickness of the rectangle outline (does not work for circles)",
+            min = 0,
+            max = 100,
+            step = 1,
+            default = 8,
+            width = "half",
+            getFunc = function() return currentEdgeSize end,
+            setFunc = function(value)
+                currentEdgeSize = value
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].edgeSize = currentEdgeSize
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.CIRCLE end, -- Don't allow editing default, not valid for circles
         },
         {
             type = "editbox",

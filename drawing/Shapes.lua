@@ -27,7 +27,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
 end
 
 -- TODO: renderspace rectangle with solid color only
-function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId)
+function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSize, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -38,6 +38,7 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, yOffset
         fillColor = fillColor,
         radius = width, -- width is called radius, just to reuse the circle property
         height = height,
+        edgeSize = edgeSize,
         yOffset = yOffset,
         forwardOffset = forwardOffset,
         conditionalAbilityId = conditionalAbilityId,
@@ -101,8 +102,7 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwa
         CircleFunc)
 end
 
--- TODO: edge size
-local function CreateRectangle(id, width, height, rgb, color, fillColor, yOffset, forwardOffset)
+local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColor, yOffset, forwardOffset)
     local _, x, y, z = GetUnitRawWorldPosition("player")
     local _, _, heading = GetMapPlayerPosition("player")
 
@@ -136,6 +136,7 @@ local function CreateRectangle(id, width, height, rgb, color, fillColor, yOffset
                 height = height * 100,
                 centerColor = fillColor,
                 edgeColor = color,
+                edgeSize = edgeSize,
             },
         },
         RectangleFunc)
@@ -147,7 +148,7 @@ local function CreateShapeById(id)
     if (shapeData.type == CAE.CIRCLE) then
         CreateCircle(id, shapeData.radius, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset)
     elseif (shapeData.type == CAE.RECTANGLE) then
-        CreateRectangle(id, shapeData.radius, shapeData.height, shapeData.rgb, shapeData.color, shapeData.fillColor, shapeData.yOffset, shapeData.forwardOffset)
+        CreateRectangle(id, shapeData.radius, shapeData.height, shapeData.edgeSize, shapeData.rgb, shapeData.color, shapeData.fillColor, shapeData.yOffset, shapeData.forwardOffset)
     end
 end
 
