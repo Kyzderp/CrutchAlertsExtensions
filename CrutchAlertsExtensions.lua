@@ -76,10 +76,13 @@ local function FillMissingDefaults()
         if (profileData.lines == nil) then
             profileData.lines = {}
         end
-        -- Shape types
+        -- Shape types, forward offset, ?
         for _, shapeData in pairs(profileData.circles) do
             if (shapeData.type == nil) then
                 shapeData.type = CAE.CIRCLE
+            end
+            if (shapeData.forwardOffset == nil) then
+                shapeData.forwardOffset = 0
             end
         end
     end

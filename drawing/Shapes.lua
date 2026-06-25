@@ -5,7 +5,7 @@ local Crutch = CrutchAlerts
 ---------------------------------------------------------------------
 -- Profile data
 ---------------------------------------------------------------------
-function CAE.AddCircleToProfile(rgb, color, radius, yOffset, conditionalAbilityId, conditionalSetId, depthBuffers)
+function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, depthBuffers)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -15,6 +15,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, conditionalAbilityI
         color = color,
         radius = radius,
         yOffset = yOffset,
+        forwardOffset = forwardOffset,
         conditionalAbilityId = conditionalAbilityId,
         conditionalSetId = conditionalSetId,
         depthBuffers = depthBuffers,
@@ -26,7 +27,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, conditionalAbilityI
 end
 
 -- TODO: renderspace rectangle with solid color only
-function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, yOffset, conditionalAbilityId, conditionalSetId)
+function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -38,6 +39,7 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, yOffset
         radius = width, -- width is called radius, just to reuse the circle property
         height = height,
         yOffset = yOffset,
+        forwardOffset = forwardOffset,
         conditionalAbilityId = conditionalAbilityId,
         conditionalSetId = conditionalSetId,
     }
@@ -65,13 +67,17 @@ local function CleanShapes()
     ZO_ClearTable(currentKeys)
 end
 
-local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers)
+local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwardOffset)
     local _, x, y, z = GetUnitRawWorldPosition("player")
 
     -- Places circle at player's feet
     local function CircleFunc(icon)
         -- Make circle follow the player
-        local _, x, y, z = GetUnitRawWorldPosition("player")
+        local _, pX, y, pZ = GetUnitRawWorldPosition("player")
+        local _, _, heading = GetMapPlayerPosition("player")
+        local x = math.sin(heading) * -forwardOffset + pX
+        local z = math.cos(heading) * -forwardOffset + pZ
+
         icon:SetPosition(x, y + yOffset, z)
 
         -- Make color change every update
@@ -95,15 +101,18 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers)
         CircleFunc)
 end
 
-local function CreateRectangle(id, width, height, rgb, color, fillColor, yOffset)
+-- TODO: edge size
+local function CreateRectangle(id, width, height, rgb, color, fillColor, yOffset, forwardOffset)
     local _, x, y, z = GetUnitRawWorldPosition("player")
     local _, _, heading = GetMapPlayerPosition("player")
 
-    -- TODO: Place edge at player's feet
     local function RectangleFunc(icon)
         -- Make it follow the player
-        local _, x, y, z = GetUnitRawWorldPosition("player")
+        local _, pX, y, pZ = GetUnitRawWorldPosition("player")
         local _, _, heading = GetMapPlayerPosition("player")
+        local x = math.sin(heading) * -forwardOffset + pX
+        local z = math.cos(heading) * -forwardOffset + pZ
+
         icon:SetPosition(x, y + yOffset, z)
         icon:SetOrientation(-math.pi/2, heading, 0)
 
@@ -136,9 +145,9 @@ local function CreateShapeById(id)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     local shapeData = profile.circles[id]
     if (shapeData.type == CAE.CIRCLE) then
-        CreateCircle(id, shapeData.radius, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers)
+        CreateCircle(id, shapeData.radius, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset)
     elseif (shapeData.type == CAE.RECTANGLE) then
-        CreateRectangle(id, shapeData.radius, shapeData.height, shapeData.rgb, shapeData.color, shapeData.fillColor, shapeData.yOffset)
+        CreateRectangle(id, shapeData.radius, shapeData.height, shapeData.rgb, shapeData.color, shapeData.fillColor, shapeData.yOffset, shapeData.forwardOffset)
     end
 end
 

@@ -8,6 +8,7 @@ local currentFillColor = {1, 1, 1, 0.1}
 local currentSize = 8
 local currentHeight = 8
 local currentYOffset = 5
+local currentForwardOffset = 5
 local currentConditionalAbility
 local currentConditionalSetId
 local currentDepthBuffers = false
@@ -98,6 +99,7 @@ local function ResetCurrentValues()
     currentSize = 8
     currentHeight = 8
     currentYOffset = 5
+    currentForwardOffset = 0
     currentConditionalAbility = nil
     currentConditionalSetId = nil
     currentDepthBuffers = false
@@ -233,6 +235,7 @@ function CAE.CreateSettingsMenu()
                     currentSize = profile.circles[value].radius
                     currentHeight = profile.circles[value].height
                     currentYOffset = profile.circles[value].yOffset
+                    currentForwardOffset = profile.circles[value].forwardOffset
                     currentConditionalAbility = profile.circles[value].conditionalAbilityId
                     currentConditionalSetId = profile.circles[value].conditionalSetId
                     currentDepthBuffers = profile.circles[value].depthBuffers
@@ -264,7 +267,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new circle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentConditionalAbility, currentConditionalSetId, currentDepthBuffers)
+                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentDepthBuffers)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -278,7 +281,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new rectangle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentYOffset, currentConditionalAbility, currentConditionalSetId)
+                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -368,6 +371,22 @@ function CAE.CreateSettingsMenu()
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
         {
+            type = "checkbox",
+            name = "Hide behind objects",
+            tooltip = "Whether to use depth buffers to have icons be hidden by objects. For example, if this is ON, parts of the circle can be covered by hills. In order for this setting to work while ON, you must have \"SubSampling Quality\" set to \"High\" in your Video settings",
+            default = false,
+            getFunc = function() return currentDepthBuffers end,
+            setFunc = function(value)
+                currentDepthBuffers = value
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].depthBuffers = currentDepthBuffers
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            width = "half",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or 
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.RECTANGLE end, -- Don't allow editing default
+        },
+        {
             type = "slider",
             name = "Y offset (cm)",
             tooltip = "The elevation offset from your feet",
@@ -386,20 +405,22 @@ function CAE.CreateSettingsMenu()
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
         {
-            type = "checkbox",
-            name = "Hide behind objects",
-            tooltip = "Whether to use depth buffers to have icons be hidden by objects. For example, if this is ON, parts of the circle can be covered by hills. In order for this setting to work while ON, you must have \"SubSampling Quality\" set to \"High\" in your Video settings",
-            default = false,
-            getFunc = function() return currentDepthBuffers end,
+            type = "slider",
+            name = "Forward offset (cm)",
+            tooltip = "The offset of the center of the shape from your feet, for where your character (not your camera!) is facing",
+            min = -3500,
+            max = 3500,
+            step = 50,
+            default = 0,
+            width = "half",
+            getFunc = function() return currentForwardOffset end,
             setFunc = function(value)
-                currentDepthBuffers = value
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].depthBuffers = currentDepthBuffers
+                currentForwardOffset = value
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].forwardOffset = currentForwardOffset
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
-            width = "half",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or 
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.RECTANGLE end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
         {
             type = "editbox",
