@@ -89,7 +89,7 @@ local function CalculateEquippedSets()
     AddEquippedSetsInSlots(ITEM_SLOTS_FRONTBAR, "frontbar")
     AddEquippedSetsInSlots(ITEM_SLOTS_BACKBAR, "backbar")
 
-    CAE.UpdateCircles()
+    CAE.UpdateShapes()
 end
 
 local function IsEquipped(setId)
@@ -124,7 +124,7 @@ end
 ---------------------------------------------------------------------
 -- called
 ---------------------------------------------------------------------
-local function ShouldCircleBeShown(conditionalAbilityId, conditionalSetId)
+local function ShouldShapeBeShown(conditionalAbilityId, conditionalSetId)
     if (conditionalAbilityId ~= nil and not IsSlotted(conditionalAbilityId)) then
         return false
     end
@@ -133,7 +133,7 @@ local function ShouldCircleBeShown(conditionalAbilityId, conditionalSetId)
     end
     return true
 end
-CAE.ShouldCircleBeShown = ShouldCircleBeShown
+CAE.ShouldShapeBeShown = ShouldShapeBeShown
 
 
 ---------------------------------------------------------------------
@@ -141,8 +141,8 @@ CAE.ShouldCircleBeShown = ShouldCircleBeShown
 ---------------------------------------------------------------------
 function CAE.InitializeConditionalChecker()
     -- Check skills
-    EVENT_MANAGER:RegisterForEvent(CAE.name .. "Conditional", EVENT_ACTION_SLOTS_ALL_HOTBARS_UPDATED, CAE.UpdateCircles)
-    EVENT_MANAGER:RegisterForEvent(CAE.name .. "ConditionalWW", EVENT_WEREWOLF_STATE_CHANGED, CAE.UpdateCircles)
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "Conditional", EVENT_ACTION_SLOTS_ALL_HOTBARS_UPDATED, CAE.UpdateShapes)
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "ConditionalWW", EVENT_WEREWOLF_STATE_CHANGED, CAE.UpdateShapes)
 
     -- Check sets
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "Equipped", EVENT_INVENTORY_SINGLE_SLOT_UPDATE, OnSlotUpdated)

@@ -5,6 +5,9 @@
 CrutchAlertsExtensions = {
     name = "CrutchAlertsExtensions",
     version = "0.1.0",
+
+    CIRCLE = "Circle",
+    RECTANGLE = "Rectangle",
 }
 local CAE = CrutchAlertsExtensions
 
@@ -13,7 +16,7 @@ local defaultGlobalOptions = {
     profiles = {
         [-1] = {
             profileName = "<Empty>",
-            circles = {}, -- {[1] = {rgb = false, color = {1, 1, 1}, radius = 5, yOffset = 0}}
+            circles = {}, -- {[1] = {type = CAE.CIRCLE, rgb = false, color = {1, 1, 1}, radius = 5, yOffset = 0}}
             lines = {}, -- {[1] = {player1 = nil (self), player2 = "@Kyzeragone", color = {1, 1, 1, 1}}}
             hungerRequireModifier = false,
             lowerHunger = false,
@@ -46,7 +49,7 @@ end
 local function OnPlayerActivatedFirstTime()
     EVENT_MANAGER:UnregisterForEvent(CAE.name .. "ActivatedFirstTime", EVENT_PLAYER_ACTIVATED)
 
-    CAE.InitializeCircles()
+    CAE.InitializeShapes()
     CAE.InitializeLines()
 end
 
@@ -69,8 +72,15 @@ end
 -- Later added things
 local function FillMissingDefaults()
     for _, profileData in pairs(CAE.profiles) do
+        -- Lines table
         if (profileData.lines == nil) then
             profileData.lines = {}
+        end
+        -- Shape types
+        for _, shapeData in pairs(profileData.circles) do
+            if (shapeData.type == nil) then
+                shapeData.type = CAE.CIRCLE
+            end
         end
     end
 end

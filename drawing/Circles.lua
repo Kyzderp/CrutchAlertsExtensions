@@ -35,7 +35,7 @@ end
 -- Loading / Drawing
 ---------------------------------------------------------------------
 local currentKeys = {}
-local function CleanCircles()
+local function CleanShapes()
     for _, key in pairs(currentKeys) do
         Crutch.Drawing.RemoveWorldTexture(key)
     end
@@ -73,52 +73,52 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers)
         CircleFunc)
 end
 
-local function CreateCircleById(id)
+local function CreateShapeById(id)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
-    local circleData = profile.circles[id]
-    CreateCircle(id, circleData.radius, circleData.rgb, circleData.color, circleData.yOffset, circleData.depthBuffers)
+    local shapeData = profile.circles[id]
+    if (shapeData.type == CAE.CIRCLE) then
+        CreateCircle(id, shapeData.radius, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers)
+    end
 end
 
-local function ShowCircle(id)
+local function ShowShape(id)
     if (currentKeys[id]) then return end -- already showing
-    CreateCircleById(id)
+    CreateShapeById(id)
 end
-CAE.ShowCircle = ShowCircle
 
-local function HideCircle(id)
+local function HideShape(id)
     if (not currentKeys[id]) then return end -- already hidden
     Crutch.Drawing.RemoveWorldTexture(currentKeys[id])
     currentKeys[id] = nil
 end
-CAE.HideCircle = HideCircle
 
-local function UpdateCircles()
+local function UpdateShapes()
     local profile = CAE.profiles[CAE.csvs.currentProfile]
-    for id, circleData in pairs(profile.circles) do
-        if (CAE.ShouldCircleBeShown(circleData.conditionalAbilityId, circleData.conditionalSetId)) then
-            Crutch.dbgSpam("attempting to show circle " .. id)
-            ShowCircle(id)
+    for id, shapeData in pairs(profile.circles) do
+        if (CAE.ShouldShapeBeShown(shapeData.conditionalAbilityId, shapeData.conditionalSetId)) then
+            Crutch.dbgSpam("attempting to show shape " .. id)
+            ShowShape(id)
         else
-            Crutch.dbgSpam("attempting to hide circle " .. id)
-            HideCircle(id)
+            Crutch.dbgSpam("attempting to hide shape " .. id)
+            HideShape(id)
         end
     end
 end
-CAE.UpdateCircles = UpdateCircles
+CAE.UpdateShapes = UpdateShapes
 
 
 ---------------------------------------------------------------------
 -- Init
 ---------------------------------------------------------------------
 local function LoadCurrentProfile()
-    CleanCircles()
-    UpdateCircles()
+    CleanShapes()
+    UpdateShapes()
 
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     CAE.msg("Loaded profile " .. profile.profileName)
 end
 CAE.LoadCurrentProfile = LoadCurrentProfile
 
-function CAE.InitializeCircles()
+function CAE.InitializeShapes()
     LoadCurrentProfile()
 end
