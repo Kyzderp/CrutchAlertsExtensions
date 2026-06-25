@@ -50,6 +50,16 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSiz
     return index
 end
 
+function CAE.AddPresetToProfile(presetName)
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+
+    local index = CAE.FindFreeId(profile.circles)
+    profile.circles[index] = ZO_DeepTableCopy(CAE.PresetShapes[presetName])
+
+    CAE.msg(zo_strformat("Imported <<1>> to profile <<2>>", presetName, profile.profileName))
+    return index
+end
+
 function CAE.RemoveCircleFromProfile(index)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     CAE.msg(zo_strformat("Removing circle of radius <<1>> from profile <<2>>", profile.circles[index].radius, profile.profileName))

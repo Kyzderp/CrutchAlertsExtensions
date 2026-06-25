@@ -122,6 +122,17 @@ end
 
 
 ---------------------------------------------------------------------
+local selectedPreset
+local function BuildPresetShapes()
+    local tab = {}
+    for name, _ in pairs(CAE.PresetShapes) do
+        table.insert(tab, name)
+    end
+    return tab
+end
+
+
+---------------------------------------------------------------------
 function CAE.CreateSettingsMenu()
     local LAM = LibAddonMenu2
     local panelData = {
@@ -474,6 +485,39 @@ function CAE.CreateSettingsMenu()
             isExtraWide = false,
             width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "submenu",
+            name = "Import",
+            controls = {
+                {
+                    type = "dropdown",
+                    name = "Preset shape",
+                    choices = BuildPresetShapes(),
+                    getFunc = function()
+                        return selectedPreset
+                    end,
+                    setFunc = function(value)
+                        selectedPreset = value
+                    end,
+                    width = "full",
+                    disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
+                },
+                {
+                    type = "button",
+                    name = "Add to profile",
+                    tooltip = "Add the selected preset to the current profile. The properties can be edited later",
+                    func = function()
+                        ResetCurrentValues()
+                        local id = CAE.AddPresetToProfile(selectedPreset)
+                        CAE.LoadCurrentProfile()
+                        currentShape = id
+                        RefreshShapes()
+                    end,
+                    width = "full",
+                    disabled = function() return CAE.csvs.currentProfile == -1 or selectedPreset == nil end, -- Don't allow editing default
+                },
+            },
         },
 ---------------------------------------------------------------------
         {

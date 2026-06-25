@@ -30,6 +30,7 @@ drawing/Shapes.lua
 drawing/Line.lua
 drawing/Lines.lua
 drawing/UnitIcons.lua
+drawing/PresetShapes.lua
 
 synergy/Synergy.lua
 synergy/Synergy.xml
