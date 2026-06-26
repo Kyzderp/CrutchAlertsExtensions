@@ -158,5 +158,12 @@ function CAE.InitializeConditionalChecker()
         REGISTER_FILTER_BAG_ID, BAG_WORN,
         REGISTER_FILTER_INVENTORY_UPDATE_REASON, INVENTORY_UPDATE_REASON_DEFAULT)
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "ArmoryEquipped", EVENT_ARMORY_BUILD_RESTORE_RESPONSE, CalculateEquippedSets)
+
+    -- Both
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "Barswapped", EVENT_ACTIVE_WEAPON_PAIR_CHANGED, function()
+        CalculateEquippedSets()
+        CAE.UpdateShapes()
+    end)
+
     CalculateEquippedSets()
 end

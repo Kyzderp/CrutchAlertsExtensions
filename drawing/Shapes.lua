@@ -179,10 +179,8 @@ local function UpdateShapes()
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     for id, shapeData in pairs(profile.circles) do
         if (CAE.ShouldShapeBeShown(shapeData.conditionalAbilityId, shapeData.conditionalSetId, shapeData.activeBarOnly)) then
-            Crutch.dbgSpam("attempting to show shape " .. id)
             ShowShape(id)
         else
-            Crutch.dbgSpam("attempting to hide shape " .. id)
             HideShape(id)
         end
     end

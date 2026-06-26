@@ -15,16 +15,26 @@ CAE.PresetShapes = {
         conditionalAbilityId = 39113,
         depthBuffers = false,
     },
-    ["Alkosh"] = {
+    ["Roar of Alkosh"] = {
         type = CAE.RECTANGLE,
         rgb = false,
         color = {0, 0.8, 1, 0.1},
         fillColor = {1, 1, 1, 0},
         radius = 9,
         height = 15,
-        edgeSize = 12,
         yOffset = 5,
         forwardOffset = 750,
-        conditionalSetId = nil, -- TODO
+        conditionalSetId = 232,
+    },
+    ["Pragmatic Fatecarver"] = {
+        type = CAE.RECTANGLE,
+        rgb = false,
+        color = {0, 1, 0, 0.2},
+        fillColor = {1, 1, 1, 0},
+        radius = 3,
+        height = 23.5,
+        yOffset = 5,
+        forwardOffset = 1025,
+        conditionalAbilityId = 193398,
     },
 }

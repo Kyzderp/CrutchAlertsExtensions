@@ -92,6 +92,22 @@ local function RefreshLines()
 end
 
 ---------------------------------------------------------------------
+local function LoadShapeValues()
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+    currentRgb = profile.circles[currentShape].rgb
+    currentColor = profile.circles[currentShape].color
+    currentFillColor = profile.circles[currentShape].fillColor or {1, 1, 1, 0}
+    currentSize = profile.circles[currentShape].radius
+    currentHeight = profile.circles[currentShape].height
+    currentEdgeSize = profile.circles[currentShape].edgeSize
+    currentYOffset = profile.circles[currentShape].yOffset
+    currentForwardOffset = profile.circles[currentShape].forwardOffset
+    currentConditionalAbility = profile.circles[currentShape].conditionalAbilityId
+    currentConditionalSetId = profile.circles[currentShape].conditionalSetId
+    currentActiveBarOnly = profile.circles[currentShape].activeBarOnly
+    currentDepthBuffers = profile.circles[currentShape].depthBuffers
+end
+
 local function ResetCurrentValues()
     currentRgb = false
     currentColor = {1, 1, 1, 1}
@@ -242,18 +258,7 @@ function CAE.CreateSettingsMenu()
                 currentShape = value
                 local profile = CAE.profiles[CAE.csvs.currentProfile]
                 if (value and profile.circles[value]) then
-                    currentRgb = profile.circles[value].rgb
-                    currentColor = profile.circles[value].color
-                    currentFillColor = profile.circles[value].fillColor or {1, 1, 1, 0}
-                    currentSize = profile.circles[value].radius
-                    currentHeight = profile.circles[value].height
-                    currentEdgeSize = profile.circles[value].edgeSize
-                    currentYOffset = profile.circles[value].yOffset
-                    currentForwardOffset = profile.circles[value].forwardOffset
-                    currentConditionalAbility = profile.circles[value].conditionalAbilityId
-                    currentConditionalSetId = profile.circles[value].conditionalSetId
-                    currentActiveBarOnly = profile.circles[value].activeBarOnly
-                    currentDepthBuffers = profile.circles[value].depthBuffers
+                    LoadShapeValues()
                 end
             end,
             width = "full",
@@ -437,24 +442,24 @@ function CAE.CreateSettingsMenu()
             end,
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
-        {
-            type = "slider",
-            name = "Outline thickness",
-            tooltip = "The thickness of the rectangle outline (does not work for circles)",
-            min = 0,
-            max = 100,
-            step = 1,
-            default = 8,
-            width = "half",
-            getFunc = function() return currentEdgeSize end,
-            setFunc = function(value)
-                currentEdgeSize = value
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].edgeSize = currentEdgeSize
-                CAE.LoadCurrentProfile()
-                RefreshShapes()
-            end,
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.CIRCLE end, -- Don't allow editing default, not valid for circles
-        },
+        -- {
+        --     type = "slider",
+        --     name = "Outline thickness",
+        --     tooltip = "The thickness of the rectangle outline (does not work for circles)",
+        --     min = 0,
+        --     max = 100,
+        --     step = 1,
+        --     default = 8,
+        --     width = "half",
+        --     getFunc = function() return currentEdgeSize end,
+        --     setFunc = function(value)
+        --         currentEdgeSize = value
+        --         CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].edgeSize = currentEdgeSize
+        --         CAE.LoadCurrentProfile()
+        --         RefreshShapes()
+        --     end,
+        --     disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.CIRCLE end, -- Don't allow editing default, not valid for circles
+        -- },
         {
             type = "editbox",
             name = "Conditional ability ID",
@@ -524,11 +529,11 @@ function CAE.CreateSettingsMenu()
                     name = "Add to profile",
                     tooltip = "Add the selected preset to the current profile. The properties can be edited later",
                     func = function()
-                        ResetCurrentValues()
                         local id = CAE.AddPresetToProfile(selectedPreset)
                         CAE.LoadCurrentProfile()
                         currentShape = id
                         RefreshShapes()
+                        LoadShapeValues()
                     end,
                     width = "full",
                     disabled = function() return CAE.csvs.currentProfile == -1 or selectedPreset == nil end, -- Don't allow editing default
