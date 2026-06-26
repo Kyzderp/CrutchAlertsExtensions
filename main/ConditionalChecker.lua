@@ -5,7 +5,7 @@ local Crutch = CrutchAlerts
 ---------------------------------------------------------------------
 -- Ability
 ---------------------------------------------------------------------
-local function IsSlotted(id)
+local function IsSlotted(id, activeBarOnly)
     -- If ww, check only ww and not regular bars
     if (IsPlayerInWerewolfForm()) then
         for i = 3, 8 do
@@ -20,12 +20,13 @@ local function IsSlotted(id)
         local abilityId = Crutch.GetSlotTrueBoundId(i, GetActiveHotbarCategory())
         if (abilityId == id) then return true end
 
-        local otherBarAbilityId = Crutch.GetSlotTrueBoundId(i, otherBar)
-        if (otherBarAbilityId == id) then return true end
+        if (not activeBarOnly) then
+            local otherBarAbilityId = Crutch.GetSlotTrueBoundId(i, otherBar)
+            if (otherBarAbilityId == id) then return true end
+        end
     end
     return false
 end
-CAE.IsSlotted = IsSlotted
 
 
 ---------------------------------------------------------------------
@@ -92,17 +93,24 @@ local function CalculateEquippedSets()
     CAE.UpdateShapes()
 end
 
-local function IsEquipped(setId)
+local function IsEquipped(setId, activeBarOnly)
     if (not equipped[setId]) then return false end
     local _, setName, _, _, _, maxEquipped = GetItemSetInfo(setId)
-    return (equipped[setId].body + equipped[setId].frontbar >= maxEquipped) or (equipped[setId].body + equipped[setId].backbar >= maxEquipped)
+    if (not activeBarOnly) then
+        return (equipped[setId].body + equipped[setId].frontbar >= maxEquipped) or (equipped[setId].body + equipped[setId].backbar >= maxEquipped)
+    else
+        if (GetActiveHotbarCategory() == HOTBAR_CATEGORY_PRIMARY) then
+            return (equipped[setId].body + equipped[setId].frontbar >= maxEquipped)
+        else
+            return (equipped[setId].body + equipped[setId].backbar >= maxEquipped)
+        end
+    end
 end
-CAE.IsEquipped = IsEquipped
 
 local function GetEquippedSetsString()
     local result = ""
     for setId, _ in pairs(equipped) do
-        if (IsEquipped(setId)) then
+        if (IsEquipped(setId, false)) then
             local _, setName = GetItemSetInfo(setId)
             result = string.format("%s\n%d - %s", result, setId, setName)
         end
@@ -124,11 +132,11 @@ end
 ---------------------------------------------------------------------
 -- called
 ---------------------------------------------------------------------
-local function ShouldShapeBeShown(conditionalAbilityId, conditionalSetId)
-    if (conditionalAbilityId ~= nil and not IsSlotted(conditionalAbilityId)) then
+local function ShouldShapeBeShown(conditionalAbilityId, conditionalSetId, activeBarOnly)
+    if (conditionalAbilityId ~= nil and not IsSlotted(conditionalAbilityId, activeBarOnly)) then
         return false
     end
-    if (conditionalSetId ~= nil and not IsEquipped(conditionalSetId)) then
+    if (conditionalSetId ~= nil and not IsEquipped(conditionalSetId, activeBarOnly)) then
         return false
     end
     return true

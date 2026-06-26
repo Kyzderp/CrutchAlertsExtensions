@@ -86,6 +86,9 @@ local function FillMissingDefaults()
             if (shapeData.forwardOffset == nil) then
                 shapeData.forwardOffset = 0
             end
+            if (shapeData.activeBarOnly == nil) then
+                shapeData.activeBarOnly = true
+            end
         end
     end
 end

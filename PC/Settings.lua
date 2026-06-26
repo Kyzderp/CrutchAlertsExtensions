@@ -4,7 +4,7 @@ local CAE = CrutchAlertsExtensions
 ---------------------------------------------------------------------
 local currentRgb = false
 local currentColor = {1, 1, 1, 1}
-local currentFillColor = {1, 1, 1, 0.1}
+local currentFillColor = {1, 1, 1, 0}
 local currentSize = 8
 local currentHeight = 8
 local currentEdgeSize = 8
@@ -12,6 +12,7 @@ local currentYOffset = 5
 local currentForwardOffset = 5
 local currentConditionalAbility
 local currentConditionalSetId
+local currentActiveBarOnly = false
 local currentDepthBuffers = false
 
 local currentShape
@@ -94,7 +95,7 @@ end
 local function ResetCurrentValues()
     currentRgb = false
     currentColor = {1, 1, 1, 1}
-    currentFillColor = {1, 1, 1, 0.1}
+    currentFillColor = {1, 1, 1, 0}
     currentSize = 8
     currentHeight = 8
     currentEdgeSize = 8
@@ -102,6 +103,7 @@ local function ResetCurrentValues()
     currentForwardOffset = 0
     currentConditionalAbility = nil
     currentConditionalSetId = nil
+    currentActiveBarOnly = false
     currentDepthBuffers = false
 end
 
@@ -242,7 +244,7 @@ function CAE.CreateSettingsMenu()
                 if (value and profile.circles[value]) then
                     currentRgb = profile.circles[value].rgb
                     currentColor = profile.circles[value].color
-                    currentFillColor = profile.circles[value].fillColor or {1, 1, 1, 0.1}
+                    currentFillColor = profile.circles[value].fillColor or {1, 1, 1, 0}
                     currentSize = profile.circles[value].radius
                     currentHeight = profile.circles[value].height
                     currentEdgeSize = profile.circles[value].edgeSize
@@ -250,6 +252,7 @@ function CAE.CreateSettingsMenu()
                     currentForwardOffset = profile.circles[value].forwardOffset
                     currentConditionalAbility = profile.circles[value].conditionalAbilityId
                     currentConditionalSetId = profile.circles[value].conditionalSetId
+                    currentActiveBarOnly = profile.circles[value].activeBarOnly
                     currentDepthBuffers = profile.circles[value].depthBuffers
                 end
             end,
@@ -279,7 +282,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new circle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentDepthBuffers)
+                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentActiveBarOnly, currentDepthBuffers)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -293,7 +296,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new rectangle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentEdgeSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId)
+                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentEdgeSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentActiveBarOnly)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -356,7 +359,7 @@ function CAE.CreateSettingsMenu()
             type = "colorpicker",
             name = "Fill color",
             tooltip = "The center fill color of the rectangle (does not work for circle). Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
-            default = ZO_ColorDef:New(1, 1, 1, 0.1),
+            default = ZO_ColorDef:New(1, 1, 1, 0),
             getFunc = function() return unpack(currentFillColor) end,
             setFunc = function(r, g, b, a)
                 currentFillColor = {r, g, b, a}
@@ -483,6 +486,21 @@ function CAE.CreateSettingsMenu()
             isExtraWide = false,
             width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "checkbox",
+            name = "Conditional active bar only",
+            tooltip = "Whether to check for active bar on the conditional ID. If set to ON, this shape will only appear when the ability or set is slotted on the active weapon bar. If OFF, the shape will show when the ability or set is slotted on either bar",
+            default = false,
+            getFunc = function() return currentActiveBarOnly end,
+            setFunc = function(value)
+                currentActiveBarOnly = value
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].activeBarOnly = currentActiveBarOnly
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            width = "half",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or (currentConditionalAbility == nil and currentConditionalSetId == nil) end, -- Don't allow editing default
         },
         {
             type = "submenu",

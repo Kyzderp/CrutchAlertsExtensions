@@ -5,7 +5,7 @@ local Crutch = CrutchAlerts
 ---------------------------------------------------------------------
 -- Profile data
 ---------------------------------------------------------------------
-function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, depthBuffers)
+function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, activeBarOnly, depthBuffers)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -18,6 +18,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
         forwardOffset = forwardOffset,
         conditionalAbilityId = conditionalAbilityId,
         conditionalSetId = conditionalSetId,
+        activeBarOnly = activeBarOnly,
         depthBuffers = depthBuffers,
     }
 
@@ -27,7 +28,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
 end
 
 -- TODO: renderspace rectangle with solid color only
-function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSize, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId)
+function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSize, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, activeBarOnly)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -43,6 +44,7 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSiz
         forwardOffset = forwardOffset,
         conditionalAbilityId = conditionalAbilityId,
         conditionalSetId = conditionalSetId,
+        activeBarOnly = activeBarOnly,
     }
 
     CAE.msg(zo_strformat("Added rectangle <<1>> × <<2>> to profile <<3>>", width, height, profile.profileName))
@@ -176,7 +178,7 @@ end
 local function UpdateShapes()
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     for id, shapeData in pairs(profile.circles) do
-        if (CAE.ShouldShapeBeShown(shapeData.conditionalAbilityId, shapeData.conditionalSetId)) then
+        if (CAE.ShouldShapeBeShown(shapeData.conditionalAbilityId, shapeData.conditionalSetId, shapeData.activeBarOnly)) then
             Crutch.dbgSpam("attempting to show shape " .. id)
             ShowShape(id)
         else
