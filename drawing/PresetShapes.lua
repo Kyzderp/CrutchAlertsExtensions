@@ -25,6 +25,7 @@ CAE.PresetShapes = {
         yOffset = 5,
         forwardOffset = 750,
         conditionalSetId = 232,
+        activeBarOnly = true,
     },
     ["Pragmatic Fatecarver"] = {
         type = CAE.RECTANGLE,
@@ -36,5 +37,6 @@ CAE.PresetShapes = {
         yOffset = 5,
         forwardOffset = 1025,
         conditionalAbilityId = 193398,
+        activeBarOnly = true,
     },
 }

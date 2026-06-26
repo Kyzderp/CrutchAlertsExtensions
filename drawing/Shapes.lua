@@ -47,7 +47,7 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSiz
         activeBarOnly = activeBarOnly,
     }
 
-    CAE.msg(zo_strformat("Added rectangle <<1>> × <<2>> to profile <<3>>", width, height, profile.profileName))
+    CAE.msg(zo_strformat("Added rectangle <<1>> × <<2>> to profile <<3>>", height, width, profile.profileName))
 
     return index
 end
