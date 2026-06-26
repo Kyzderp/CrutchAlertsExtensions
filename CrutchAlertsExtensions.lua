@@ -8,6 +8,8 @@ CrutchAlertsExtensions = {
 
     CIRCLE = "Circle",
     RECTANGLE = "Rectangle",
+
+    Utils = {},
 }
 local CAE = CrutchAlertsExtensions
 

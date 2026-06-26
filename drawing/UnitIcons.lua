@@ -8,7 +8,6 @@ local KNOWN_PETS = {
     ["Eternal Guardian"] = "esoui/art/icons/ability_warden_018_b.dds",
     ["Wild Guardian"] = "esoui/art/icons/ability_warden_018_c.dds",
     ["Gloom Wraith"] = "esoui/art/icons/ability_nightblade_001_a.dds",
-    -- TODO: other nb might be named the same
 }
 
 local BANKER = 1
@@ -25,7 +24,6 @@ local ASSISTANT_TEXTURES = {
     [FENCE] = "esoui/art/icons/mapkey/mapkey_fence.dds",
 }
 
--- TODO: just use whatever collectible is active
 local KNOWN_COLLECTIBLES = {
     -- Armory
     [9745] = ARMORY, -- Ghrasharog, Armory Assistant

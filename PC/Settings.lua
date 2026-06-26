@@ -38,13 +38,7 @@ end
 
 local function ColorCircleText(rgb, color, radius)
     if (rgb) then
-        return "|cFF0000C" ..
-               "|cFF7F00i" ..
-               "|cFFFF00r" ..
-               "|c00FF00c" ..
-               "|c0000FFl" ..
-               "|c2E2B5Fe" ..
-               "|c8B00FF:|r " .. radius
+        return CAE.Utils.Rainbowify("Circle") .. "|r: " .. radius
     else
         return zo_strformat("|c<<1>>Circle|r: <<2>>", ColorToHexString(color), radius)
     end
@@ -54,8 +48,12 @@ local function ColorShapeText(shapeData)
     if (shapeData.type == CAE.CIRCLE) then
         return ColorCircleText(shapeData.rgb, shapeData.color, shapeData.radius)
     end
-    -- TODO: rgb for rectangle
-    return zo_strformat("|c<<1>>Rectangle|r: <<2>> × <<3>>", ColorToHexString(shapeData.color), shapeData.radius, shapeData.height)
+
+    if (shapeData.rgb) then
+        return zo_strformat("<<1>>|r: <<2>> × <<3>>", CAE.Utils.Rainbowify("Rectangle"), shapeData.radius, shapeData.height)
+    else
+        return zo_strformat("|c<<1>>Rectangle|r: <<2>> × <<3>>", ColorToHexString(shapeData.color), shapeData.radius, shapeData.height)
+    end
 end
 
 local shapeNames = {}

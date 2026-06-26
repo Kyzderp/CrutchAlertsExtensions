@@ -3,7 +3,7 @@ local Crutch = CrutchAlerts
 
 
 ---------------------------------------------------------------------
-local LINE_NUM = 3 -- TODO: check if this clashes but probably not
+local LINE_NUM = "CAETempLine"
 function CAE.DrawLine(tag1, tag2)
     if (not tag1 or not tag2) then return end
 

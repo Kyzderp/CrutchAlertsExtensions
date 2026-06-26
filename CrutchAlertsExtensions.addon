@@ -22,6 +22,7 @@ Bindings.xml
 main/Profiles.lua
 main/Commands.lua
 main/ConditionalChecker.lua
+main/Utils.lua
 
 PC/Settings.lua
 PC/UtilsSettings.lua
