@@ -179,6 +179,7 @@ function CAE.CreateSettingsMenu()
             setFunc = function(value)
                 CAE.csvs.currentProfile = value
                 CAE.LoadCurrentProfile()
+                CAE.LoadCurrentLines()
             end,
             width = "full",
             reference = "CAE_ProfilesDropdown",
