@@ -117,8 +117,10 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwa
 end
 
 local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColor, yOffset, forwardOffset)
-    local _, x, y, z = GetUnitRawWorldPosition("player")
+    local _, pX, y, pZ = GetUnitRawWorldPosition("player")
     local _, _, heading = GetMapPlayerPosition("player")
+    local x = math.sin(heading) * -forwardOffset + pX
+    local z = math.cos(heading) * -forwardOffset + pZ
 
     local function RectangleFunc(icon)
         -- Make it follow the player
@@ -206,7 +208,7 @@ end
 
 local function FireProfileChanged(isSame)
     for _, listener in pairs(profileListeners) do
-        listener(old, new)
+        listener(isSame)
     end
 end
 
@@ -215,7 +217,7 @@ end
 -- Init
 ---------------------------------------------------------------------
 local prevProfile = -2
-local function LoadCurrentProfile()
+local function LoadCurrentProfile(forceChange)
     CleanShapes()
     UpdateShapes()
 
@@ -228,6 +230,9 @@ local function LoadCurrentProfile()
         CAE.msg("Loaded profile " .. profile.profileName)
     end
 
+    if (forceChange) then
+        isSame = false
+    end
     FireProfileChanged(isSame)
 end
 CAE.LoadCurrentProfile = LoadCurrentProfile

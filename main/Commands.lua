@@ -34,6 +34,9 @@ SLASH_COMMANDS["/cae"] = function(argString)
     elseif (args[1] == "printskills") then
         SLASH_COMMANDS["/crutch"]("printskills") -- just an alias for crutch
 
+    elseif (args[1] == "printeffects" or args[1] == "printbuffs") then
+        SLASH_COMMANDS["/crutch"]("printeffects") -- just an alias for crutch
+
     elseif (args[1] == "printsets") then
         CAE.msg("Equipped complete set IDs:" .. CAE.GetEquippedSetsString())
 

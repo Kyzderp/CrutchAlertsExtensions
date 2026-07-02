@@ -138,8 +138,10 @@ local trackedEffects = {} -- {[12345] = true,}
 local function OnEffectChanged(_, changeType, _, _, _, _, _, _, _, _, _, _, _, _, _, abilityId)
     if (changeType == EFFECT_RESULT_GAINED) then
         effects[abilityId] = true
+        CAE.UpdateShapes()
     elseif (changeType == EFFECT_RESULT_FADED) then
         effects[abilityId] = nil
+        CAE.UpdateShapes()
     end
 end
 

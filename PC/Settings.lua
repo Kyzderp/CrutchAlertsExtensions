@@ -445,24 +445,6 @@ function CAE.CreateSettingsMenu()
             end,
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
-        -- {
-        --     type = "slider",
-        --     name = "Outline thickness",
-        --     tooltip = "The thickness of the rectangle outline (does not work for circles)",
-        --     min = 0,
-        --     max = 100,
-        --     step = 1,
-        --     default = 8,
-        --     width = "half",
-        --     getFunc = function() return currentEdgeSize end,
-        --     setFunc = function(value)
-        --         currentEdgeSize = value
-        --         CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].edgeSize = currentEdgeSize
-        --         CAE.LoadCurrentProfile()
-        --         RefreshShapes()
-        --     end,
-        --     disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.CIRCLE end, -- Don't allow editing default, not valid for circles
-        -- },
         {
             type = "editbox",
             name = "Conditional skill ID",
@@ -482,7 +464,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "editbox",
             name = "Conditional set ID",
-            tooltip = "If specified, this shape will only show when this set is equipped with the max bonus (front or back bar). Use |c99FF99/cae printsets|r to see currently equipped set IDs",
+            tooltip = "If specified, this shape will only show when this set is equipped with the max bonus (front or back bar). Use |c99FF99/crutch printsets|r to see currently equipped set IDs",
             getFunc = function() return currentConditionalSetId end,
             setFunc = function(value)
                 currentConditionalSetId = tonumber(value)
@@ -498,12 +480,12 @@ function CAE.CreateSettingsMenu()
         {
             type = "editbox",
             name = "Conditional effect ID",
-            tooltip = "If specified, this shape will only show when this buff / debuff effect is on you. Use |c99FF99/cae printeffects|r to see current effect IDs",
+            tooltip = "If specified, this shape will only show when this buff / debuff effect is on you. Use |c99FF99/crutch printeffects|r to see current effect IDs",
             getFunc = function() return currentConditionalEffectId end,
             setFunc = function(value)
                 currentConditionalEffectId = tonumber(value)
                 CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalEffectId = currentConditionalEffectId
-                CAE.LoadCurrentProfile()
+                CAE.LoadCurrentProfile(true)
                 RefreshShapes()
             end,
             isMultiline = false,
@@ -514,7 +496,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "checkbox",
             name = "Conditional active bar only",
-            tooltip = "Whether to check for active bar on the conditional ID. If set to ON, this shape will only appear when the ability or set is slotted on the active weapon bar. If OFF, the shape will show when the ability or set is slotted on either bar",
+            tooltip = "Whether to check for active bar on the conditional ID. If set to ON, this shape will only appear when the skill or set is slotted on the active weapon bar. If OFF, the shape will show when the skill or set is slotted on either bar",
             default = false,
             getFunc = function() return currentActiveBarOnly end,
             setFunc = function(value)
@@ -523,9 +505,10 @@ function CAE.CreateSettingsMenu()
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
-            width = "half",
+            width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or (currentConditionalAbility == nil and currentConditionalSetId == nil) end, -- Don't allow editing default
         },
+        -- TODO: preview text for conditional
         {
             type = "submenu",
             name = "Import",
