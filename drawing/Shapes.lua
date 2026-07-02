@@ -5,7 +5,7 @@ local Crutch = CrutchAlerts
 ---------------------------------------------------------------------
 -- Profile data
 ---------------------------------------------------------------------
-function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, activeBarOnly, depthBuffers)
+function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -18,6 +18,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
         forwardOffset = forwardOffset,
         conditionalAbilityId = conditionalAbilityId,
         conditionalSetId = conditionalSetId,
+        conditionalEffectId = conditionalEffectId,
         activeBarOnly = activeBarOnly,
         depthBuffers = depthBuffers,
     }
@@ -28,7 +29,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
 end
 
 -- TODO: renderspace rectangle with solid color only
-function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSize, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, activeBarOnly)
+function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSize, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -44,6 +45,7 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSiz
         forwardOffset = forwardOffset,
         conditionalAbilityId = conditionalAbilityId,
         conditionalSetId = conditionalSetId,
+        conditionalEffectId = conditionalEffectId,
         activeBarOnly = activeBarOnly,
     }
 
@@ -178,7 +180,7 @@ end
 local function UpdateShapes()
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     for id, shapeData in pairs(profile.circles) do
-        if (CAE.ShouldShapeBeShown(shapeData.conditionalAbilityId, shapeData.conditionalSetId, shapeData.activeBarOnly)) then
+        if (CAE.ShouldShapeBeShown(shapeData.conditionalAbilityId, shapeData.conditionalSetId, shapeData.conditionalEffectId, shapeData.activeBarOnly)) then
             ShowShape(id)
         else
             HideShape(id)
@@ -189,14 +191,44 @@ CAE.UpdateShapes = UpdateShapes
 
 
 ---------------------------------------------------------------------
+-- Listeners for profile change
+-- TODO: move to profiles.lua?
+---------------------------------------------------------------------
+local profileListeners = {}
+
+function CAE.RegisterProfileChangedListener(name, func)
+    profileListeners[name] = func
+end
+
+function CAE.UnregisterProfileChangedListener(name)
+    profileListeners[name] = nil
+end
+
+local function FireProfileChanged(isSame)
+    for _, listener in pairs(profileListeners) do
+        listener(old, new)
+    end
+end
+
+
+---------------------------------------------------------------------
 -- Init
 ---------------------------------------------------------------------
+local prevProfile = -2
 local function LoadCurrentProfile()
     CleanShapes()
     UpdateShapes()
 
     local profile = CAE.profiles[CAE.csvs.currentProfile]
-    CAE.msg("Loaded profile " .. profile.profileName)
+
+    local isSame = prevProfile == CAE.csvs.currentProfile
+    prevProfile = CAE.csvs.currentProfile
+
+    if (not isSame) then
+        CAE.msg("Loaded profile " .. profile.profileName)
+    end
+
+    FireProfileChanged(isSame)
 end
 CAE.LoadCurrentProfile = LoadCurrentProfile
 

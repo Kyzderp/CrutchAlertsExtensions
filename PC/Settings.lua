@@ -12,6 +12,7 @@ local currentYOffset = 5
 local currentForwardOffset = 5
 local currentConditionalAbility
 local currentConditionalSetId
+local currentConditionalEffectId
 local currentActiveBarOnly = false
 local currentDepthBuffers = false
 
@@ -104,6 +105,7 @@ local function LoadShapeValues()
     currentForwardOffset = profile.circles[currentShape].forwardOffset
     currentConditionalAbility = profile.circles[currentShape].conditionalAbilityId
     currentConditionalSetId = profile.circles[currentShape].conditionalSetId
+    currentConditionalEffectId = profile.circles[currentShape].conditionalEffectId
     currentActiveBarOnly = profile.circles[currentShape].activeBarOnly
     currentDepthBuffers = profile.circles[currentShape].depthBuffers
 end
@@ -463,7 +465,7 @@ function CAE.CreateSettingsMenu()
         -- },
         {
             type = "editbox",
-            name = "Conditional ability ID",
+            name = "Conditional skill ID",
             tooltip = "If specified, this shape will only show when this ability is slotted. Use |c99FF99/crutch printskills|r to see currently slotted IDs",
             getFunc = function() return currentConditionalAbility end,
             setFunc = function(value)
@@ -485,6 +487,22 @@ function CAE.CreateSettingsMenu()
             setFunc = function(value)
                 currentConditionalSetId = tonumber(value)
                 CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalSetId = currentConditionalSetId
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            isMultiline = false,
+            isExtraWide = false,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "editbox",
+            name = "Conditional effect ID",
+            tooltip = "If specified, this shape will only show when this buff / debuff effect is on you. Use |c99FF99/cae printeffects|r to see current effect IDs",
+            getFunc = function() return currentConditionalEffectId end,
+            setFunc = function(value)
+                currentConditionalEffectId = tonumber(value)
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalEffectId = currentConditionalEffectId
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,

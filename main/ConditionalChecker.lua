@@ -130,13 +130,67 @@ end
 
 
 ---------------------------------------------------------------------
+-- Buff
+---------------------------------------------------------------------
+local effects = {}
+local trackedEffects = {} -- {[12345] = true,}
+
+local function OnEffectChanged(_, changeType, _, _, _, _, _, _, _, _, _, _, _, _, _, abilityId)
+    if (changeType == EFFECT_RESULT_GAINED) then
+        effects[abilityId] = true
+    elseif (changeType == EFFECT_RESULT_FADED) then
+        effects[abilityId] = nil
+    end
+end
+
+local function InitEffects()
+    -- Unregister previous
+    for abilityId, _ in pairs(trackedEffects) do
+        EVENT_MANAGER:UnregisterForEvent(CAE.name .. "ConditionalEffect" .. abilityId, EVENT_EFFECT_CHANGED)
+    end
+    ZO_ClearTable(trackedEffects)
+
+    -- Collect all buffs needed to be tracked from profile
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+    for _, shapeData in pairs(profile.circles) do
+        if (shapeData.conditionalEffectId) then
+            trackedEffects[shapeData.conditionalEffectId] = true
+        end
+    end
+
+    -- Register new
+    for abilityId, _ in pairs(trackedEffects) do
+        EVENT_MANAGER:RegisterForEvent(CAE.name .. "ConditionalEffect" .. abilityId, EVENT_EFFECT_CHANGED, OnEffectChanged)
+    end
+end
+
+local function CheckEffects()
+    -- For first loads etc
+    ZO_ClearTable(effects)
+    for i = 1, GetNumBuffs("player") do
+        local _, _, _, _, _, _, _, _, _, _, abilityId = GetUnitBuffInfo("player", i)
+        if (trackedEffects[abilityId]) then
+            effects[abilityId] = true
+        end
+    end
+end
+
+local function HasEffect(abilityId)
+    return effects[abilityId]
+end
+
+
+---------------------------------------------------------------------
 -- called
 ---------------------------------------------------------------------
-local function ShouldShapeBeShown(conditionalAbilityId, conditionalSetId, activeBarOnly)
+local function ShouldShapeBeShown(conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly)
     if (conditionalAbilityId ~= nil and not IsSlotted(conditionalAbilityId, activeBarOnly)) then
         return false
     end
     if (conditionalSetId ~= nil and not IsEquipped(conditionalSetId, activeBarOnly)) then
+        return false
+    end
+    if (conditionalEffectId ~= nil and not HasEffect(conditionalEffectId)) then
         return false
     end
     return true
@@ -161,6 +215,15 @@ function CAE.InitializeConditionalChecker()
 
     -- Both
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "Barswapped", EVENT_ACTIVE_WEAPON_PAIR_CHANGED, CalculateEquippedSets)
+
+    -- Effects
+    InitEffects()
+    CAE.RegisterProfileChangedListener("CAEConditionalChecker", function(isSame)
+        if (not isSame) then
+            InitEffects()
+        end
+    end)
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "ConditionalPlayerActivated", EVENT_PLAYER_ACTIVATED, CheckEffects)
 
     CalculateEquippedSets()
 end
