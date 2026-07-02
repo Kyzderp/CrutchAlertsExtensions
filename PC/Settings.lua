@@ -16,7 +16,7 @@ local currentConditionalEffectId
 local currentActiveBarOnly = false
 local currentDepthBuffers = false
 
-local currentShape
+local currentShape, currentLine
 
 local profileNames = {}
 local profileIds = {}
@@ -73,7 +73,7 @@ local function RefreshShapes()
 end
 
 ---------------------------------------------------------------------
-local currentLine, currentPlayer1, currentPlayer2
+local currentPlayer1, currentPlayer2
 local currentLineColor = {1, 1, 1, 1}
 local currentShowDistance = false
 
@@ -149,6 +149,13 @@ local function BuildPresetShapes()
     return tab
 end
 
+local function ClearProfileControls()
+    currentShape = nil
+    currentLine = nil
+    ResetCurrentValues()
+    ResetCurrentLineValues()
+end
+
 
 ---------------------------------------------------------------------
 function CAE.CreateSettingsMenu()
@@ -180,6 +187,7 @@ function CAE.CreateSettingsMenu()
             end,
             setFunc = function(value)
                 CAE.csvs.currentProfile = value
+                ClearProfileControls()
                 CAE.LoadCurrentProfile()
                 CAE.LoadCurrentLines()
             end,
@@ -208,6 +216,7 @@ function CAE.CreateSettingsMenu()
             name = "Create new profile",
             tooltip = "Create a new profile",
             func = function()
+                ClearProfileControls()
                 CAE.CreateProfile()
                 RefreshProfiles()
             end,
@@ -218,6 +227,7 @@ function CAE.CreateSettingsMenu()
             name = "Duplicate profile",
             tooltip = "Duplicate the current profile",
             func = function()
+                ClearProfileControls()
                 CAE.DuplicateProfile()
                 RefreshProfiles()
             end,
@@ -228,6 +238,7 @@ function CAE.CreateSettingsMenu()
             name = "Delete current profile",
             tooltip = "Delete the currently selected profile. This cannot be undone!",
             func = function()
+                ClearProfileControls()
                 CAE.DeleteProfile(CAE.csvs.currentProfile)
                 RefreshProfiles()
             end,
@@ -446,52 +457,22 @@ function CAE.CreateSettingsMenu()
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
         {
-            type = "editbox",
-            name = "Conditional skill ID",
-            tooltip = "If specified, this shape will only show when this ability is slotted. Use |c99FF99/crutch printskills|r to see currently slotted IDs",
-            getFunc = function() return currentConditionalAbility end,
-            setFunc = function(value)
-                currentConditionalAbility = tonumber(value)
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalAbilityId = currentConditionalAbility
-                CAE.LoadCurrentProfile()
-                RefreshShapes()
+            type = "description",
+            text = function()
+                local suffix = ""
+                if (currentConditionalAbility) then
+                    suffix = zo_strformat("\nCurrent: shown when you slot <<1>> (<<2>>) <<3>>", GetAbilityName(currentConditionalAbility), currentConditionalAbility,
+                        currentActiveBarOnly and "on the active bar" or "on either bar")
+                elseif (currentConditionalSetId) then
+                    local _, setName = GetItemSetInfo(currentConditionalSetId)
+                    suffix = zo_strformat("\nCurrent: shown when you equip <<1>> (<<2>>) <<3>>", setName, currentConditionalSetId,
+                        currentActiveBarOnly and "on the active bar" or "on either bar")
+                elseif (currentConditionalEffectId) then
+                    suffix = zo_strformat("\nCurrent: shown when you have <<1>> (<<2>>) on you", GetAbilityName(currentConditionalEffectId), currentConditionalEffectId)
+                end
+                return "Only one ID applies; create more of the same shape if you want more." .. suffix
             end,
-            isMultiline = false,
-            isExtraWide = false,
             width = "full",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
-        },
-        {
-            type = "editbox",
-            name = "Conditional set ID",
-            tooltip = "If specified, this shape will only show when this set is equipped with the max bonus (front or back bar). Use |c99FF99/crutch printsets|r to see currently equipped set IDs",
-            getFunc = function() return currentConditionalSetId end,
-            setFunc = function(value)
-                currentConditionalSetId = tonumber(value)
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalSetId = currentConditionalSetId
-                CAE.LoadCurrentProfile()
-                RefreshShapes()
-            end,
-            isMultiline = false,
-            isExtraWide = false,
-            width = "full",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
-        },
-        {
-            type = "editbox",
-            name = "Conditional effect ID",
-            tooltip = "If specified, this shape will only show when this buff / debuff effect is on you. Use |c99FF99/crutch printeffects|r to see current effect IDs",
-            getFunc = function() return currentConditionalEffectId end,
-            setFunc = function(value)
-                currentConditionalEffectId = tonumber(value)
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalEffectId = currentConditionalEffectId
-                CAE.LoadCurrentProfile(true)
-                RefreshShapes()
-            end,
-            isMultiline = false,
-            isExtraWide = false,
-            width = "full",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
         {
             type = "checkbox",
@@ -508,7 +489,54 @@ function CAE.CreateSettingsMenu()
             width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or (currentConditionalAbility == nil and currentConditionalSetId == nil) end, -- Don't allow editing default
         },
-        -- TODO: preview text for conditional
+        {
+            type = "editbox",
+            name = "Conditional skill ID",
+            tooltip = "If specified, this shape will only show when this ability is slotted. Use |c99FF99/cae printskills|r to see currently slotted IDs",
+            getFunc = function() return currentConditionalAbility end,
+            setFunc = function(value)
+                currentConditionalAbility = tonumber(value)
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalAbilityId = currentConditionalAbility
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            isMultiline = false,
+            isExtraWide = false,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or currentConditionalSetId ~= nil or currentConditionalEffectId ~= nil end, -- Exclude when others are set
+        },
+        {
+            type = "editbox",
+            name = "Conditional set ID",
+            tooltip = "If specified, this shape will only show when this set is equipped with the max bonus (front or back bar). Use |c99FF99/cae printsets|r to see currently equipped set IDs",
+            getFunc = function() return currentConditionalSetId end,
+            setFunc = function(value)
+                currentConditionalSetId = tonumber(value)
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalSetId = currentConditionalSetId
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            isMultiline = false,
+            isExtraWide = false,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or currentConditionalAbility ~= nil or currentConditionalEffectId ~= nil end, -- Exclude when others are set
+        },
+        {
+            type = "editbox",
+            name = "Conditional effect ID",
+            tooltip = "If specified, this shape will only show when this buff / debuff effect is on you. Use |c99FF99/cae printeffects|r to see current effect IDs",
+            getFunc = function() return currentConditionalEffectId end,
+            setFunc = function(value)
+                currentConditionalEffectId = tonumber(value)
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalEffectId = currentConditionalEffectId
+                CAE.LoadCurrentProfile(true)
+                RefreshShapes()
+            end,
+            isMultiline = false,
+            isExtraWide = false,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or currentConditionalSetId ~= nil or currentConditionalAbility ~= nil end, -- Exclude when others are set
+        },
         {
             type = "submenu",
             name = "Import",
