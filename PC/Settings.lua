@@ -172,7 +172,7 @@ function CAE.CreateSettingsMenu()
     local optionsData = {
         {
             type = "description",
-            text = "These are persistent settings that are saved in installation-wide profiles, which can be chosen on a per-character basis. The default <Empty> profile is provided for convenience, so you can turn off all shapes by loading the empty profile. In order to add shapes, create a new profile.",
+            text = "These are persistent settings that are saved in installation-wide profiles, which can be chosen on a per-character basis. The default <Empty> profile is provided for convenience, so you can turn off all shapes and lines by loading the empty profile. |c99FF99In order to add shapes, you must create a new profile.|r",
             width = "full",
         },
         {

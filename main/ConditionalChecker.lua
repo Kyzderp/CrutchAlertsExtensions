@@ -57,6 +57,7 @@ local ITEM_SLOTS_BACKBAR = {
 }
 
 local equipped = {}
+CAE.equipped = equipped
 
 local function GetNumSetBonuses(itemLink)
     local _, _, _, equipType = GetItemLinkInfo(itemLink)
@@ -99,9 +100,9 @@ local function IsEquipped(setId, activeBarOnly)
     if (not activeBarOnly) then
         return (equipped[setId].body + equipped[setId].frontbar >= maxEquipped) or (equipped[setId].body + equipped[setId].backbar >= maxEquipped)
     else
-        if (GetActiveHotbarCategory() == HOTBAR_CATEGORY_PRIMARY) then
+        if (GetHeldWeaponPair() == ACTIVE_WEAPON_PAIR_MAIN) then
             return (equipped[setId].body + equipped[setId].frontbar >= maxEquipped)
-        else
+        else -- TODO: when can it be NONE?
             return (equipped[setId].body + equipped[setId].backbar >= maxEquipped)
         end
     end
