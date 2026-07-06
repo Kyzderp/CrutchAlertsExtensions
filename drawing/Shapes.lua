@@ -87,13 +87,15 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwa
 
     -- Places circle at player's feet
     local function CircleFunc(icon)
-        -- Make circle follow the player
-        local _, pX, y, pZ = GetUnitRawWorldPosition("player")
-        local _, _, heading = GetMapPlayerPosition("player")
-        local x = math.sin(heading) * -forwardOffset + pX
-        local z = math.cos(heading) * -forwardOffset + pZ
+        if (not CAE.freeze) then
+            -- Make circle follow the player
+            local _, pX, y, pZ = GetUnitRawWorldPosition("player")
+            local _, _, heading = GetMapPlayerPosition("player")
+            local x = math.sin(heading) * -forwardOffset + pX
+            local z = math.cos(heading) * -forwardOffset + pZ
 
-        icon:SetPosition(x, y + yOffset, z)
+            icon:SetPosition(x, y + yOffset, z)
+        end
 
         -- Make color change every update
         if (rgb) then
@@ -123,14 +125,16 @@ local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColo
     local z = math.cos(heading) * -forwardOffset + pZ
 
     local function RectangleFunc(icon)
-        -- Make it follow the player
-        local _, pX, y, pZ = GetUnitRawWorldPosition("player")
-        local _, _, heading = GetMapPlayerPosition("player")
-        local x = math.sin(heading) * -forwardOffset + pX
-        local z = math.cos(heading) * -forwardOffset + pZ
+        if (not CAE.freeze) then
+            -- Make it follow the player
+            local _, pX, y, pZ = GetUnitRawWorldPosition("player")
+            local _, _, heading = GetMapPlayerPosition("player")
+            local x = math.sin(heading) * -forwardOffset + pX
+            local z = math.cos(heading) * -forwardOffset + pZ
 
-        icon:SetPosition(x, y + yOffset, z)
-        icon:SetOrientation(-math.pi/2, heading, 0)
+            icon:SetPosition(x, y + yOffset, z)
+            icon:SetOrientation(-math.pi/2, heading, 0)
+        end
 
         -- Make color change every update
         -- TODO: rgb inherit color alpha?

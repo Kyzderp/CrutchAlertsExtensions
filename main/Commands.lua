@@ -8,6 +8,8 @@ local function PrintUsage()
 |cAAAAAA/cae utils - opens the utils settings
 |cAAAAAA/cae printskills - prints your currently equipped skill IDs
 |cAAAAAA/cae printsets - prints your currently equipped set IDs
+|cAAAAAA/cae freeze - temporarily freezes shapes in their current spots
+|cAAAAAA/cae unfreeze - restores shapes to follow your character
 |cAAAAAA/cae]])
 end
 
@@ -39,6 +41,14 @@ SLASH_COMMANDS["/cae"] = function(argString)
 
     elseif (args[1] == "printsets") then
         CAE.msg("Equipped complete set IDs:" .. CAE.GetEquippedSetsString())
+
+    elseif (args[1] == "freeze") then
+        CAE.msg("Shapes are now frozen in place; undo via /cae unfreeze.")
+        CAE.freeze = true
+
+    elseif (args[1] == "unfreeze") then
+        CAE.msg("Shapes unfrozen.")
+        CAE.freeze = false
 
     else
         PrintUsage()
