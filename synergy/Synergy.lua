@@ -12,9 +12,13 @@ local origOnSynergyAbilityChanged
 
 local hintUI
 
+local function ShouldRequireModifier()
+    return CAE.profiles[CAE.csvs.currentProfile].hungerRequireModifier and not IsInGamepadPreferredMode()
+end
+
 local function MyOnSynergyChanged(self)
     local hasSynergy, _, iconFilename = GetCurrentSynergyInfo()
-    if (CAE.profiles[CAE.csvs.currentProfile].hungerRequireModifier
+    if (ShouldRequireModifier()
         and hasSynergy
         and iconFilename == HUNGER_TEXTURE
         and not modifyDown) then
@@ -28,7 +32,7 @@ end
 
 local hooked = false
 local function HookSynergy()
-    if (not CAE.profiles[CAE.csvs.currentProfile].hungerRequireModifier) then return end
+    if (not ShouldRequireModifier()) then return end
     if (hooked) then return end
     hooked = true
     origOnSynergyAbilityChanged = SYNERGY.OnSynergyAbilityChanged
@@ -45,13 +49,13 @@ end
 -- Custom keybind, refresh synergy when modifier changes too
 function CAE.ModifyKeyDown()
     modifyDown = true
-    if (not CAE.profiles[CAE.csvs.currentProfile].hungerRequireModifier) then return end
+    if (not ShouldRequireModifier()) then return end
     MyOnSynergyChanged(SYNERGY)
 end
 
 function CAE.ModifyKeyUp()
     modifyDown = false
-    if (not CAE.profiles[CAE.csvs.currentProfile].hungerRequireModifier) then return end
+    if (not ShouldRequireModifier()) then return end
     MyOnSynergyChanged(SYNERGY)
 end
 
@@ -96,7 +100,7 @@ function CAE.GetSynergySettings()
         {
             type = "checkbox",
             name = "Modifier keybind for Insatiable Hunger",
-            tooltip = "As a werewolf, requires you to hold another key to make the Insatiable Hunger synergy usable. Other synergies are unaffected. This prevents accidental corpse-eating but still gives you the choice to activate it deliberately. Set your keybind in the controls menu to use this",
+            tooltip = "As a werewolf, requires you to hold another key to make the Insatiable Hunger synergy usable. Other synergies are unaffected. This prevents accidental corpse-eating but still gives you the choice to activate it deliberately. Set your keybind in the controls menu to use this. Does not apply to gamepad mode, since it already has very few keys available",
             default = false,
             getFunc = function() return CAE.profiles[CAE.csvs.currentProfile].hungerRequireModifier end,
             setFunc = function(value)
