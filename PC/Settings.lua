@@ -301,7 +301,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new circle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentActiveBarOnly, currentDepthBuffers)
+                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -315,7 +315,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new rectangle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentEdgeSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentActiveBarOnly)
+                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentEdgeSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
