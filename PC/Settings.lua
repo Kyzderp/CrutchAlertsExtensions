@@ -121,6 +121,7 @@ local function ResetCurrentValues()
     currentForwardOffset = 0
     currentConditionalAbility = nil
     currentConditionalSetId = nil
+    currentConditionalEffectId = nil
     currentActiveBarOnly = false
     currentDepthBuffers = false
 end
@@ -508,7 +509,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "editbox",
             name = "Conditional set ID",
-            tooltip = "If specified, this shape will only show when this set is equipped with the max bonus (front or back bar). Use |c99FF99/cae printsets|r to see currently equipped set IDs",
+            tooltip = "If specified, this shape will only show when this set is equipped with the max bonus. Use |c99FF99/cae printsets|r to see currently equipped set IDs",
             getFunc = function() return currentConditionalSetId end,
             setFunc = function(value)
                 currentConditionalSetId = tonumber(value)
@@ -541,6 +542,11 @@ function CAE.CreateSettingsMenu()
             type = "submenu",
             name = "Import",
             controls = {
+                {
+                    type = "description",
+                    text = "Select from example presets here to add shapes that are already set up for use. Yell at Kyzer if any of these seem wrong. Note: some skills may actually be pill-shaped or rounded, but the display for that is not supported yet.",
+                    width = "full",
+                },
                 {
                     type = "dropdown",
                     name = "Preset shape",

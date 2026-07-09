@@ -5,16 +5,8 @@ local CAE = CrutchAlertsExtensions
 -- Presets that can be added with a button
 ---------------------------------------------------------------------
 CAE.PresetShapes = {
-    ["Ferocious Roar"] = {
-        type = CAE.CIRCLE,
-        rgb = false,
-        color = {1, 1, 1, 0.1},
-        radius = 10,
-        yOffset = 5,
-        forwardOffset = 0,
-        conditionalAbilityId = 39113,
-        depthBuffers = false,
-    },
+---------------------------------------------------------------------
+-- Sets
     ["Roar of Alkosh"] = {
         type = CAE.RECTANGLE,
         rgb = false,
@@ -27,6 +19,29 @@ CAE.PresetShapes = {
         conditionalSetId = 232,
         activeBarOnly = true,
     },
+    ["Perfected Void Bash (vVH)"] = { -- TODO: test
+        type = CAE.CIRCLE,
+        rgb = false,
+        color = {1, 0, 0, 0.5},
+        radius = 12,
+        yOffset = 5,
+        forwardOffset = 0,
+        conditionalSetId = 564,
+        depthBuffers = false,
+    },
+
+---------------------------------------------------------------------
+-- Slotted skills
+    ["Ferocious Roar"] = {
+        type = CAE.CIRCLE,
+        rgb = false,
+        color = {1, 1, 1, 0.1},
+        radius = 10,
+        yOffset = 5,
+        forwardOffset = 0,
+        conditionalAbilityId = 39113,
+        depthBuffers = false,
+    },
     ["Pragmatic Fatecarver"] = {
         type = CAE.RECTANGLE,
         rgb = false,
@@ -38,5 +53,55 @@ CAE.PresetShapes = {
         forwardOffset = 1025,
         conditionalAbilityId = 193398,
         activeBarOnly = true,
+    },
+    ["Blockade of Fire"] = {
+        type = CAE.RECTANGLE,
+        rgb = false,
+        color = {1, 0, 0, 0.2},
+        fillColor = {1, 1, 1, 0},
+        radius = 12,
+        height = 18,
+        yOffset = 5,
+        forwardOffset = 900,
+        conditionalAbilityId = 39012,
+        activeBarOnly = true,
+    },
+    ["Blockade of Storms"] = {
+        type = CAE.RECTANGLE,
+        rgb = false,
+        color = {0, 1, 1, 0.2},
+        fillColor = {1, 1, 1, 0},
+        radius = 12,
+        height = 18,
+        yOffset = 5,
+        forwardOffset = 900,
+        conditionalAbilityId = 39018,
+        activeBarOnly = true,
+    },
+    ["Blockade of Frost"] = {
+        type = CAE.RECTANGLE,
+        rgb = false,
+        color = {0, 0, 1, 0.2},
+        fillColor = {1, 1, 1, 0},
+        radius = 12,
+        height = 18,
+        yOffset = 5,
+        forwardOffset = 900,
+        conditionalAbilityId = 39028,
+        activeBarOnly = true,
+    },
+
+---------------------------------------------------------------------
+-- Effects
+    ["Deep Fissure (2nd)"] = {
+        type = CAE.RECTANGLE,
+        rgb = false,
+        color = {0.3, 1, 0.8, 0.2},
+        fillColor = {0, 1, 1, 0.1},
+        radius = 7,
+        height = 20,
+        yOffset = 5,
+        forwardOffset = 1000,
+        conditionalEffectId = 178028,
     },
 }
