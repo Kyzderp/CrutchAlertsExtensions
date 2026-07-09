@@ -100,7 +100,7 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwa
         -- Make color change every update
         if (rgb) then
             local time = GetGameTimeMilliseconds() % 2000 / 2000
-            icon:SetColor(Crutch.ConvertHSLToRGB(time, 1, 0.5))
+            icon:SetColor(Crutch.ConvertHSLToRGB(time, 1, 0.5), color[4])
         end
     end
 
@@ -137,10 +137,9 @@ local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColo
         end
 
         -- Make color change every update
-        -- TODO: rgb inherit color alpha?
         if (rgb) then
             local time = GetGameTimeMilliseconds() % 2000 / 2000
-            icon:SetBackdropColors(nil, nil, nil, nil, Crutch.ConvertHSLToRGB(time, 1, 0.5))
+            icon:SetBackdropColors(nil, nil, nil, nil, Crutch.ConvertHSLToRGB(time, 1, 0.5), color[4])
         end
     end
 

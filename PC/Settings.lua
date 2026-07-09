@@ -393,7 +393,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "checkbox",
             name = "Use RGB",
-            tooltip = "Whether to cycle through all colors instead of being a static color",
+            tooltip = "Whether to cycle through all colors instead of being a static color. The alpha (opacity) of the \"Outline color\" above will be inherited",
             default = false,
             getFunc = function() return currentRgb end,
             setFunc = function(value)
