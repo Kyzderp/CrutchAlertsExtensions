@@ -544,7 +544,7 @@ function CAE.CreateSettingsMenu()
             controls = {
                 {
                     type = "description",
-                    text = "Select from example presets here to add shapes that are already set up for use. Yell at Kyzer if any of these seem wrong. Note: some skills may actually be pill-shaped or rounded, but the display for that is not supported yet.",
+                    text = "Select from example presets here to add shapes that are already set up for use. Yell at Kyzer if any of these seem wrong. Note: some skills may actually be pill-shaped or rounded, but the display for that is not supported.",
                     width = "full",
                 },
                 {

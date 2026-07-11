@@ -19,15 +19,27 @@ CAE.PresetShapes = {
         conditionalSetId = 232,
         activeBarOnly = true,
     },
-    ["Perfected Void Bash (vVH)"] = { -- TODO: test
+    ["Perfected Void Bash (vVH)"] = {
         type = CAE.CIRCLE,
-        rgb = false,
-        color = {1, 0, 0, 0.5},
+        rgb = true,
+        color = {1, 1, 1, 0.5},
         radius = 12,
         yOffset = 5,
         forwardOffset = 0,
         conditionalSetId = 564,
         depthBuffers = false,
+    },
+    ["Turning Tide"] = {
+        type = CAE.RECTANGLE,
+        rgb = false,
+        color = {0, 0.5, 1, 0.3},
+        fillColor = {1, 1, 1, 0},
+        radius = 10,
+        height = 10,
+        yOffset = 5,
+        forwardOffset = 500,
+        conditionalSetId = 622,
+        activeBarOnly = true,
     },
 
 ---------------------------------------------------------------------
@@ -89,6 +101,16 @@ CAE.PresetShapes = {
         forwardOffset = 900,
         conditionalAbilityId = 39028,
         activeBarOnly = true,
+    },
+    ["Streak (flat ground)"] = {
+        type = CAE.CIRCLE,
+        rgb = false,
+        color = {1, 1, 1, 0.8},
+        radius = 0.5,
+        yOffset = 5,
+        forwardOffset = 1500,
+        conditionalAbilityId = 23236,
+        depthBuffers = false,
     },
 
 ---------------------------------------------------------------------
