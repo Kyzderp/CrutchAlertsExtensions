@@ -178,7 +178,7 @@ function CAE.CreateSettingsMenu()
         },
         {
             type = "dropdown",
-            name = "Current profile for " .. GetUnitDisplayName("player"),
+            name = "Current profile for " .. GetUnitName("player"),
             tooltip = "Choose a profile to edit, duplicate, or delete",
             choices = {},
             choicesValues = {},
