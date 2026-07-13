@@ -164,6 +164,7 @@ local function InitEffects()
     -- Register new
     for abilityId, _ in pairs(trackedEffects) do
         EVENT_MANAGER:RegisterForEvent(CAE.name .. "ConditionalEffect" .. abilityId, EVENT_EFFECT_CHANGED, OnEffectChanged)
+        EVENT_MANAGER:AddFilterForEvent(CAE.name .. "ConditionalEffect" .. abilityId, EVENT_EFFECT_CHANGED, REGISTER_FILTER_UNIT_TAG, "player")
     end
 end
 

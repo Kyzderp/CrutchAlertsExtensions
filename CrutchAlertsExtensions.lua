@@ -4,7 +4,7 @@
 -----------------------------------------------------------
 CrutchAlertsExtensions = {
     name = "CrutchAlertsExtensions",
-    version = "0.2.1",
+    version = "0.2.2",
 
     CIRCLE = "Circle",
     RECTANGLE = "Rectangle",
