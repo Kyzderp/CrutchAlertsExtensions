@@ -3,6 +3,24 @@ local Crutch = CrutchAlerts
 
 
 ---------------------------------------------------------------------
+-- Data
+---------------------------------------------------------------------
+local ABILITY_BLACKLIST = {
+    [148800] = true, -- Sundered
+    [17902] = true, -- Poisoned Weapon
+    [17895] = true, -- Fiery Weapon
+}
+CAE.ABILITY_BLACKLIST = ABILITY_BLACKLIST -- /script CrutchAlertsExtensions.ABILITY_BLACKLIST[12345] = true
+
+local RESULTS = {
+    [ACTION_RESULT_DAMAGE] = "DAMAGE",
+    [ACTION_RESULT_CRITICAL_DAMAGE] = "CRITICAL_DAMAGE",
+    [ACTION_RESULT_DAMAGE_SHIELDED] = "|cFF0000DAMAGE_SHIELDED|r",
+    [ACTION_RESULT_BLOCKED_DAMAGE] = "|cFF0000BLOCKED_DAMAGE|r",
+}
+
+
+---------------------------------------------------------------------
 -- Display
 ---------------------------------------------------------------------
 local BOSS_COLOR = "DD0000"
@@ -84,7 +102,7 @@ local function OnUpdate()
     end
 
     if (numActiveLines > 0) then
-        Crutch.InfoPanel.SetLine(PANEL_HIT_BOSS_INDEX, "")
+        Crutch.InfoPanel.SetLine(PANEL_HIT_BOSS_INDEX, "|cCCCCCCRecent enemies hit:|r", 0.5)
     else
         Crutch.InfoPanel.RemoveLine(PANEL_HIT_BOSS_INDEX)
     end
@@ -101,6 +119,10 @@ local function OnEffect(_, _, _, _, unitTag, _, _, _, _, _, _, _, _, _, unitId)
 end
 
 local function OnDamaged(_, result, _, _, _, _, _, _, targetName, _, hitValue, _, _, _, _, targetUnitId, abilityId)
+    if (ABILITY_BLACKLIST[abilityId]) then return end
+
+    Crutch.dbgSpam(string.format("[%s] %s (%d) -> %s (%d) for %d", RESULTS[result], GetAbilityName(abilityId), abilityId, targetName, targetUnitId, hitValue))
+
     if (not recentDamage[targetUnitId]) then
         recentDamage[targetUnitId] = {
             targetName = zo_strformat("<<1>>", targetName),
@@ -129,6 +151,8 @@ function CAE.InitializeDamagedEnemies()
     -- TODO: ACTION_RESULT_DAMAGE_SHIELDED, ACTION_RESULT_BLOCKED_DAMAGE ?
     Crutch.RegisterForCombatEvent("DamagedEnemiesDamage", OnDamaged, ACTION_RESULT_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
     Crutch.RegisterForCombatEvent("DamagedEnemiesCritDamage", OnDamaged, ACTION_RESULT_CRITICAL_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
+    Crutch.RegisterForCombatEvent("DamagedEnemiesShielded", OnDamaged, ACTION_RESULT_DAMAGE_SHIELDED, nil, COMBAT_UNIT_TYPE_PLAYER)
+    Crutch.RegisterForCombatEvent("DamagedEnemiesBlocked", OnDamaged, ACTION_RESULT_BLOCKED_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
 
     Crutch.RegisterForEffectChanged("CrutchAlertsExtensionsDamagedEnemiesEffect", OnEffect, nil, "boss")
     Crutch.RegisterUpdateListener("CrutchAlertsExtensionsDamagedEnemies", OnUpdate)
