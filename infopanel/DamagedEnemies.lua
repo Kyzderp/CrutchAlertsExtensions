@@ -1,4 +1,5 @@
 local CAE = CrutchAlertsExtensions
+local Crutch = CrutchAlerts
 
 
 ---------------------------------------------------------------------
@@ -57,7 +58,7 @@ local function OnUpdate()
         local iconSuffix = ""
 
         -- Collect entries or clear any that are too old
-        for abilityId, timestamp do
+        for abilityId, timestamp in pairs(targetData.events) do
             if (currTime - timestamp > ALLOWED_TIME) then
                 targetData[abilityId] = nil -- just remove
             else
