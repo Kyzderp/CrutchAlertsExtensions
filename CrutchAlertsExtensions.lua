@@ -106,6 +106,7 @@ local function Initialize()
     CAE.InitializeConditionalChecker()
     CAE.InitializeSynergy()
     CAE.InitializeUnitIcons()
+    CAE.InitializeDamagedEnemies()
 
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "ActivatedFirstTime", EVENT_PLAYER_ACTIVATED, OnPlayerActivatedFirstTime)
 

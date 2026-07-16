@@ -37,3 +37,5 @@ drawing/Models.xml
 
 synergy/Synergy.lua
 synergy/Synergy.xml
+
+infopanel/DamagedEnemies.lua
