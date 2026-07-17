@@ -85,7 +85,7 @@ local function OnUpdate()
         end
 
         if (iconSuffix ~= "") then
-            local customColor = GetColor(targetData.targetName, targetData.bossNum)
+            local customColor = GetColor(targetData.targetName, targetData.bossNum ~= nil)
             local lineText = zo_strformat("|c<<1>><<2>><<3>>|r", customColor, targetData.targetName, iconSuffix)
 
             local index
@@ -115,7 +115,12 @@ end
 -- Just to cache boss unit IDs
 local bossIds = {}
 local function OnEffect(_, _, _, _, unitTag, _, _, _, _, _, _, _, _, _, unitId)
-    bossIds[unitId] = tonumber(string.sub(unitId, 5))
+    local bossNum = tonumber(string.sub(unitTag, 5))
+    bossIds[unitId] = bossNum
+
+    if (recentDamage[unitId]) then
+        recentDamage[unitId].bossNum = bossNum
+    end
 end
 
 local function OnDamaged(_, result, _, _, _, _, _, _, targetName, _, hitValue, _, _, _, _, targetUnitId, abilityId)
@@ -147,6 +152,8 @@ end
 -- Init
 ---------------------------------------------------------------------
 local function InitializeDamagedEnemies()
+    if (not CAE.profiles[CAE.csvs.currentProfile].damagedEnemies) then return end
+
     -- TODO: need pet for cro or something?
     Crutch.RegisterForCombatEvent("CAEDamagedEnemiesDamage", OnDamaged, ACTION_RESULT_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
     Crutch.RegisterForCombatEvent("CAEDamagedEnemiesCritDamage", OnDamaged, ACTION_RESULT_CRITICAL_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
