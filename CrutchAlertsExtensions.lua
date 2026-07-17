@@ -26,6 +26,7 @@ local defaultGlobalOptions = {
             iconsForKnownPets = false, -- hardcoded ones
             iconsForPets = false, -- fallback poop
             iconsForCompanions = false,
+            damagedEnemies = false,
         },
     },
 }

@@ -146,16 +146,53 @@ end
 ---------------------------------------------------------------------
 -- Init
 ---------------------------------------------------------------------
-function CAE.InitializeDamagedEnemies()
+local function InitializeDamagedEnemies()
     -- TODO: need pet for cro or something?
-    -- TODO: ACTION_RESULT_DAMAGE_SHIELDED, ACTION_RESULT_BLOCKED_DAMAGE ?
-    Crutch.RegisterForCombatEvent("DamagedEnemiesDamage", OnDamaged, ACTION_RESULT_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
-    Crutch.RegisterForCombatEvent("DamagedEnemiesCritDamage", OnDamaged, ACTION_RESULT_CRITICAL_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
-    Crutch.RegisterForCombatEvent("DamagedEnemiesShielded", OnDamaged, ACTION_RESULT_DAMAGE_SHIELDED, nil, COMBAT_UNIT_TYPE_PLAYER)
-    Crutch.RegisterForCombatEvent("DamagedEnemiesBlocked", OnDamaged, ACTION_RESULT_BLOCKED_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
+    Crutch.RegisterForCombatEvent("CAEDamagedEnemiesDamage", OnDamaged, ACTION_RESULT_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
+    Crutch.RegisterForCombatEvent("CAEDamagedEnemiesCritDamage", OnDamaged, ACTION_RESULT_CRITICAL_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
+    Crutch.RegisterForCombatEvent("CAEDamagedEnemiesShielded", OnDamaged, ACTION_RESULT_DAMAGE_SHIELDED, nil, COMBAT_UNIT_TYPE_PLAYER) -- TODO: ?
+    Crutch.RegisterForCombatEvent("CAEDamagedEnemiesBlocked", OnDamaged, ACTION_RESULT_BLOCKED_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER) -- TODO: ?
+    Crutch.RegisterForEffectChanged("CAEDamagedEnemiesEffect", OnEffect, nil, "boss")
 
-    Crutch.RegisterForEffectChanged("CrutchAlertsExtensionsDamagedEnemiesEffect", OnEffect, nil, "boss")
     Crutch.RegisterUpdateListener("CrutchAlertsExtensionsDamagedEnemies", OnUpdate)
 
     Crutch.RegisterExitedGroupCombatListener("CrutchAlertsExtensionsDamagedEnemies", CleanUp)
+end
+CAE.InitializeDamagedEnemies = InitializeDamagedEnemies
+
+local function UnregisterDamagedEnemies()
+    Crutch.UnregisterForCombatEvent("CAEDamagedEnemiesDamage")
+    Crutch.UnregisterForCombatEvent("CAEDamagedEnemiesCritDamage")
+    Crutch.UnregisterForCombatEvent("CAEDamagedEnemiesShielded")
+    Crutch.UnregisterForCombatEvent("CAEDamagedEnemiesBlocked")
+    Crutch.UnregisterForEffectChanged("CAEDamagedEnemiesEffect")
+
+    Crutch.UnregisterUpdateListener("CrutchAlertsExtensionsDamagedEnemies")
+
+    Crutch.UnregisterExitedGroupCombatListener("CrutchAlertsExtensionsDamagedEnemies")
+end
+
+
+---------------------------------------------------------------------
+function CAE.GetDamagedEnemiesSettings()
+    return {
+        {
+            type = "description",
+            title = "|c08BD1DDamaged Enemies|r",
+            width = "full",
+        },
+        {
+            type = "checkbox",
+            name = "Show recently damaged enemies",
+            tooltip = "Uses the Crutch info panel to show enemies you have damaged with direct damage abilities in the last 2 seconds and what you damaged them with",
+            default = false,
+            getFunc = function() return CAE.profiles[CAE.csvs.currentProfile].damagedEnemies end,
+            setFunc = function(value)
+                CAE.profiles[CAE.csvs.currentProfile].damagedEnemies = value
+                UnregisterDamagedEnemies()
+                InitializeDamagedEnemies()
+            end,
+            width = "full",
+        },
+    }
 end
