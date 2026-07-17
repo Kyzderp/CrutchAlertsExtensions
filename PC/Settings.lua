@@ -220,6 +220,7 @@ function CAE.CreateSettingsMenu()
                 ClearProfileControls()
                 CAE.CreateProfile()
                 RefreshProfiles()
+                CAE.LoadCurrentProfile()
             end,
             width = "half",
         },
@@ -231,6 +232,7 @@ function CAE.CreateSettingsMenu()
                 ClearProfileControls()
                 CAE.DuplicateProfile()
                 RefreshProfiles()
+                CAE.LoadCurrentProfile()
             end,
             width = "half",
         },
@@ -242,6 +244,7 @@ function CAE.CreateSettingsMenu()
                 ClearProfileControls()
                 CAE.DeleteProfile(CAE.csvs.currentProfile)
                 RefreshProfiles()
+                CAE.LoadCurrentProfile()
             end,
             warning = "Delete the currently selected profile. This cannot be undone!",
             isDangerous = true,
