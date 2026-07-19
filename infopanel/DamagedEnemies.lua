@@ -6,9 +6,16 @@ local Crutch = CrutchAlerts
 -- Data
 ---------------------------------------------------------------------
 local ABILITY_BLACKLIST = {
-    [148800] = true, -- Sundered
     [17902] = true, -- Poisoned Weapon
     [17895] = true, -- Fiery Weapon
+    [46743] = true, -- Absorb Magicka
+
+    [148797] = true, -- Overcharged
+    [148800] = true, -- Sundered
+    [215779] = true, -- Diseased
+    [21481] = true, -- Chill
+    [21487] = true, -- Concussion
+    [21925] = true, -- Diseased
 }
 CAE.ABILITY_BLACKLIST = ABILITY_BLACKLIST -- /script CrutchAlertsExtensions.ABILITY_BLACKLIST[12345] = true
 
@@ -46,6 +53,7 @@ local PANEL_HIT_OTHER_INDEX = 110
 
 local ALLOWED_TIME = 2000
 local LINE_SCALE = 0.7
+local LINE_ALPHA = 0.7
 
 --[[
 {
@@ -95,14 +103,14 @@ local function OnUpdate()
                 index = PANEL_HIT_OTHER_INDEX + otherOffset
                 otherOffset = otherOffset + 1
             end
-            Crutch.InfoPanel.SetLine(index, lineText, LINE_SCALE)
+            Crutch.InfoPanel.SetLine(index, lineText, LINE_SCALE, LINE_ALPHA)
             activeLines[index] = true
             numActiveLines = numActiveLines + 1
         end
     end
 
     if (numActiveLines > 0) then
-        Crutch.InfoPanel.SetLine(PANEL_HIT_BOSS_INDEX, "|cCCCCCCRecent enemies hit:|r", 0.5)
+        Crutch.InfoPanel.SetLine(PANEL_HIT_BOSS_INDEX, "|cCCCCCCRecent enemies hit:|r", 0.5, LINE_ALPHA)
     else
         Crutch.InfoPanel.RemoveLine(PANEL_HIT_BOSS_INDEX)
     end
@@ -123,7 +131,8 @@ local function OnEffect(_, _, _, _, unitTag, _, _, _, _, _, _, _, _, _, unitId)
     end
 end
 
-local function OnDamaged(_, result, _, _, _, _, _, _, targetName, _, hitValue, _, _, _, _, targetUnitId, abilityId)
+local function OnDamaged(_, result, _, _, _, _, _, _, targetName, targetType, hitValue, _, _, _, _, targetUnitId, abilityId)
+    if (targetType == COMBAT_UNIT_TYPE_PLAYER) then return end -- Self damage like carrion
     if (ABILITY_BLACKLIST[abilityId]) then return end
 
     Crutch.dbgSpam(string.format("[%s] %s (%d) -> %s (%d) for %d", RESULTS[result], GetAbilityName(abilityId), abilityId, targetName, targetUnitId, hitValue))
