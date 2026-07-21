@@ -24,8 +24,8 @@ main/Commands.lua
 main/ConditionalChecker.lua
 main/Utils.lua
 
-PC/Settings.lua
-PC/UtilsSettings.lua
+settings/Settings.lua
+settings/UtilsSettings.lua
 
 drawing/Shapes.lua
 drawing/Line.lua

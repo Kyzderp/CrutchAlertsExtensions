@@ -53,7 +53,7 @@ local PANEL_HIT_OTHER_INDEX = 110
 
 local ALLOWED_TIME = 2000
 local LINE_SCALE = 0.7
-local LINE_ALPHA = 0.7
+local LINE_ALPHA = 0.8
 
 --[[
 {
