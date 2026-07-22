@@ -75,7 +75,9 @@ end
 ---------------------------------------------------------------------
 local currentPlayer1, currentPlayer2
 local currentLineColor = {1, 1, 1, 1}
+local currentSecondLineColor = {1, 1, 1, 1}
 local currentShowDistance = false
+local currentUseGradient = false
 
 local lineNames = {}
 local lineIds = {}
@@ -130,7 +132,9 @@ local function ResetCurrentLineValues()
     currentPlayer1 = nil
     currentPlayer2 = nil
     currentLineColor = {1, 1, 1, 1}
+    currentSecondLineColor = {1, 1, 1, 1}
     currentShowDistance = false
+    currentUseGradient = false
 end
 
 local function ConcatTables(tab1, tab2)
@@ -603,7 +607,9 @@ function CAE.CreateSettingsMenu()
                     currentPlayer1 = profile.lines[value].player1
                     currentPlayer2 = profile.lines[value].player2
                     currentLineColor = profile.lines[value].color
+                    currentSecondLineColor = profile.lines[value].secondColor
                     currentShowDistance = profile.lines[value].showDistance
+                    currentUseGradient = profile.lines[value].useGradient
                 end
             end,
             width = "full",
@@ -632,7 +638,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new line to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentLineValues()
-                local id = CAE.AddLineToProfile(currentPlayer1, currentPlayer2, currentLineColor, currentShowDistance)
+                local id = CAE.AddLineToProfile(currentPlayer1, currentPlayer2, currentLineColor, currentShowDistance, currentUseGradient, currentSecondLineColor)
                 CAE.LoadCurrentLines()
                 currentLine = id
                 RefreshLines()
@@ -675,6 +681,21 @@ function CAE.CreateSettingsMenu()
             disabled = function() return CAE.csvs.currentProfile == -1 or currentLine == nil end, -- Don't allow editing default
         },
         {
+            type = "checkbox",
+            name = "Use gradient",
+            tooltip = "Interpolates the color of the line based on distance between the two players",
+            default = false,
+            getFunc = function() return currentUseGradient end,
+            setFunc = function(value)
+                currentUseGradient = value
+                CAE.profiles[CAE.csvs.currentProfile].lines[currentLine].useGradient = currentUseGradient
+                CAE.LoadCurrentLines()
+                RefreshLines()
+            end,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentLine == nil end, -- Don't allow editing default
+        },
+        {
             type = "colorpicker",
             name = "Line color",
             tooltip = "The color of the line to add. Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
@@ -688,6 +709,21 @@ function CAE.CreateSettingsMenu()
             end,
             width = "full",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentLine == nil end, -- Don't allow editing default
+        },
+        {
+            type = "colorpicker",
+            name = "Second line color (gradient)",
+            tooltip = "The ending color of the line if gradient is enabled. Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
+            default = ZO_ColorDef:New(1, 1, 1, 1),
+            getFunc = function() return unpack(currentSecondLineColor) end,
+            setFunc = function(r, g, b, a)
+                currentSecondLineColor = {r, g, b, a}
+                CAE.profiles[CAE.csvs.currentProfile].lines[currentLine].secondColor = currentSecondLineColor
+                CAE.LoadCurrentLines()
+                RefreshLines()
+            end,
+            width = "full",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentLine == nil or not currentUseGradient end, -- Don't allow editing default
         },
         {
             type = "checkbox",

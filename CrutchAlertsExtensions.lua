@@ -79,6 +79,15 @@ local function FillMissingDefaults()
         if (profileData.lines == nil) then
             profileData.lines = {}
         end
+        -- Line stuff
+        for _, lineData in pairs(profileData.lines) do
+            if (lineData.useGradient == nil) then
+                lineData.useGradient = false
+            end
+            if (lineData.secondColor == nil) then
+                lineData.secondColor = {1, 1, 1, 1}
+            end
+        end
         -- Shape types, forward offset, ?
         for _, shapeData in pairs(profileData.circles) do
             if (shapeData.type == nil) then
