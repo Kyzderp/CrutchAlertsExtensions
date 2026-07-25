@@ -47,6 +47,7 @@ local function HookSynergy()
         CrutchAlertsExtensionsContainer,
         "CAEWWSynergy_Template",
         "")
+    MyOnSynergyChanged(SYNERGY)
     -- hintUI:SetAnchor(CENTER, ZO_SynergyTopLevelContainer, CENTER)
 end
 
