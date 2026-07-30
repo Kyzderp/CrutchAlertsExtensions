@@ -72,39 +72,60 @@ local function CalculateValues(x1, y1, z1, x2, y2, z2, x3, y3, z3)
     local oY = (y1 + y2) / 2
     local oZ = (z1 + z2) / 2
 
-    local width = math.sqrt((x3 - x1)^2 + (y3 - y1)^2 + (z3 - z1)^2)
-    local height = math.sqrt((x3 - x2)^2 + (y3 - y2)^2 + (z3 - z2)^2)
-    local pitch = math.pi / 2 - math.atan2(y3 - y1, width)
-    local yaw = math.pi / 2 - math.atan2(z3 - z1, x3 - x1)
-    local roll = 0 -- TODO
+    local height = math.sqrt((x3 - x1)^2 + (y3 - y1)^2 + (z3 - z1)^2)
+    local width = math.sqrt((x3 - x2)^2 + (y3 - y2)^2 + (z3 - z2)^2)
+    local pitch = math.atan2(z3 - z1, y3 - y1)
+    local yaw = math.atan2(z3 - z1, x3 - x1)
+    local roll = math.atan2(x3 - x1, y3 - y1)
 
     return oX, oY, oZ, pitch, yaw, roll, width, height
 end
 
 local coords = {
+    -- {-1, -3, 0, 1, 0, 0, -1, 0, 0},
     {-1, 0, -.5, 1, 0, .5, 1, 0, -.5},
-    {-1, 0, -.5, 0, 1, .5, -1, 0, .5},
+    -- {-1, 0, -.5, 0, 1, .5, -1, 0, .5},
 }
 local function Test()
     local first
     for _, coord in ipairs(coords) do
         local function UpdateFunctionWrapper(icon)
+            local _, x, y, z = GetUnitRawWorldPosition("player")
+            icon:SetPosition(x, y, z)
         end
 
         local oX, oY, oZ, pitch, yaw, roll, width, height = CalculateValues(unpack(coord))
-        Crutch.Drawing.CreateWorldTexture(
-            "CrutchAlerts/assets/floor/square.dds",
+        d("---",
+            "oX " .. oX,
+            "oY " .. oY,
+            "oZ " .. oZ,
+            "pitch " .. pitch,
+            "yaw " .. yaw,
+            "roll " .. roll,
+            "width " .. width,
+            "height " .. height)
+
+        -- TODO: don't use crutch, put under first
+        local rect = Crutch.Drawing.CreateWorldTexture(
+            "CrutchAlerts/assets/shape/diamond_orange_2.dds",
             oX, oY, oZ,
             width or 1,
             height,
             {1, 1, 1, 0.5},
-            true,
-            false, -- facecamera
+            false, -- depth buffer
+            false, -- face camera
             {pitch, yaw, roll},
             UpdateFunctionWrapper)
 
         if (not first) then
-
+            first = rect
         end
     end
 end
+CAE.Test = Test -- /script CrutchAlertsExtensions.Test()
+--[[
+/script CrutchAlerts.Drawing.RemoveWorldTexture("2")
+/script CrutchAlertsDrawingCrutchAlertsDrawingTexture1:Set3DRenderSpaceOrientation(0, 0, 0)
+
+
+]]
