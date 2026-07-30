@@ -32,6 +32,7 @@ drawing/Line.lua
 drawing/Lines.lua
 drawing/UnitIcons.lua
 drawing/PresetShapes.lua
+drawing/ShapeUtils.lua
 drawing/Model.lua
 drawing/Models.xml
 
