@@ -118,6 +118,8 @@ local function Initialize()
     CAE.InitializeUnitIcons()
     CAE.InitializeDamagedEnemies()
 
+    CAE.InitializeGrave()
+
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "ActivatedFirstTime", EVENT_PLAYER_ACTIVATED, OnPlayerActivatedFirstTime)
 
     ZO_CreateStringId("SI_BINDING_NAME_CAE_SYNERGY_MODIFIER", "Werewolf Synergy Modifier")

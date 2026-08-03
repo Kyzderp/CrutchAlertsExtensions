@@ -12,5 +12,6 @@
         </Control>
 
         <Texture name="CrutchAlertsExtensionsGenericTexture" virtual="true"/>
+        <Label name="CrutchAlertsExtensionsGenericLabel" virtual="true"/>
     </Controls>
 </GuiXml>

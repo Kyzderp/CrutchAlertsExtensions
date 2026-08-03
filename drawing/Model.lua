@@ -3,121 +3,63 @@ local Crutch = CrutchAlerts
 
 
 ---------------------------------------------------------------------
-local graveyard
-
-local function RemoveGrave(graveKey)
-    Draw.activeIcons[graveKey] = nil
-    Draw.MaybeStopPolling()
-
-    local realKey = tonumber(string.sub(graveKey, 6))
-    graveyard:ReleaseObject(realKey)
-end
-
--- returns key
-local function CreateGrave(text)
-    if (not graveyard) then
-        graveyard = ZO_ControlPool:New("CrutchAlertsExtensionsGrave", CrutchAlertsSpace)
-        graveyard:SetResetFunction(function(control)
-            control:SetHidden(true)
-        end)
-    end
-
-    local control, key = graveyard:AcquireObject()
-    control:SetTransformNormalizedOriginPoint(0.5, 0.5)
-    control:SetHidden(false)
-    control:SetTransformScale(0.01)
-    control:SetAnchor(CENTER, GuiRoot, CENTER)
-
-    -- To not clash with normal keys when put in Draw.activeIcons together
-    local graveKey = "Grave" .. key
-
-    local _, x, y, z = GetUnitRawWorldPosition("player")
-    text = text or "YOUR AD HERE"
-
-    local label = control:GetNamedChild("Label")
-    label:SetText(text)
-    control:SetDimensions(2000, 2000)
-    control:SetWidth(math.max(label:GetTextWidth() + 50, 300))
-    local height = math.max(label:GetTextHeight() + 30, 60)
-    control:SetHeight(height)
-
-    local function UpdateFunc(icon)
-        local _, x, y, z = GetUnitRawWorldPosition("player")
-        icon:SetPosition(x, y, z)
-    end
-
-    Crutch.Drawing.CreateControlCommon(
-        true, -- isSpace
-        control,
-        graveKey,
-        "CrutchAlerts/assets/jetplane.dds", -- texture
-        x, y, z,
-        false, -- faceCamera
-        pitch, yaw, roll,
-        UpdateFunc,
-        Crutch.Drawing.SetPosition,
-        Crutch.Drawing.SetOrientation)
-
-    return graveKey
-end
-CAE.CreateGrave = CreateGrave
--- /script CrutchAlertsExtensions.CreateGrave("asdf")
-
-
----------------------------------------------------------------------
 -- generic?
 ---------------------------------------------------------------------
-local genericPool
+local genericTexturePool, genericLabelPool
 local first
--- /script control, key = CrutchAlertsExtensions.genericPool:AcquireObject()
+local graves = {} -- {["group3"] = {rects = {key,}, labels = {}}}
 
-local function CreateRect(x, y, z, pitch, yaw, roll, width, height, color, texture, text)
-    if (not genericPool) then
-        genericPool = ZO_ControlPool:New("CrutchAlertsExtensionsGenericTexture", CrutchAlertsSpace)
-        CAE.genericPool = genericPool
+local function CreateRectRenderSpace(x, y, z, pitch, yaw, roll, width, height, color, texture)
+    if (not genericTexturePool) then
+        genericTexturePool = ZO_ControlPool:New("CrutchAlertsExtensionsGenericTexture", CrutchAlertsDrawing)
         -- TODO: reset function?
     end
 
-    local control, key = genericPool:AcquireObject()
+    local control, key = genericTexturePool:AcquireObject()
 
-    if (first) then
-        control:SetParent(first)
-        control:SetAnchor(CENTER, first, CENTER)
-        control:SetTransformScale(0.01)
-    else
-        control:SetAnchor(CENTER, GuiRoot, CENTER)
+    control:SetHidden(false)
+    control:Create3DRenderSpace()
+    control:SetColor(unpack(color))
+    control:SetTexture(texture or "CrutchAlerts/assets/floor/square.dds")
+
+    control:Set3DRenderSpaceOrigin(WorldPositionToGuiRender3DPosition(x, y, z))
+
+    control:Set3DLocalDimensions(width, height)
+    control:Set3DRenderSpaceUsesDepthBuffer(true)
+
+    -- pitch, yaw, roll
+    control:Set3DRenderSpaceOrientation(pitch, yaw, roll)
+
+    -- TODO
+    control:SetDesaturation(1)
+
+    return control, key
+end
+
+local function CreateLabelRenderSpace(x, y, z, pitch, yaw, roll, width, height, color, text, fontSize)
+    if (not genericLabelPool) then
+        genericLabelPool = ZO_ControlPool:New("CrutchAlertsExtensionsGenericLabel", CrutchAlertsDrawing)
+        -- TODO: reset function?
     end
 
-    control:SetSpace(SPACE_WORLD)
-    control:SetTransformNormalizedOriginPoint(0.5, 0.5)
+    local control, key = genericLabelPool:AcquireObject()
+
     control:SetHidden(false)
+    control:Create3DRenderSpace()
     control:SetColor(unpack(color))
 
-    control:SetDimensions(width * 100, height * 100)
-    control:SetTexture(texture or "CrutchAlerts/assets/floor/square.dds")
-    -- control:SetTexture("/art/fx/texture/modelfxtextures/sovengardetablet_d.dds")
-    -- control:SetTexture("CrutchAlerts/assets/shape/diamond_blue_" .. key .. ".dds")
+    fontSize = fontSize or 20
+    control:SetFont("$(STONE_TABLET_FONT)|" .. fontSize)
+    control:SetText(text)
+    control:SetColor(.1, .1, .1, 1)
 
-    -- local oX, oY, oZ = GuiRender3DPositionToWorldPosition(0, 0, 0)
-    -- local tX = (x - oX) / 100
-    -- local tY = y / 100
-    -- local tZ = (z - oZ) / 100
-    -- control:SetTransformOffset(tX, tY, tZ)
-    control:SetTransformOffset(x, y, z)
+    control:SetScale(0.01)
 
-    control:SetTransformRotation(pitch, yaw, roll)
+    control:Set3DRenderSpaceOrigin(WorldPositionToGuiRender3DPosition(x, y, z))
+    control:Set3DRenderSpaceUsesDepthBuffer(true)
 
-    if (text) then
-        local label = WINDOW_MANAGER:CreateControl("$(parent)Label", control, CT_LABEL)
-        label:SetFont("$(STONE_TABLET_FONT)|20|soft-shadow-thick")
-        label:SetText("Here lies\nKyzeragon\n\nAug 1, 2026")
-        label:SetColor(.1, .1, .1, 1)
-        label:SetHorizontalAlignment(TEXT_ALIGN_CENTER)
-        label:SetVerticalAlignment(TEXT_ALIGN_CENTER)
-        d(label:GetName())
-        label:SetAnchorFill(control)
-    end
-    
+    -- pitch, yaw, roll
+    control:Set3DRenderSpaceOrientation(pitch, yaw, roll)
 
     return control, key
 end
@@ -134,66 +76,149 @@ local function CalculateValues(x1, y1, z1, x2, y2, z2, x3, y3, z3)
     local yaw = math.atan2(z3 - z1, x3 - x1)
     local roll = -math.atan2(x3 - x2, y3 - y2)
 
-    d("---",
-        "oX " .. oX,
-        "oY " .. oY,
-        "oZ " .. oZ,
-        "pitch " .. pitch,
-        "yaw " .. yaw,
-        "roll " .. roll,
-        "width " .. width,
-        "height " .. height)
-
-    -- return CreateRect(oX, oY, oZ, pitch, yaw, roll, width, height)
     return oX, oY, oZ, pitch, yaw, roll, width, height
 end
+
+local function FormatDate(timestamp)
+    local MONTHS = {
+        [1] = "Jan",
+        [2] = "Feb",
+        [3] = "Mar",
+        [4] = "Apr",
+        [5] = "May",
+        [6] = "Jun",
+        [7] = "Jul",
+        [8] = "Aug",
+        [9] = "Sep",
+        [10] = "Oct",
+        [11] = "Nov",
+        [12] = "Dec",
+    }
+    local year, month, day = GetDateElementsFromTimestamp(timestamp)
+    return zo_strformat("<<1>> <<2>>, <<3>>", MONTHS[month], day, year)
+end
+
+local function RemoveGrave(unitTag)
+    local data = graves[unitTag]
+    if (not data) then return end
+
+    for _, key in ipairs(data.rects) do
+        genericTexturePool:ReleaseObject(key)
+    end
+    for _, key in ipairs(data.labels) do
+        genericLabelPool:ReleaseObject(key)
+    end
+    graves[unitTag] = nil
+end
+CAE.RemoveGrave = RemoveGrave
 
 local elements = {
     -- top left, bottom right, top right
     {coords = {0, 0, 0, 0, 0, 0, 0, 0, 0}, color = {.9, .9, .9, 1}, texture = "CrutchAlerts/assets/floor/square.dds"},
-    {coords = {-.8, 2, .3, .8, 0, .3, .8, 2, .3}, color = {.5, .5, .5, 1}, texture = "/art/fx/texture/modelfxtextures/sovengardetablet_d.dds", text = true},
-    {coords = {-.8, 2, 0, .8, 0, 0, .8, 2, 0}, color = {.5, .5, .5, 1}, texture = "/art/fx/texture/modelfxtextures/sovengardetablet_d.dds"},
 
-    -- {coords = {-.8, 2, 0, -.8, 0, .3, -.8, 2, .3}, color = {.4, .4, .4, 1}, texture = "/art/fx/texture/modelfxtextures/sovengardetablet_s.dds"},
-    -- {coords = {-.8, 2, 0, .8, 2, .3, .8, 2, 0}, color = {.45, .45, .45, 1}, texture = "/art/fx/texture/modelfxtextures/sovengardetablet_s.dds"},
-    -- {coords = {.8, 2, .3, .8, 0, 0, .8, 2, 0}, color = {.4, .4, .4, 1}, texture = "/art/fx/texture/modelfxtextures/sovengardetablet_s.dds"},
+    -- frontback
+    {coords = {-.6, 1.8, .3, .6, 0, .3, .6, 1.8, .3}, color = {.5, .5, .5, 1}, texture = "esoui/art/worldmap/worldmap_map_background_512tile.dds"},
+    {coords = {-.6, 1.8,  0, .6, 0,  0, .6, 1.8,  0}, color = {.5, .5, .5, 1}, texture = "esoui/art/worldmap/worldmap_map_background_512tile.dds"},
 
-    {coords = {-.8, 2, 0, -.8, 0, .3, -.8, 2, .3}, color = {1, 1, 1, 1}, texture = "/art/fx/texture/modelfxtextures/sovengardetablet_s.dds"},
-    {coords = {-.8, 2, 0, .8, 2, .3, .8, 2, 0}, color = {1, 1, 1, 1}, texture = "/art/fx/texture/modelfxtextures/sovengardetablet_s.dds"},
-    {coords = {.8, 2, .3, .8, 0, 0, .8, 2, 0}, color = {1, 1, 1, 1}, texture = "/art/fx/texture/modelfxtextures/sovengardetablet_s.dds"},
+    {coords = {-.6, 1.5, .31, .6, 1.4, .31, .6, 1.5, .31}, color = {.1, .1, .1, 1}, text = "Here lies"},
+    {coords = {-.6, 1.3, .31, .6, 1.2, .31, .6, 1.3, .31}, color = {.1, .1, .1, 1}, text = "<<1>>"},
 
-    -- {-.5, .5, 0, .5, -5, 0, .5, .5, 0},
-    -- {-1, 3, 0, 1, 0, 0, 1, 3, 0},
-    -- {-1, 3, 0, 1, 0, 1, 1, 3, 1},
-    -- {-1, 0, -.5, 0, 1, .5, -1, 0, .5},
+    {coords = {-.6,   1, .31, .6,  .9, .31, .6,   1, .31}, color = {.1, .1, .1, 1}, text = "<<2>>", fontSize = 14},
+    {coords = {-.6,  .9, .31, .6,  .8, .31, .6,  .9, .31}, color = {.1, .1, .1, 1}, text = "-", fontSize = 14},
+    {coords = {-.6, .77, .31, .6, .67, .31, .6, .77, .31}, color = {.1, .1, .1, 1}, text = "<<3>>", fontSize = 14},
+
+    -- sides
+    {coords = {-.6, 1.8,  0, -.6,   0, .3, -.6, 1.8, .3}, color = {.4, .4, .4, 1}, texture = "esoui/art/worldmap/worldmap_map_background_512tile.dds"},
+    {coords = {-.6, 1.8,  0,  .6, 1.8, .3,  .6, 1.8,  0}, color = {.45, .45, .45, 1}, texture = "esoui/art/worldmap/worldmap_map_background_512tile.dds"},
+    {coords = { .6, 1.8, .3,  .6,   0,  0,  .6, 1.8,  0}, color = {.4, .4, .4, 1}, texture = "esoui/art/worldmap/worldmap_map_background_512tile.dds"},
 }
-local function Test()
-    local num = 1
-    for _, rect in ipairs(elements) do
 
-        -- local oX, oY, oZ, pitch, yaw, roll, width, height = CalculateValues(unpack(coord))
-        local oX, oY, oZ, pitch, yaw, roll, width, height = CalculateValues(unpack(rect.coords))
-        local control, key = CreateRect(oX, oY, oZ, pitch, yaw, roll, width, height, rect.color, rect.texture, rect.text)
-        
-        if (not first) then
-            first = control
+local function Grave(unitTag, name, birth, death)
+    unitTag = unitTag or "player"
+    local _, x, y, z = GetUnitRawWorldPosition(unitTag)
+    y = y - 20
+    name = name or "TheClawlessConqueror"
+    birth = birth or "Unknown"
+    death = death or FormatDate(GetTimeStamp())
+
+    RemoveGrave(unitTag)
+
+    graves[unitTag] = {rects = {}, labels = {}}
+
+    local scale = 100
+    local num = 1
+    for _, element in ipairs(elements) do
+        local oX, oY, oZ, pitch, yaw, roll, width, height = CalculateValues(unpack(element.coords))
+        if (element.texture) then
+            local control, key = CreateRectRenderSpace(x + oX * scale, y + oY * scale, z + oZ * scale, pitch, yaw, roll, width, height, element.color, element.texture)
+            table.insert(graves[unitTag].rects, key)
+        elseif (element.text) then
+            local text = zo_strformat(element.text, name, birth, death)
+            local control, key = CreateLabelRenderSpace(x + oX * scale, y + oY * scale, z + oZ * scale, pitch, yaw, roll, width, height, element.color, text, element.fontSize)
+            table.insert(graves[unitTag].labels, key)
+
+            local textWidth = control:GetTextWidth()
+            -- width of 1.2 is about 160 in textwidth at font 20 -> 
+            if (textWidth / 160 > width / 1.2) then
+                local newFontSize = math.floor(160 / textWidth * 20)
+                d(text .. " too wide, changing to " .. newFontSize)
+                control:SetFont("$(STONE_TABLET_FONT)|" .. newFontSize)
+                textWidth = control:GetTextWidth()
+            end
+
+            -- d("width: " .. width .. " height: " .. height)
+            -- d("textwidth: " .. control:GetTextWidth())
+            local offset = textWidth / 100 / 2 * .75 -- .75 arbitrary to get the centering offset right
+            -- TODO: not just x
+            local sX, sY, sZ = CalculateValues(
+                element.coords[1] - offset,
+                element.coords[2],
+                element.coords[3],
+                element.coords[4] - offset,
+                element.coords[5],
+                element.coords[6],
+                element.coords[7] - offset,
+                element.coords[8],
+                element.coords[9]
+                )
+            control:Set3DRenderSpaceOrigin(WorldPositionToGuiRender3DPosition(x + sX * scale, y + sY * scale, z + sZ * scale))
+        else
+            return
         end
     end
-
-    local _, x, y, z = GetUnitRawWorldPosition("player")
-    local oX, oY, oZ = GuiRender3DPositionToWorldPosition(0, 0, 0)
-    local tX = (x - oX) / 100
-    local tY = y / 100
-    local tZ = (z - oZ) / 100
-    first:SetTransformOffset(tX, tY, tZ)
 end
-CAE.Test = Test
+CAE.Grave = Grave
+
 --[[
-/script CrutchAlertsExtensions.Test()
+/script CrutchAlertsExtensions.Grave()
 /script CrutchAlerts.Drawing.RemoveWorldTexture("2")
 /script CrutchAlertsDrawingCrutchAlertsDrawingTexture1:Set3DRenderSpaceOrientation(0, 0, 0)
 /script CrutchAlertsDrawingCrutchAlertsDrawingTexture3:Set3DRenderSpaceOrientation(math.pi, math.pi/2, -2.356)
 /script CrutchAlerts.Drawing.AttachControl(CrutchAlertsSpaceCrutchAlertsExtensionsGenericTexture1, "player", "TestKey")
 /script CrutchAlerts.Drawing.UnattachControl(CrutchAlertsSpaceCrutchAlertsExtensionsGenericTexture1, "TestKey")
-
 ]]
+
+local function OnDeathStateChanged(_, unitTag, isDead)
+    -- To exclude companions and possibly pets too
+    if (unitTag ~= "player" and not string.find(unitTag, "^group%d+$")) then return end
+
+    -- Let player be handled by "player"
+    if (unitTag ~= "player" and AreUnitsEqual("player", unitTag)) then return end
+
+    if (isDead) then
+        Grave(
+            unitTag,
+            string.gsub(GetUnitDisplayName(unitTag), "@", ""),
+            unitTag == "player" and FormatDate(GetAchievementTimestamp(17))
+            )
+    else
+        RemoveGrave(unitTag)
+    end
+end
+
+function CAE.InitializeGrave()
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "GraveGroupDeathState", EVENT_UNIT_DEATH_STATE_CHANGED, OnDeathStateChanged)
+    EVENT_MANAGER:AddFilterForEvent(CAE.name .. "GraveGroupDeathState", EVENT_UNIT_DEATH_STATE_CHANGED, REGISTER_FILTER_UNIT_TAG_PREFIX, "group")
+    EVENT_MANAGER:RegisterForEvent(CAE.name .. "GravePlayerDeathState", EVENT_UNIT_DEATH_STATE_CHANGED, OnDeathStateChanged)
+    EVENT_MANAGER:AddFilterForEvent(CAE.name .. "GravePlayerDeathState", EVENT_UNIT_DEATH_STATE_CHANGED, REGISTER_FILTER_UNIT_TAG, "player")
+end
