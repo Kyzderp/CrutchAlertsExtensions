@@ -120,12 +120,12 @@ local elements = {
     {coords = {-.6, 1.8, .3, .6, 0, .3, .6, 1.8, .3}, color = {.5, .5, .5, 1}, texture = "esoui/art/worldmap/worldmap_map_background_512tile.dds"},
     {coords = {-.6, 1.8,  0, .6, 0,  0, .6, 1.8,  0}, color = {.5, .5, .5, 1}, texture = "esoui/art/worldmap/worldmap_map_background_512tile.dds"},
 
-    {coords = {-.6, 1.5, .31, .6, 1.4, .31, .6, 1.5, .31}, color = {.1, .1, .1, 1}, text = "Here lies"},
-    {coords = {-.6, 1.3, .31, .6, 1.2, .31, .6, 1.3, .31}, color = {.1, .1, .1, 1}, text = "<<1>>"},
+    {coords = {-.6, 1.5, .31, .6, 1.4, .31, .6, 1.5, .31}, color = {.1, .1, .1, 1}, text = "<<1>>"},
+    {coords = {-.6, 1.3, .31, .6, 1.2, .31, .6, 1.3, .31}, color = {.1, .1, .1, 1}, text = "<<2>>"},
 
-    {coords = {-.6,   1, .31, .6,  .9, .31, .6,   1, .31}, color = {.1, .1, .1, 1}, text = "<<2>>", fontSize = 14},
+    {coords = {-.6,   1, .31, .6,  .9, .31, .6,   1, .31}, color = {.1, .1, .1, 1}, text = "<<3>>", fontSize = 14},
     {coords = {-.6,  .9, .31, .6,  .8, .31, .6,  .9, .31}, color = {.1, .1, .1, 1}, text = "-", fontSize = 14},
-    {coords = {-.6, .77, .31, .6, .67, .31, .6, .77, .31}, color = {.1, .1, .1, 1}, text = "<<3>>", fontSize = 14},
+    {coords = {-.6, .77, .31, .6, .67, .31, .6, .77, .31}, color = {.1, .1, .1, 1}, text = "<<4>>", fontSize = 14},
 
     -- sides
     {coords = {-.6, 1.8,  0, -.6,   0, .3, -.6, 1.8, .3}, color = {.4, .4, .4, 1}, texture = "esoui/art/worldmap/worldmap_map_background_512tile.dds"},
@@ -133,10 +133,11 @@ local elements = {
     {coords = { .6, 1.8, .3,  .6,   0,  0,  .6, 1.8,  0}, color = {.4, .4, .4, 1}, texture = "esoui/art/worldmap/worldmap_map_background_512tile.dds"},
 }
 
-local function Grave(unitTag, name, birth, death)
+local function Grave(unitTag, intro, name, birth, death)
     unitTag = unitTag or "player"
     local _, x, y, z = GetUnitRawWorldPosition(unitTag)
     y = y - 20
+    intro = intro or "Here lies"
     name = name or "TheClawlessConqueror"
     birth = birth or "Unknown"
     death = death or FormatDate(GetTimeStamp())
@@ -153,14 +154,14 @@ local function Grave(unitTag, name, birth, death)
             local control, key = CreateRectRenderSpace(x + oX * scale, y + oY * scale, z + oZ * scale, pitch, yaw, roll, width, height, element.color, element.texture)
             table.insert(graves[unitTag].rects, key)
         elseif (element.text) then
-            local text = zo_strformat(element.text, name, birth, death)
+            local text = zo_strformat(element.text, intro, name, birth, death)
             local control, key = CreateLabelRenderSpace(x + oX * scale, y + oY * scale, z + oZ * scale, pitch, yaw, roll, width, height, element.color, text, element.fontSize)
             table.insert(graves[unitTag].labels, key)
 
             local textWidth = control:GetTextWidth()
             -- width of 1.2 is about 160 in textwidth at font 20 -> 
             if (textWidth / 160 > width / 1.2) then
-                local newFontSize = math.floor(160 / textWidth * 20)
+                local newFontSize = math.floor(160 / textWidth * 20) - 1
                 d(text .. " too wide, changing to " .. newFontSize)
                 control:SetFont("$(STONE_TABLET_FONT)|" .. newFontSize)
                 textWidth = control:GetTextWidth()
@@ -198,6 +199,15 @@ CAE.Grave = Grave
 /script CrutchAlerts.Drawing.UnattachControl(CrutchAlertsSpaceCrutchAlertsExtensionsGenericTexture1, "TestKey")
 ]]
 
+local intros = {
+    "Here lies",
+    "In loving memory of",
+    "R.I.P.",
+    "Rest in Peace",
+    "Rest in Pieces",
+    "Never forgotten",
+}
+
 local function OnDeathStateChanged(_, unitTag, isDead)
     -- To exclude companions and possibly pets too
     if (unitTag ~= "player" and not string.find(unitTag, "^group%d+$")) then return end
@@ -208,6 +218,7 @@ local function OnDeathStateChanged(_, unitTag, isDead)
     if (isDead) then
         Grave(
             unitTag,
+            intros[math.random(#intros)],
             string.gsub(GetUnitDisplayName(unitTag), "@", ""),
             unitTag == "player" and FormatDate(GetAchievementTimestamp(17))
             )
