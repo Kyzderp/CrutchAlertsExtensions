@@ -74,7 +74,6 @@ end
 -- summoned as playerpet1, we don't get unit destroyed event after
 -- rezoning. So clean up all the pets and redo them.
 local function OnPlayerActivated()
-    local profile = CAE.profiles[CAE.csvs.currentProfile]
     for i = 1, MAX_PET_UNIT_TAGS do
         local tag = "playerpet" .. i
         OnUnitDestroyed(nil, tag)
@@ -90,24 +89,41 @@ end
 local function InitializeUnitDrawing()
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
-    -- if (profile.iconsForPets or profile.iconsForKnownPets) then
+    if (profile.shadowImageWireframe) then
         EVENT_MANAGER:RegisterForEvent(CAE.name .. "UDUnitCreated", EVENT_UNIT_CREATED, OnUnitCreated)
         EVENT_MANAGER:RegisterForEvent(CAE.name .. "UDUnitDestroyed", EVENT_UNIT_DESTROYED, OnUnitDestroyed)
-    -- end
-
-
-    EVENT_MANAGER:RegisterForEvent(CAE.name .. "UDPlayerActivated", EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
+        EVENT_MANAGER:RegisterForEvent(CAE.name .. "UDPlayerActivated", EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
+    end
 end
 CAE.InitializeUnitDrawing = InitializeUnitDrawing
 
 local function UnregisterUnitDrawing()
     EVENT_MANAGER:UnregisterForEvent(CAE.name .. "UDUnitCreated", EVENT_UNIT_CREATED)
     EVENT_MANAGER:UnregisterForEvent(CAE.name .. "UDUnitDestroyed", EVENT_UNIT_DESTROYED)
+    EVENT_MANAGER:UnregisterForEvent(CAE.name .. "UDPlayerActivated", EVENT_PLAYER_ACTIVATED)
+
+    for i = 1, MAX_PET_UNIT_TAGS do
+        local tag = "playerpet" .. i
+        OnUnitDestroyed(nil, tag)
+    end
 end
 
 
 ---------------------------------------------------------------------
 function CAE.GetUnitDrawingSettings()
     return {
+        {
+            type = "checkbox",
+            name = "Show Shadow Image range",
+            tooltip = "Draws a big ugly wireframe sphere showing the range of your Shadow Image Teleport, when you cast Shadow Image",
+            default = false,
+            getFunc = function() return CAE.profiles[CAE.csvs.currentProfile].shadowImageWireframe end,
+            setFunc = function(value)
+                CAE.profiles[CAE.csvs.currentProfile].shadowImageWireframe = value
+                UnregisterUnitDrawing()
+                InitializeUnitDrawing()
+            end,
+            width = "full",
+        },
     }
 end

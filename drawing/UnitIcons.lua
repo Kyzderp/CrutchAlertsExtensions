@@ -180,7 +180,7 @@ end
 
 ---------------------------------------------------------------------
 function CAE.GetUnitIconsSettings()
-    return {
+    local settings = {
         {
             type = "description",
             title = "|c08BD1DWorld Drawing Tools|r",
@@ -227,4 +227,10 @@ function CAE.GetUnitIconsSettings()
             width = "full",
         },
     }
+
+    for _, setting in ipairs(CAE.GetUnitDrawingSettings()) do
+        table.insert(settings, setting)
+    end
+
+    return settings
 end

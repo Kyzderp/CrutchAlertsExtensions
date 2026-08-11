@@ -27,6 +27,7 @@ local defaultGlobalOptions = {
             iconsForPets = false, -- fallback poop
             iconsForCompanions = false,
             damagedEnemies = false,
+            shadowImageWireframe = false,
         },
     },
 }
