@@ -58,6 +58,7 @@ local KNOWN_COLLECTIBLES = {
 
     -- Fence
     [300] = FENCE, -- Pirharri the Smuggler
+    [14204] = FENCE, -- Cambio Zammes, Rooster in Exile
 }
 
 
@@ -117,7 +118,7 @@ local UNIT_ICON_UNIQUE_NAME = "CrutchAlertsExtensionsUnitIcon"
 local createdTags = {} -- Keep track of all possible in case of unregistering
 
 local function OnUnitCreated(_, unitTag)
-    Crutch.dbgSpam(unitTag .. " - " .. tostring(GetUnitName(unitTag)))
+    -- Crutch.dbgSpam(unitTag .. " - " .. tostring(GetUnitName(unitTag)))
     local texture = GetIconTexture(unitTag)
     if (texture) then
         Crutch.SetAttachedIconForUnit(unitTag, UNIT_ICON_UNIQUE_NAME, 50, texture, nil, nil, true)
