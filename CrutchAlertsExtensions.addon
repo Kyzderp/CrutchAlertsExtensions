@@ -31,6 +31,7 @@ drawing/Shapes.lua
 drawing/Line.lua
 drawing/Lines.lua
 drawing/UnitIcons.lua
+drawing/UnitDrawing.lua
 drawing/PresetShapes.lua
 drawing/ShapeUtils.lua
 
