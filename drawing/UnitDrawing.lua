@@ -1,46 +1,74 @@
 local CAE = CrutchAlertsExtensions
 local Crutch = CrutchAlerts
+local Draw = Crutch.Drawing
 
 
 ---------------------------------------------------------------------
-local KNOWN_PETS = {
-    ["Gloom Wraith"] = "esoui/art/icons/ability_nightblade_001_a.dds",
+local SHADOW_IMAGE_NAMES = {
+    ["Gloom Wraith"] = true,
+    -- TODO: other languages
 }
 
+-- Whether it's the right morph
+local function IsShadowImage()
+    for skillLineIndex = 1, GetNumSkillLines(SKILL_TYPE_CLASS) do
+        local skillLineId = GetSkillLineId(SKILL_TYPE_CLASS, skillLineIndex)
+        local _, _, isActive = GetSkillLineDynamicInfo(SKILL_TYPE_CLASS, skillLineIndex)
+        -- TODO: get the skill line and progression IDs
+        if (isActive and skillLineId == 22 or skillLineId == 218 or skillLineId == 131) then
+            for skillIndex = 1, GetNumSkillAbilities(SKILL_TYPE_CLASS, skillLineIndex) do
+                local progressionId = GetProgressionSkillProgressionId(SKILL_TYPE_CLASS, skillLineIndex, skillIndex)
 
----------------------------------------------------------------------
----------------------------------------------------------------------
--- TODO: clean this up
-local createdTags = {} -- Keep track of all possible in case of unregistering
-local createdTags2 = {} -- Keep track of all possible in case of unregistering
-local createdTags3 = {} -- Keep track of all possible in case of unregistering
-
-local function OnUnitCreated(_, unitTag)
-    if (createdTags[unitTag]) then
-        Crutch.Drawing.RemoveGroundCircle(createdTags[unitTag])
-        Crutch.Drawing.RemoveGroundCircle(createdTags2[unitTag])
-        Crutch.Drawing.RemoveGroundCircle(createdTags3[unitTag])
-    end
-    -- Crutch.dbgSpam(unitTag .. " - " .. tostring(GetUnitName(unitTag)))
-    if (KNOWN_PETS[GetUnitName(unitTag)]) then
-        local _, x, y, z = GetUnitRawWorldPosition(unitTag)
-        local depthBuffer = true
-        createdTags[unitTag] = Crutch.Drawing.CreateGroundCircle(x, y, z, 28, {0.8, 0, 1, 0.5}, nil, nil, depthBuffer)
-        createdTags2[unitTag] = Crutch.Drawing.CreateGroundCircle(x, y, z, 28, {0.8, 0, 1, 0.5}, {0, 0, 0}, nil, depthBuffer)
-        createdTags3[unitTag] = Crutch.Drawing.CreateGroundCircle(x, y, z, 28, {0.8, 0, 1, 0.5}, {0, math.pi/2, 0}, nil, depthBuffer)
+                -- Fatecarver
+                if (progressionId == 535) then
+                    local _, _, _, _, _, purchased = GetSkillAbilityInfo(SKILL_TYPE_CLASS, skillLineIndex, skillIndex)
+                    if (purchased) then
+                        local morph = GetProgressionSkillCurrentMorphSlot(progressionId)
+                        return morph == MORPH_SLOT_MORPH_2
+                    end
+                end
+            end
+        end
     end
 end
+
+
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+local createdKeys = {} -- {[unitTag] = {key, key}}
 
 local function OnUnitDestroyed(_, unitTag)
-    if (createdTags[unitTag]) then
-        Crutch.Drawing.RemoveGroundCircle(createdTags[unitTag])
-        Crutch.Drawing.RemoveGroundCircle(createdTags2[unitTag])
-        Crutch.Drawing.RemoveGroundCircle(createdTags3[unitTag])
-        createdTags[unitTag] = nil
-        createdTags2[unitTag] = nil
-        createdTags3[unitTag] = nil
+    if (createdKeys[unitTag]) then
+        for _, key in ipairs(createdKeys[unitTag]) do
+            Draw.RemoveGroundCircle(key)
+        end
+        ZO_ClearTable(createdKeys[unitTag])
     end
 end
+
+local function DrawThinCircle(x, y, z, orientation)
+    return Draw.CreateOrientedTexture("CrutchAlerts/assets/floor/thincircle.dds",
+        x, y, z, 28, {0.8, 0, 1, 0.5}, orientation, nil, true))
+end
+
+local function OnUnitCreated(_, unitTag)
+    OnUnitDestroyed(nil, unitTag)
+
+    -- Crutch.dbgSpam(unitTag .. " - " .. tostring(GetUnitName(unitTag)))
+    if (SHADOW_IMAGE_NAMES[GetUnitName(unitTag)] and IsShadowImage()) then
+        local _, x, y, z = GetUnitRawWorldPosition(unitTag)
+        local depthBuffer = true
+
+        if (not createdKeys[unitTag]) then
+            createdKeys[unitTag] = {}
+        end
+
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, nil))
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, {0, 0, 0}))
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, {0, math.pi/2, 0}))
+    end
+end
+
 
 -- Units can change when going into another zone, e.g. with a banker
 -- summoned as playerpet1, we don't get unit destroyed event after
