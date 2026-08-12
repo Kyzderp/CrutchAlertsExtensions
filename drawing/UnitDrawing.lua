@@ -15,13 +15,16 @@ local function IsShadowImage()
         local skillLineId = GetSkillLineId(SKILL_TYPE_CLASS, skillLineIndex)
         local _, _, isActive = GetSkillLineDynamicInfo(SKILL_TYPE_CLASS, skillLineIndex)
         -- TODO: get the skill line and progression IDs
-        if (isActive and skillLineId == 22 or skillLineId == 218 or skillLineId == 131) then
+        -- d(GetSkillLineNameById(skillLineId) .. " " .. skillLineId)
+        if (isActive and skillLineId == 39) then -- Shadow
             for skillIndex = 1, GetNumSkillAbilities(SKILL_TYPE_CLASS, skillLineIndex) do
                 local progressionId = GetProgressionSkillProgressionId(SKILL_TYPE_CLASS, skillLineIndex, skillIndex)
 
-                -- Fatecarver
-                if (progressionId == 535) then
-                    local _, _, _, _, _, purchased = GetSkillAbilityInfo(SKILL_TYPE_CLASS, skillLineIndex, skillIndex)
+
+                -- Summon Shade
+                if (progressionId == 93) then
+                    local name, _, _, _, _, purchased = GetSkillAbilityInfo(SKILL_TYPE_CLASS, skillLineIndex, skillIndex)
+                    -- d(name .. " " .. progressionId)
                     if (purchased) then
                         local morph = GetProgressionSkillCurrentMorphSlot(progressionId)
                         return morph == MORPH_SLOT_MORPH_2
@@ -47,8 +50,8 @@ local function OnUnitDestroyed(_, unitTag)
 end
 
 local function DrawThinCircle(x, y, z, orientation)
-    return Draw.CreateOrientedTexture("CrutchAlerts/assets/floor/thincircle.dds",
-        x, y, z, 28, {0.8, 0, 1, 0.5}, orientation, nil, true))
+    return Draw.CreateOrientedTexture("CrutchAlertsExtensions/assets/thinring.dds",
+        x, y, z, 28, {0.8, 0, 1, 0.5}, orientation, nil, false)
 end
 
 local function OnUnitCreated(_, unitTag)
