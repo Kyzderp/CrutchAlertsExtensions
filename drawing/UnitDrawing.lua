@@ -34,6 +34,10 @@ local function IsShadowImage()
     end
 end
 
+local function StartsWith(str, prefix)
+    return string.sub(str, 1, #prefix) == prefix
+end
+
 
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
@@ -66,7 +70,7 @@ local function OnUnitCreated(_, unitTag)
     OnUnitDestroyed(nil, unitTag)
 
     -- Crutch.dbgSpam(unitTag .. " - " .. tostring(GetUnitName(unitTag)))
-    if (SHADOW_IMAGE_NAMES[GetUnitName(unitTag)] and IsShadowImage()) then
+    if (StartsWith(unitTag, "playerpet") and SHADOW_IMAGE_NAMES[GetUnitName(unitTag)] and IsShadowImage()) then
         local _, x, y, z = GetUnitRawWorldPosition(unitTag)
         local depthBuffer = true
 
