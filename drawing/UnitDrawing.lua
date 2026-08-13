@@ -48,9 +48,18 @@ local function OnUnitDestroyed(_, unitTag)
     end
 end
 
-local function DrawThinCircle(x, y, z, radius, orientation, depthBuffer)
+local function DrawThinCircle(x, y, z, radius, orientation, depthBuffer, rotate)
+    local updateFunc
+    if (rotate) then
+        updateFunc = function(icon)
+            local time = GetGameTimeMilliseconds() % 20000 / 20000
+            local angle = time * 2 * math.pi
+            icon:SetOrientation(orientation[1], orientation[2] + angle, orientation[3])
+        end
+    end
+
     return Draw.CreateOrientedTexture("CrutchAlertsExtensions/assets/thinring.dds",
-        x, y, z, radius * 2, {0.8, 0, 1, 0.5}, orientation, nil, depthBuffer)
+        x, y, z, radius * 2, {0.8, 0, 1, 0.5}, orientation, updateFunc, depthBuffer)
 end
 
 local function OnUnitCreated(_, unitTag)
@@ -67,10 +76,10 @@ local function OnUnitCreated(_, unitTag)
 
         table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, nil, false))
 
-        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, {0, 0, 0}, true))
-        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, {0, math.pi/2, 0}, true))
-        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, {0, math.pi/4, 0}, true))
-        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, {0, math.pi*3/4, 0}, true))
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, {0, 0, 0}, true, true))
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, {0, math.pi/2, 0}, true, true))
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, {0, math.pi/4, 0}, true, true))
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, {0, math.pi*3/4, 0}, true, true))
 
         table.insert(createdKeys[unitTag], DrawThinCircle(x, y + 1200, z, 25.298, nil, false))
         table.insert(createdKeys[unitTag], DrawThinCircle(x, y - 1200, z, 25.298, nil, true))
