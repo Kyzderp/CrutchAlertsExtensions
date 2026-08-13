@@ -119,7 +119,7 @@ local createdTags = {} -- Keep track of all possible in case of unregistering
 
 local function OnUnitCreated(_, unitTag)
     -- TODO: probably need to fix if character name is same
-    -- Crutch.dbgSpam(unitTag .. " - " .. tostring(GetUnitName(unitTag)))
+    Crutch.dbgSpam("created " .. unitTag .. " - " .. tostring(GetUnitName(unitTag)))
     local texture = GetIconTexture(unitTag)
     if (texture) then
         Crutch.SetAttachedIconForUnit(unitTag, UNIT_ICON_UNIQUE_NAME, 50, texture, nil, nil, true)
@@ -128,6 +128,7 @@ local function OnUnitCreated(_, unitTag)
 end
 
 local function OnUnitDestroyed(_, unitTag)
+    Crutch.dbgSpam("destroyed " .. unitTag .. " - " .. tostring(GetUnitName(unitTag)))
     Crutch.RemoveAttachedIconForUnit(unitTag, UNIT_ICON_UNIQUE_NAME)
 end
 

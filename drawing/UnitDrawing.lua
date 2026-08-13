@@ -14,7 +14,6 @@ local function IsShadowImage()
     for skillLineIndex = 1, GetNumSkillLines(SKILL_TYPE_CLASS) do
         local skillLineId = GetSkillLineId(SKILL_TYPE_CLASS, skillLineIndex)
         local _, _, isActive = GetSkillLineDynamicInfo(SKILL_TYPE_CLASS, skillLineIndex)
-        -- TODO: get the skill line and progression IDs
         -- d(GetSkillLineNameById(skillLineId) .. " " .. skillLineId)
         if (isActive and skillLineId == 39) then -- Shadow
             for skillIndex = 1, GetNumSkillAbilities(SKILL_TYPE_CLASS, skillLineIndex) do
@@ -49,9 +48,9 @@ local function OnUnitDestroyed(_, unitTag)
     end
 end
 
-local function DrawThinCircle(x, y, z, orientation)
+local function DrawThinCircle(x, y, z, radius, orientation, depthBuffer)
     return Draw.CreateOrientedTexture("CrutchAlertsExtensions/assets/thinring.dds",
-        x, y, z, 28, {0.8, 0, 1, 0.5}, orientation, nil, false)
+        x, y, z, radius * 2, {0.8, 0, 1, 0.5}, orientation, nil, depthBuffer)
 end
 
 local function OnUnitCreated(_, unitTag)
@@ -66,9 +65,15 @@ local function OnUnitCreated(_, unitTag)
             createdKeys[unitTag] = {}
         end
 
-        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, nil))
-        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, {0, 0, 0}))
-        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, {0, math.pi/2, 0}))
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, nil, false))
+
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, {0, 0, 0}, true))
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, {0, math.pi/2, 0}, true))
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, {0, math.pi/4, 0}, true))
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y, z, 28, {0, math.pi*3/4, 0}, true))
+
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y + 1200, z, 25.298, nil, false))
+        table.insert(createdKeys[unitTag], DrawThinCircle(x, y - 1200, z, 25.298, nil, true))
     end
 end
 
