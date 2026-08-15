@@ -6,9 +6,13 @@ local Crutch = CrutchAlerts
 -- Data
 ---------------------------------------------------------------------
 local ABILITY_BLACKLIST = {
-    [17902] = true, -- Poisoned Weapon
     [17895] = true, -- Fiery Weapon
+    [17897] = true, -- Frozen Weapon
+    [17899] = true, -- Charged Weapon
+    [17902] = true, -- Poisoned Weapon
+    [17904] = true, -- Befouled Weapon
     [46743] = true, -- Absorb Magicka
+    [46746] = true, -- Absorb Stamina
 
     [148797] = true, -- Overcharged
     [148800] = true, -- Sundered
@@ -165,7 +169,9 @@ local function InitializeDamagedEnemies()
 
     -- TODO: need pet for cro or something?
     Crutch.RegisterForCombatEvent("CAEDamagedEnemiesDamage", OnDamaged, ACTION_RESULT_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
+    Crutch.RegisterForCombatEvent("CAEDamagedEnemiesDamagePet", OnDamaged, ACTION_RESULT_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER_PET)
     Crutch.RegisterForCombatEvent("CAEDamagedEnemiesCritDamage", OnDamaged, ACTION_RESULT_CRITICAL_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
+    Crutch.RegisterForCombatEvent("CAEDamagedEnemiesCritDamagePet", OnDamaged, ACTION_RESULT_CRITICAL_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER_PET)
     Crutch.RegisterForCombatEvent("CAEDamagedEnemiesShielded", OnDamaged, ACTION_RESULT_DAMAGE_SHIELDED, nil, COMBAT_UNIT_TYPE_PLAYER) -- TODO: ?
     Crutch.RegisterForCombatEvent("CAEDamagedEnemiesBlocked", OnDamaged, ACTION_RESULT_BLOCKED_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER) -- TODO: ?
     Crutch.RegisterForEffectChanged("CAEDamagedEnemiesEffect", OnEffect, nil, "boss")
@@ -178,7 +184,9 @@ CAE.InitializeDamagedEnemies = InitializeDamagedEnemies
 
 local function UnregisterDamagedEnemies()
     Crutch.UnregisterForCombatEvent("CAEDamagedEnemiesDamage")
+    Crutch.UnregisterForCombatEvent("CAEDamagedEnemiesDamagePet")
     Crutch.UnregisterForCombatEvent("CAEDamagedEnemiesCritDamage")
+    Crutch.UnregisterForCombatEvent("CAEDamagedEnemiesCritDamagePet")
     Crutch.UnregisterForCombatEvent("CAEDamagedEnemiesShielded")
     Crutch.UnregisterForCombatEvent("CAEDamagedEnemiesBlocked")
     Crutch.UnregisterForEffectChanged("CAEDamagedEnemiesEffect")
@@ -200,7 +208,7 @@ function CAE.GetDamagedEnemiesSettings()
         {
             type = "checkbox",
             name = "Show recently damaged enemies",
-            tooltip = "Uses the Crutch info panel to show enemies you have damaged with direct damage abilities in the last 2 seconds and what you damaged them with",
+            tooltip = "Uses the Crutch info panel to show enemies you have damaged with direct damage abilities in the last 2 seconds and what you damaged them with (excluding weapon glyph procs)",
             default = false,
             getFunc = function() return CAE.profiles[CAE.csvs.currentProfile].damagedEnemies end,
             setFunc = function(value)
