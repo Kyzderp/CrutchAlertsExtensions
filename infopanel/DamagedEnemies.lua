@@ -21,7 +21,24 @@ local ABILITY_BLACKLIST = {
     [21487] = true, -- Concussion
     [21925] = true, -- Diseased
 }
-CAE.ABILITY_BLACKLIST = ABILITY_BLACKLIST -- /script CrutchAlertsExtensions.ABILITY_BLACKLIST[12345] = true
+
+local PET_ABILITIES = {
+    [33219] = "esoui/art/icons/ability_nightblade_001.dds", -- Corrosive Strike
+    [108936] = "esoui/art/icons/ability_nightblade_001_a.dds", -- Corrosive Drain
+    [51556] = "esoui/art/icons/ability_nightblade_001_b.dds", -- Corrosive Arrow
+
+    [27850] = "esoui/art/icons/ability_sorcerer_unstable_fimiliar_summoned.dds", -- Entropic Touch
+    [117255] = "esoui/art/icons/ability_sorcerer_speedy_familiar_summoned.dds", -- Entropic Touch (volatile)
+    [29528] = "esoui/art/icons/ability_sorcerer_unstable_clannfear_summoned.dds", -- Unstable Clannfear
+
+    -- has 2 different, they're all zaps, but 1 is the kick animation (with zap)
+    [28027] = "esoui/art/icons/ability_sorcerer_lightning_prey_summoned.dds", -- Summon Winged Twilight
+    [24617] = "esoui/art/icons/ability_sorcerer_lightning_prey_summoned.dds", -- Summon Winged Twilight
+    [117273] = "esoui/art/icons/ability_sorcerer_lightning_matriarch_summoned.dds", -- Summon Twilight Tormentor
+    [117274] = "esoui/art/icons/ability_sorcerer_lightning_matriarch_summoned.dds", -- Summon Twilight Tormentor
+    [117320] = "esoui/art/icons/ability_sorcerer_storm_prey_summoned.dds", -- Summon Twilight Matriarch
+    [117321] = "esoui/art/icons/ability_sorcerer_storm_prey_summoned.dds", -- Summon Twilight Matriarch
+}
 
 local RESULTS = {
     [ACTION_RESULT_DAMAGE] = "DAMAGE",
@@ -46,6 +63,10 @@ local function GetColor(name, isBoss)
         color = isBoss and BOSS_COLOR or OTHER_COLOR
     end
     return color
+end
+
+local function GetIcon(abilityId)
+    return PET_ABILITIES[abilityId] or GetAbilityIcon(abilityId)
 end
 
 
@@ -92,7 +113,7 @@ local function OnUpdate()
             if (currTime - timestamp > ALLOWED_TIME) then
                 targetData[abilityId] = nil -- just remove
             else
-                iconSuffix = string.format("%s |t100%%:100%%:%s|t", iconSuffix, GetAbilityIcon(abilityId))
+                iconSuffix = string.format("%s |t100%%:100%%:%s|t", iconSuffix, GetIcon(abilityId))
             end
         end
 
@@ -208,7 +229,7 @@ function CAE.GetDamagedEnemiesSettings()
         {
             type = "checkbox",
             name = "Show recently damaged enemies",
-            tooltip = "Uses the Crutch info panel to show enemies you have damaged with direct damage abilities in the last 2 seconds and what you damaged them with (excluding weapon glyph procs)",
+            tooltip = "Uses the Crutch info panel to show enemies you have damaged with direct damage abilities in the last 2 seconds and what you damaged them with (excluding weapon glyph procs). Also lets you easily see what your pets are attacking; pet attacks mostly use their pet icon instead of the ability's icon",
             default = false,
             getFunc = function() return CAE.profiles[CAE.csvs.currentProfile].damagedEnemies end,
             setFunc = function(value)
