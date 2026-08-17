@@ -30,6 +30,7 @@ local PET_ABILITIES = {
     [27850] = "esoui/art/icons/ability_sorcerer_unstable_fimiliar_summoned.dds", -- Entropic Touch
     [117255] = "esoui/art/icons/ability_sorcerer_speedy_familiar_summoned.dds", -- Entropic Touch (volatile)
     [29528] = "esoui/art/icons/ability_sorcerer_unstable_clannfear_summoned.dds", -- Unstable Clannfear
+    [29529] = "esoui/art/icons/ability_sorcerer_unstable_clannfear_summoned.dds", -- Unstable Clannfear (tail swipe thing)
 
     -- has 2 different, they're all zaps, but 1 is the kick animation (with zap)
     [28027] = "esoui/art/icons/ability_sorcerer_lightning_prey_summoned.dds", -- Summon Winged Twilight
@@ -188,7 +189,6 @@ end
 local function InitializeDamagedEnemies()
     if (not CAE.profiles[CAE.csvs.currentProfile].damagedEnemies) then return end
 
-    -- TODO: need pet for cro or something?
     Crutch.RegisterForCombatEvent("CAEDamagedEnemiesDamage", OnDamaged, ACTION_RESULT_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
     Crutch.RegisterForCombatEvent("CAEDamagedEnemiesDamagePet", OnDamaged, ACTION_RESULT_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER_PET)
     Crutch.RegisterForCombatEvent("CAEDamagedEnemiesCritDamage", OnDamaged, ACTION_RESULT_CRITICAL_DAMAGE, nil, COMBAT_UNIT_TYPE_PLAYER)
