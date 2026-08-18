@@ -7,11 +7,11 @@
 ## Title: CrutchAlerts Extensions
 ## Description: StuffTM that doesn't quite fit in CrutchAlerts' scope
 ## Author: Kyzeragon
-## Version: 0.2.2
-## AddOnVersion: 22
+## Version: 0.3.0
+## AddOnVersion: 30
 ## APIVersion: 101050
 
-## DependsOn: CrutchAlerts>=22190 LibAddonMenu-2.0>=43
+## DependsOn: CrutchAlerts>=22400 LibAddonMenu-2.0>=43
 
 ## SavedVariables: CrutchAlertsExtensionsSavedProfiles
 ## SavedVariables: CrutchAlertsExtensionsSavedVariables
