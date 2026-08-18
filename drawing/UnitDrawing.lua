@@ -6,7 +6,12 @@ local Draw = Crutch.Drawing
 ---------------------------------------------------------------------
 local SHADOW_IMAGE_NAMES = {
     ["Gloom Wraith"] = true,
-    -- TODO: other languages
+    ["Trübsinnsgeist"] = true,
+    ["Espectro tenebroso"] = true,
+    ["Spectre de la mélancolie"] = true,
+    ["闇のレイス"] = true,
+    ["Темное привидение"] = true,
+    ["幽暗怨灵"] = true,
 }
 
 -- Whether it's the right morph

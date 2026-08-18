@@ -683,7 +683,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "checkbox",
             name = "Use gradient",
-            tooltip = "Interpolates the color of the line based on distance between the two players",
+            tooltip = "Interpolates the color of the line based on distance between the two players, from 0 up to 28 meters",
             default = false,
             getFunc = function() return currentUseGradient end,
             setFunc = function(value)
