@@ -41,7 +41,7 @@ local KNOWN_COLLECTIBLES = {
     [13517] = BANKER, -- Celia Tyde, Lost Fleet Bursar
 
     -- Decon
-    [10184] = DECON, -- Giladil the Ragpick8995er
+    [10184] = DECON, -- Giladil the Ragpicker
     [10617] = DECON, -- Aderene, Fargrave Dregs Dealer
     [11877] = DECON, -- Tzozabrar, Dwarven Deconstructor
     [13063] = DECON, -- Siluruz, Realm Craftsmaster
