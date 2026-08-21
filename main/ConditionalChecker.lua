@@ -187,16 +187,29 @@ end
 ---------------------------------------------------------------------
 -- called
 ---------------------------------------------------------------------
-local function ShouldShapeBeShown(conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly)
-    if (conditionalAbilityId ~= nil and not IsSlotted(conditionalAbilityId, activeBarOnly)) then
+local function IsAnyIdActive(func, ids, activeBarOnly)
+    for _, id in ipairs(ids) do
+        if (func(id, activeBarOnly)) then return true
+    end
+    return false
+end
+
+local function ShouldShapeBeShown(shapeData)
+    if (#(shapeData.conditionalAbilityId) > 0
+        and not IsAnyIdActive(IsSlotted, shapeData.conditionalAbilityId, shapeData.activeBarOnly)) then
         return false
     end
-    if (conditionalSetId ~= nil and not IsEquipped(conditionalSetId, activeBarOnly)) then
+
+    if (#(shapeData.conditionalSetId) > 0
+        and not IsAnyIdActive(IsEquipped, shapeData.conditionalSetId, shapeData.activeBarOnly)) then
         return false
     end
-    if (conditionalEffectId ~= nil and not HasEffect(conditionalEffectId)) then
+
+    if (#(shapeData.conditionalEffectId) > 0
+        and not IsAnyIdActive(HasEffect, shapeData.conditionalEffectId, shapeData.activeBarOnly)) then
         return false
     end
+
     return true
 end
 CAE.ShouldShapeBeShown = ShouldShapeBeShown

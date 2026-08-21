@@ -16,9 +16,9 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
         radius = radius,
         yOffset = yOffset,
         forwardOffset = forwardOffset,
-        conditionalAbilityId = conditionalAbilityId,
-        conditionalSetId = conditionalSetId,
-        conditionalEffectId = conditionalEffectId,
+        conditionalAbilityId = ZO_DeepTableCopy(conditionalAbilityId),
+        conditionalSetId = ZO_DeepTableCopy(conditionalSetId),
+        conditionalEffectId = ZO_DeepTableCopy(conditionalEffectId),
         activeBarOnly = activeBarOnly,
         depthBuffers = depthBuffers,
     }
@@ -43,9 +43,9 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSiz
         edgeSize = edgeSize,
         yOffset = yOffset,
         forwardOffset = forwardOffset,
-        conditionalAbilityId = conditionalAbilityId,
-        conditionalSetId = conditionalSetId,
-        conditionalEffectId = conditionalEffectId,
+        conditionalAbilityId = ZO_DeepTableCopy(conditionalAbilityId),
+        conditionalSetId = ZO_DeepTableCopy(conditionalSetId),
+        conditionalEffectId = ZO_DeepTableCopy(conditionalEffectId),
         activeBarOnly = activeBarOnly,
     }
 
@@ -187,7 +187,7 @@ end
 local function UpdateShapes()
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     for id, shapeData in pairs(profile.circles) do
-        if (CAE.ShouldShapeBeShown(shapeData.conditionalAbilityId, shapeData.conditionalSetId, shapeData.conditionalEffectId, shapeData.activeBarOnly)) then
+        if (CAE.ShouldShapeBeShown(shapeData)) then
             ShowShape(id)
         else
             HideShape(id)

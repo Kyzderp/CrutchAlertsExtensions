@@ -10,9 +10,9 @@ local currentHeight = 8
 local currentEdgeSize = 8
 local currentYOffset = 5
 local currentForwardOffset = 5
-local currentConditionalAbility
-local currentConditionalSetId
-local currentConditionalEffectId
+local currentConditionalAbility = {}
+local currentConditionalSetId = {}
+local currentConditionalEffectId = {}
 local currentActiveBarOnly = false
 local currentDepthBuffers = false
 
@@ -105,9 +105,9 @@ local function LoadShapeValues()
     currentEdgeSize = profile.circles[currentShape].edgeSize
     currentYOffset = profile.circles[currentShape].yOffset
     currentForwardOffset = profile.circles[currentShape].forwardOffset
-    currentConditionalAbility = profile.circles[currentShape].conditionalAbilityId
-    currentConditionalSetId = profile.circles[currentShape].conditionalSetId
-    currentConditionalEffectId = profile.circles[currentShape].conditionalEffectId
+    currentConditionalAbility = ZO_DeepTableCopy(profile.circles[currentShape].conditionalAbilityId)
+    currentConditionalSetId = ZO_DeepTableCopy(profile.circles[currentShape].conditionalSetId)
+    currentConditionalEffectId = ZO_DeepTableCopy(profile.circles[currentShape].conditionalEffectId)
     currentActiveBarOnly = profile.circles[currentShape].activeBarOnly
     currentDepthBuffers = profile.circles[currentShape].depthBuffers
 end
@@ -121,9 +121,9 @@ local function ResetCurrentValues()
     currentEdgeSize = 8
     currentYOffset = 5
     currentForwardOffset = 0
-    currentConditionalAbility = nil
-    currentConditionalSetId = nil
-    currentConditionalEffectId = nil
+    ZO_ClearTable(currentConditionalAbility)
+    ZO_ClearTable(currentConditionalSetId)
+    ZO_ClearTable(currentConditionalEffectId)
     currentActiveBarOnly = false
     currentDepthBuffers = false
 end
@@ -468,18 +468,31 @@ function CAE.CreateSettingsMenu()
         {
             type = "description",
             text = function()
-                local suffix = ""
-                if (currentConditionalAbility) then
-                    suffix = zo_strformat("\nCurrent: shown when you slot <<1>> (<<2>>) <<3>>", GetAbilityName(currentConditionalAbility), currentConditionalAbility,
+                if (#currentConditionalAbility > 0) then
+                    local abilities = ""
+                    for _, id in ipairs(currentConditionalAbility) do
+                        abilities = zo_strformat("<<1>> <<2>> (<<3>>),", abilities, GetAbilityName(id), id)
+                    end
+                    return zo_strformat("\nCurrent: shown when you slot <<1>> <<2>>", abilities,
                         currentActiveBarOnly and "on the active bar" or "on either bar")
-                elseif (currentConditionalSetId) then
-                    local _, setName = GetItemSetInfo(currentConditionalSetId)
-                    suffix = zo_strformat("\nCurrent: shown when you equip <<1>> (<<2>>) <<3>>", setName, currentConditionalSetId,
+
+                elseif (#currentConditionalSetId > 0) then
+                    local sets = ""
+                    for _, id in ipairs(currentConditionalSetId) do
+                        local _, setName = GetItemSetInfo(id)
+                        sets = zo_strformat("<<1>> <<2>> (<<3>>),", sets, setName, id)
+                    end
+                    return  zo_strformat("\nCurrent: shown when you equip <<1>> <<2>>", sets,
                         currentActiveBarOnly and "on the active bar" or "on either bar")
-                elseif (currentConditionalEffectId) then
-                    suffix = zo_strformat("\nCurrent: shown when you have <<1>> (<<2>>) on you", GetAbilityName(currentConditionalEffectId), currentConditionalEffectId)
+
+                elseif (#currentConditionalEffectId > 0) then
+                    local abilities = ""
+                    for _, id in ipairs(currentConditionalEffectId) do
+                        abilities = zo_strformat("<<1>> <<2>> (<<3>>),", abilities, GetAbilityName(id), id)
+                    end
+                    return zo_strformat("\nCurrent: shown when you have <<1>> on you", abilities)
                 end
-                return "Only one ID applies; create more of the same shape if you want more." .. suffix
+                return ""
             end,
             width = "full",
         },
@@ -496,55 +509,82 @@ function CAE.CreateSettingsMenu()
                 RefreshShapes()
             end,
             width = "full",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or (currentConditionalAbility == nil and currentConditionalSetId == nil) end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or (#currentConditionalAbility == 0 and #currentConditionalSetId == 0) end, -- Don't allow editing default
         },
         {
             type = "editbox",
             name = "Conditional skill ID",
-            tooltip = "If specified, this shape will only show when this ability is slotted. Use |c99FF99/cae printskills|r to see currently slotted IDs",
-            getFunc = function() return currentConditionalAbility end,
+            tooltip = "If specified, this shape will only show when these abilities are slotted. Separate multiple IDs using commas (,)\nUse |c99FF99/cae printskills|r to see currently slotted IDs",
+            getFunc = function()
+                return table.concat(currentConditionalAbility, ",")
+            end,
             setFunc = function(value)
-                currentConditionalAbility = tonumber(value)
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalAbilityId = currentConditionalAbility
+                ZO_ClearTable(currentConditionalAbility)
+                for _, id in ipairs({zo_strsplit(",", value)}) do
+                    id = tonumber(id)
+                    if (id) then
+                        table.insert(currentConditionalAbility, id)
+                    end
+                end
+
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalAbilityId = ZO_DeepTableCopy(currentConditionalAbility)
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
             isMultiline = false,
             isExtraWide = false,
             width = "full",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or currentConditionalSetId ~= nil or currentConditionalEffectId ~= nil end, -- Exclude when others are set
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or #currentConditionalSetId ~= 0 or #currentConditionalEffectId ~= 0 end, -- Exclude when others are set
         },
         {
             type = "editbox",
             name = "Conditional set ID",
-            tooltip = "If specified, this shape will only show when this set is equipped with the max bonus. Use |c99FF99/cae printsets|r to see currently equipped set IDs",
-            getFunc = function() return currentConditionalSetId end,
+            tooltip = "If specified, this shape will only show when these sets are equipped with the max bonus. Separate multiple IDs using commas (,)\nUse |c99FF99/cae printsets|r to see currently equipped set IDs",
+            getFunc = function()
+                return table.concat(currentConditionalSetId, ",")
+            end,
             setFunc = function(value)
-                currentConditionalSetId = tonumber(value)
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalSetId = currentConditionalSetId
+                ZO_ClearTable(currentConditionalSetId)
+                for _, id in ipairs({zo_strsplit(",", value)}) do
+                    id = tonumber(id)
+                    if (id) then
+                        table.insert(currentConditionalSetId, id)
+                    end
+                end
+
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalSetId = ZO_DeepTableCopy(currentConditionalSetId)
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,
             isMultiline = false,
             isExtraWide = false,
             width = "full",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or currentConditionalAbility ~= nil or currentConditionalEffectId ~= nil end, -- Exclude when others are set
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or #currentConditionalAbility ~= 0 or #currentConditionalEffectId ~= 0 end, -- Exclude when others are set
         },
         {
             type = "editbox",
             name = "Conditional effect ID",
-            tooltip = "If specified, this shape will only show when this buff / debuff effect is on you. Use |c99FF99/cae printeffects|r to see current effect IDs",
-            getFunc = function() return currentConditionalEffectId end,
+            tooltip = "If specified, this shape will only show when these buff / debuff effects are on you. Separate multiple IDs using commas (,)\nUse |c99FF99/cae printeffects|r to see current effect IDs",
+            getFunc = function()
+                return table.insert(currentConditionalEffectId)
+            end,
             setFunc = function(value)
-                currentConditionalEffectId = tonumber(value)
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalEffectId = currentConditionalEffectId
+                ZO_ClearTable(currentConditionalEffectId)
+                for _, id in ipairs({zo_strsplit(",", value)}) do
+                    id = tonumber(id)
+                    if (id) then
+                        table.insert(currentConditionalEffectId, id)
+                    end
+                end
+
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].conditionalEffectId = ZO_DeepTableCopy(currentConditionalEffectId)
                 CAE.LoadCurrentProfile(true)
                 RefreshShapes()
             end,
             isMultiline = false,
             isExtraWide = false,
             width = "full",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or currentConditionalSetId ~= nil or currentConditionalAbility ~= nil end, -- Exclude when others are set
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or #currentConditionalSetId ~= 0 or #currentConditionalAbility ~= 0 end, -- Exclude when others are set
         },
         {
             type = "submenu",

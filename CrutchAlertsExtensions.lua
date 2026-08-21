@@ -100,6 +100,17 @@ local function FillMissingDefaults()
             if (shapeData.activeBarOnly == nil) then
                 shapeData.activeBarOnly = false
             end
+
+            -- convert to tables for multi id
+            if (type(shapeData.conditionalAbilityId) ~= "table") then
+                shapeData.conditionalAbilityId = {shapeData.conditionalAbilityId}
+            end
+            if (type(shapeData.conditionalSetId) ~= "table") then
+                shapeData.conditionalSetId = {shapeData.conditionalSetId}
+            end
+            if (type(shapeData.conditionalEffectId) ~= "table") then
+                shapeData.conditionalEffectId = {shapeData.conditionalEffectId}
+            end
         end
     end
 end

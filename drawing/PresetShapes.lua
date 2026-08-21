@@ -16,7 +16,7 @@ CAE.PresetShapes = {
         height = 15,
         yOffset = 5,
         forwardOffset = 750,
-        conditionalSetId = 232,
+        conditionalSetId = {232},
         activeBarOnly = true,
     },
     ["Perfected Void Bash (vVH)"] = {
@@ -26,7 +26,7 @@ CAE.PresetShapes = {
         radius = 12,
         yOffset = 5,
         forwardOffset = 0,
-        conditionalSetId = 564,
+        conditionalSetId = {564},
         depthBuffers = false,
     },
     ["Turning Tide"] = {
@@ -38,7 +38,7 @@ CAE.PresetShapes = {
         height = 10,
         yOffset = 5,
         forwardOffset = 500,
-        conditionalSetId = 622,
+        conditionalSetId = {622},
         activeBarOnly = true,
     },
 
@@ -51,7 +51,7 @@ CAE.PresetShapes = {
         radius = 10,
         yOffset = 5,
         forwardOffset = 0,
-        conditionalAbilityId = 39113,
+        conditionalAbilityId = {39113},
         depthBuffers = false,
     },
     ["Pragmatic Fatecarver"] = {
@@ -63,7 +63,7 @@ CAE.PresetShapes = {
         height = 23.5,
         yOffset = 5,
         forwardOffset = 1025,
-        conditionalAbilityId = 193398,
+        conditionalAbilityId = {193398},
         activeBarOnly = true,
     },
     ["Blockade of Fire"] = {
@@ -75,7 +75,7 @@ CAE.PresetShapes = {
         height = 18,
         yOffset = 5,
         forwardOffset = 900,
-        conditionalAbilityId = 39012,
+        conditionalAbilityId = {39012},
         activeBarOnly = true,
     },
     ["Blockade of Storms"] = {
@@ -87,7 +87,7 @@ CAE.PresetShapes = {
         height = 18,
         yOffset = 5,
         forwardOffset = 900,
-        conditionalAbilityId = 39018,
+        conditionalAbilityId = {39018},
         activeBarOnly = true,
     },
     ["Blockade of Frost"] = {
@@ -99,7 +99,7 @@ CAE.PresetShapes = {
         height = 18,
         yOffset = 5,
         forwardOffset = 900,
-        conditionalAbilityId = 39028,
+        conditionalAbilityId = {39028},
         activeBarOnly = true,
     },
     ["Streak (flat ground)"] = {
@@ -109,7 +109,7 @@ CAE.PresetShapes = {
         radius = 0.5,
         yOffset = 5,
         forwardOffset = 1500,
-        conditionalAbilityId = 23236,
+        conditionalAbilityId = {23236},
         depthBuffers = false,
     },
 
@@ -124,6 +124,6 @@ CAE.PresetShapes = {
         height = 20,
         yOffset = 5,
         forwardOffset = 1000,
-        conditionalEffectId = 178028,
+        conditionalEffectId = {178028},
     },
 }
