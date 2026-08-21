@@ -189,7 +189,7 @@ end
 ---------------------------------------------------------------------
 local function IsAnyIdActive(func, ids, activeBarOnly)
     for _, id in ipairs(ids) do
-        if (func(id, activeBarOnly)) then return true
+        if (func(id, activeBarOnly)) then return true end
     end
     return false
 end
