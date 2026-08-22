@@ -156,8 +156,8 @@ local function InitEffects()
     -- Collect all buffs needed to be tracked from profile
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     for _, shapeData in pairs(profile.circles) do
-        if (shapeData.conditionalEffectId) then
-            trackedEffects[shapeData.conditionalEffectId] = true
+        for _, id in ipairs(shapeData.conditionalEffectId) do
+            trackedEffects[id] = true
         end
     end
 
