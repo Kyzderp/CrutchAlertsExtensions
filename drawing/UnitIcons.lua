@@ -118,7 +118,6 @@ local UNIT_ICON_UNIQUE_NAME = "CrutchAlertsExtensionsUnitIcon"
 local createdTags = {} -- Keep track of all possible in case of unregistering
 
 local function OnUnitCreated(_, unitTag)
-    -- TODO: probably need to fix if character name is same
     Crutch.dbgSpam("created " .. unitTag .. " - " .. tostring(GetUnitName(unitTag)))
     local texture = GetIconTexture(unitTag)
     if (texture) then
