@@ -10,6 +10,7 @@ local currentHeight = 8
 local currentEdgeSize = 8
 local currentYOffset = 5
 local currentForwardOffset = 5
+local currentPitch = 0
 local currentConditionalAbility = {}
 local currentConditionalSetId = {}
 local currentConditionalEffectId = {}
@@ -105,6 +106,7 @@ local function LoadShapeValues()
     currentEdgeSize = profile.circles[currentShape].edgeSize
     currentYOffset = profile.circles[currentShape].yOffset
     currentForwardOffset = profile.circles[currentShape].forwardOffset
+    currentPitch = profile.circles[currentShape].pitch
     currentConditionalAbility = ZO_DeepTableCopy(profile.circles[currentShape].conditionalAbilityId)
     currentConditionalSetId = ZO_DeepTableCopy(profile.circles[currentShape].conditionalSetId)
     currentConditionalEffectId = ZO_DeepTableCopy(profile.circles[currentShape].conditionalEffectId)
@@ -121,6 +123,7 @@ local function ResetCurrentValues()
     currentEdgeSize = 8
     currentYOffset = 5
     currentForwardOffset = 0
+    currentPitch = 0
     ZO_ClearTable(currentConditionalAbility)
     ZO_ClearTable(currentConditionalSetId)
     ZO_ClearTable(currentConditionalEffectId)
@@ -310,7 +313,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new circle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers)
+                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -324,7 +327,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new rectangle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentEdgeSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly)
+                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentEdgeSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentPitch)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -460,6 +463,24 @@ function CAE.CreateSettingsMenu()
             setFunc = function(value)
                 currentForwardOffset = value
                 CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].forwardOffset = currentForwardOffset
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "slider",
+            name = "Pitch",
+            tooltip = "The forward rotation of the shape, in radians",
+            min = 0,
+            max = math.pi * 2,
+            step = math.pi / 8,
+            default = 0,
+            width = "half",
+            getFunc = function() return currentPitch end,
+            setFunc = function(value)
+                currentPitch = value
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].pitch = currentPitch
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
             end,

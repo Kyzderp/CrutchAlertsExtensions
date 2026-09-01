@@ -111,6 +111,11 @@ local function FillMissingDefaults()
             if (type(shapeData.conditionalEffectId) ~= "table") then
                 shapeData.conditionalEffectId = {shapeData.conditionalEffectId}
             end
+
+            -- orientation
+            if (shapeData.pitch == nil) then
+                shapeData.pitch = 0
+            end
         end
     end
 end

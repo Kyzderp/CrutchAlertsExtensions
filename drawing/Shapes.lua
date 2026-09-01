@@ -5,7 +5,7 @@ local Crutch = CrutchAlerts
 ---------------------------------------------------------------------
 -- Profile data
 ---------------------------------------------------------------------
-function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers)
+function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -21,6 +21,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
         conditionalEffectId = ZO_DeepTableCopy(conditionalEffectId),
         activeBarOnly = activeBarOnly,
         depthBuffers = depthBuffers,
+        pitch = pitch,
     }
 
     CAE.msg(zo_strformat("Added circle of radius <<1>> to profile <<2>>", radius, profile.profileName))
@@ -29,7 +30,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
 end
 
 -- TODO: renderspace rectangle with solid color only
-function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSize, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly)
+function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSize, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, pitch)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -47,6 +48,7 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSiz
         conditionalSetId = ZO_DeepTableCopy(conditionalSetId),
         conditionalEffectId = ZO_DeepTableCopy(conditionalEffectId),
         activeBarOnly = activeBarOnly,
+        pitch = pitch,
     }
 
     CAE.msg(zo_strformat("Added rectangle <<1>> × <<2>> to profile <<3>>", height, width, profile.profileName))
@@ -82,7 +84,7 @@ local function CleanShapes()
     ZO_ClearTable(currentKeys)
 end
 
-local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwardOffset)
+local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwardOffset, pitch)
     local _, x, y, z = GetUnitRawWorldPosition("player")
 
     -- Places circle at player's feet
@@ -95,6 +97,7 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwa
             local z = math.cos(heading) * -forwardOffset + pZ
 
             icon:SetPosition(x, y + yOffset, z)
+            icon:SetOrientation(pitch - math.pi/2, heading, 0)
         end
 
         -- Make color change every update
@@ -115,11 +118,11 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwa
         color,
         depthBuffers,
         false,
-        {math.pi/2, 0, 0},
+        {pitch - math.pi/2, 0, 0},
         CircleFunc)
 end
 
-local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColor, yOffset, forwardOffset)
+local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColor, yOffset, forwardOffset, pitch)
     local _, pX, y, pZ = GetUnitRawWorldPosition("player")
     local _, _, heading = GetMapPlayerPosition("player")
     local x = math.sin(heading) * -forwardOffset + pX
@@ -134,7 +137,7 @@ local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColo
             local z = math.cos(heading) * -forwardOffset + pZ
 
             icon:SetPosition(x, y + yOffset, z)
-            icon:SetOrientation(-math.pi/2, heading, 0)
+            icon:SetOrientation(pitch - math.pi/2, heading, 0)
         end
 
         -- Make color change every update
@@ -150,7 +153,7 @@ local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColo
         y + yOffset,
         z,
         false,
-        {-math.pi/2, heading, 0},
+        {pitch - math.pi/2, heading, 0},
         {
             backdrop = {
                 width = width * 100,
@@ -167,9 +170,9 @@ local function CreateShapeById(id)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     local shapeData = profile.circles[id]
     if (shapeData.type == CAE.CIRCLE) then
-        CreateCircle(id, shapeData.radius, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset)
+        CreateCircle(id, shapeData.radius, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch)
     elseif (shapeData.type == CAE.RECTANGLE) then
-        CreateRectangle(id, shapeData.radius, shapeData.height, shapeData.edgeSize, shapeData.rgb, shapeData.color, shapeData.fillColor, shapeData.yOffset, shapeData.forwardOffset)
+        CreateRectangle(id, shapeData.radius, shapeData.height, shapeData.edgeSize, shapeData.rgb, shapeData.color, shapeData.fillColor, shapeData.yOffset, shapeData.forwardOffset, shapeData.pitch)
     end
 end
 
