@@ -566,7 +566,7 @@ function CAE.CreateSettingsMenu()
             name = "Conditional effect ID",
             tooltip = "If specified, this shape will only show when these buff / debuff effects are on you. Separate multiple IDs using commas (,)\nUse |c99FF99/cae printeffects|r to see current effect IDs",
             getFunc = function()
-                return table.insert(currentConditionalEffectId)
+                return table.concat(currentConditionalEffectId, ",")
             end,
             setFunc = function(value)
                 ZO_ClearTable(currentConditionalEffectId)
