@@ -39,3 +39,5 @@ synergy/Synergy.lua
 synergy/Synergy.xml
 
 infopanel/DamagedEnemies.lua
+
+misc/BossTriggers.lua

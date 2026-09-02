@@ -28,6 +28,7 @@ local defaultGlobalOptions = {
             iconsForCompanions = false,
             damagedEnemies = false,
             shadowImageWireframe = false,
+            hideBossBarScavengingMaw = false,
         },
     },
 }
@@ -135,6 +136,7 @@ local function Initialize()
     CAE.InitializeUnitIcons()
     CAE.InitializeUnitDrawing()
     CAE.InitializeDamagedEnemies()
+    CAE.InitializeBossTriggers()
 
     EVENT_MANAGER:RegisterForEvent(CAE.name .. "ActivatedFirstTime", EVENT_PLAYER_ACTIVATED, OnPlayerActivatedFirstTime)
 
