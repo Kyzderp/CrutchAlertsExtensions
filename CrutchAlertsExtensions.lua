@@ -120,6 +120,7 @@ local function FillMissingDefaults()
         end
     end
 end
+CAE.FillMissingDefaults = FillMissingDefaults
 
 local function Initialize()
     CrutchAlertsExtensionsSavedProfiles = CrutchAlertsExtensionsSavedProfiles or {}

@@ -58,6 +58,7 @@ local function ColorShapeText(shapeData)
         return zo_strformat("|c<<1>>Rectangle|r: <<2>> × <<3>>", ColorToHexString(shapeData.color), shapeData.height, shapeData.radius)
     end
 end
+CAE.ColorShapeText = ColorShapeText
 
 local shapeNames = {}
 local shapeIds = {}

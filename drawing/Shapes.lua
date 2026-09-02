@@ -56,13 +56,36 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSiz
     return index
 end
 
-function CAE.AddPresetToProfile(presetName)
+local function CopyShapeToProfile(shapeData)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
-    profile.circles[index] = ZO_DeepTableCopy(CAE.PresetShapes[presetName])
+    profile.circles[index] = ZO_DeepTableCopy(shapeData)
 
+    CAE.ColorShapeText(shapeData)
     CAE.msg(zo_strformat("Imported <<1>> to profile <<2>>", presetName, profile.profileName))
+    return index
+end
+
+function CAE.AddPresetToProfile(presetName)
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+    CAE.msg(zo_strformat("Importing <<1>> to profile <<2>>", presetName, profile.profileName))
+
+    local preset = CAE.PresetShapes[presetName]
+    local index
+    if (preset[1]) then
+        -- multi
+        for _, shapeData in ipairs(preset[presetName]) do
+            index = CopyShapeToProfile(shapeData)
+        end
+    else
+        index = CopyShapeToProfile(preset)
+    end
+
+    -- So we don't have to add new fields to presets all the time
+    CAE.FillMissingDefaults()
+
+    -- Return any index
     return index
 end
 
