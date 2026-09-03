@@ -16,6 +16,7 @@ local currentConditionalSetId = {}
 local currentConditionalEffectId = {}
 local currentActiveBarOnly = false
 local currentDepthBuffers = false
+local currentSolid = false
 
 local currentShape, currentLine
 
@@ -113,6 +114,7 @@ local function LoadShapeValues()
     currentConditionalEffectId = ZO_DeepTableCopy(profile.circles[currentShape].conditionalEffectId)
     currentActiveBarOnly = profile.circles[currentShape].activeBarOnly
     currentDepthBuffers = profile.circles[currentShape].depthBuffers
+    currentSolid = profile.circles[currentShape].solid
 end
 
 local function ResetCurrentValues()
@@ -130,6 +132,7 @@ local function ResetCurrentValues()
     ZO_ClearTable(currentConditionalEffectId)
     currentActiveBarOnly = false
     currentDepthBuffers = false
+    currentSolid = false
 end
 
 local function ResetCurrentLineValues()
@@ -315,7 +318,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new circle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch)
+                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch, currentSolid)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -329,7 +332,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new rectangle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentEdgeSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentPitch)
+                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentEdgeSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch, currentSolid)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -374,8 +377,38 @@ function CAE.CreateSettingsMenu()
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.CIRCLE end, -- Don't allow editing default, not valid for circles
         },
         {
+            type = "checkbox",
+            name = "Solid color",
+            tooltip = "Whether to use a solid circle or rectangle instead of an outline or rectangle with border. Non-solid rectangles do not support hiding behind objects",
+            default = false,
+            getFunc = function() return currentSolid end,
+            setFunc = function(value)
+                currentSolid = value
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].solid = currentSolid
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            width = "half",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "checkbox",
+            name = "Use RGB",
+            tooltip = "Whether to cycle through all colors instead of being a static color. The alpha (opacity) of the \"Outline color\" below will be inherited",
+            default = false,
+            getFunc = function() return currentRgb end,
+            setFunc = function(value)
+                currentRgb = value
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].rgb = currentRgb
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            width = "half",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
             type = "colorpicker",
-            name = "Outline color",
+            name = "Outline / main color",
             tooltip = "The color of the shape. Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
             default = ZO_ColorDef:New(1, 1, 1, 1),
             getFunc = function() return unpack(currentColor) end,
@@ -401,27 +434,12 @@ function CAE.CreateSettingsMenu()
                 RefreshShapes()
             end,
             width = "half",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.CIRCLE end, -- Don't allow editing default, not valid for circles
-        },
-        {
-            type = "checkbox",
-            name = "Use RGB",
-            tooltip = "Whether to cycle through all colors instead of being a static color. The alpha (opacity) of the \"Outline color\" above will be inherited",
-            default = false,
-            getFunc = function() return currentRgb end,
-            setFunc = function(value)
-                currentRgb = value
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].rgb = currentRgb
-                CAE.LoadCurrentProfile()
-                RefreshShapes()
-            end,
-            width = "half",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type ~= CAE.RECTANGLE or currentSolid end, -- Don't allow editing default, only valid for Space rectangles
         },
         {
             type = "checkbox",
             name = "Hide behind objects",
-            tooltip = "Whether to use depth buffers to have icons be hidden by objects. For example, if this is ON, parts of the circle can be covered by hills. In order for this setting to work while ON, you must have \"SubSampling Quality\" set to \"High\" in your Video settings",
+            tooltip = "Whether to use depth buffers to have shapes be hidden by objects. For example, if this is ON, parts of the shape can be covered by hills. This does not work for rectangles with outlines. In order for this setting to work while ON, you must have \"SubSampling Quality\" set to \"High\" in your Video settings",
             default = false,
             getFunc = function() return currentDepthBuffers end,
             setFunc = function(value)
@@ -432,7 +450,7 @@ function CAE.CreateSettingsMenu()
             end,
             width = "half",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or 
-                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.RECTANGLE end, -- Don't allow editing default
+                (CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.RECTANGLE and not currentSolid) end, -- Rectangle outline is Space
         },
         {
             type = "slider",

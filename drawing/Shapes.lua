@@ -5,7 +5,7 @@ local Crutch = CrutchAlerts
 ---------------------------------------------------------------------
 -- Profile data
 ---------------------------------------------------------------------
-function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch)
+function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch, solid)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -22,6 +22,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
         activeBarOnly = activeBarOnly,
         depthBuffers = depthBuffers,
         pitch = pitch,
+        solid = solid,
     }
 
     CAE.msg(zo_strformat("Added circle of radius <<1>> to profile <<2>>", radius, profile.profileName))
@@ -30,7 +31,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
 end
 
 -- TODO: renderspace rectangle with solid color only
-function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSize, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, pitch)
+function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSize, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch, solid)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -48,7 +49,9 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSiz
         conditionalSetId = ZO_DeepTableCopy(conditionalSetId),
         conditionalEffectId = ZO_DeepTableCopy(conditionalEffectId),
         activeBarOnly = activeBarOnly,
+        depthBuffers = depthBuffers,
         pitch = pitch,
+        solid = solid,
     }
 
     CAE.msg(zo_strformat("Added rectangle <<1>> × <<2>> to profile <<3>>", height, width, profile.profileName))
@@ -106,7 +109,7 @@ local function CleanShapes()
     ZO_ClearTable(currentKeys)
 end
 
-local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwardOffset, pitch)
+local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwardOffset, pitch, solid)
     local _, x, y, z = GetUnitRawWorldPosition("player")
 
     -- Places circle at player's feet
@@ -131,7 +134,7 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwa
     end
 
     currentKeys[id] = Crutch.Drawing.CreateWorldTexture(
-        "CrutchAlerts/assets/floor/circle.dds",
+        solid and "CrutchAlertsExtensions/assets/solidcircle.dds" or "CrutchAlerts/assets/floor/circle.dds",
         x,
         y + yOffset,
         z,
@@ -144,7 +147,7 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwa
         CircleFunc)
 end
 
-local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColor, yOffset, forwardOffset, pitch)
+local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColor, yOffset, depthBuffers, forwardOffset, pitch, solid)
     local _, pX, y, pZ = GetUnitRawWorldPosition("player")
     local _, _, heading = GetMapPlayerPosition("player")
     local x = math.sin(heading) * -forwardOffset + pX
@@ -166,35 +169,54 @@ local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColo
         if (rgb) then
             local time = GetGameTimeMilliseconds() % 2000 / 2000
             local r, g, b = Crutch.ConvertHSLToRGB(time, 1, 0.5)
-            icon:SetBackdropColors(nil, nil, nil, nil, r, g, b, color[4])
+            if (solid) then
+                icon:SetColor(r, g, b, color[4])
+            else
+                icon:SetBackdropColors(nil, nil, nil, nil, r, g, b, color[4])
+            end
         end
     end
 
-    currentKeys[id] = Crutch.Drawing.CreateSpaceControl(
-        x,
-        y + yOffset,
-        z,
-        false,
-        {pitch - math.pi/2, heading, 0},
-        {
-            backdrop = {
-                width = width * 100,
-                height = height * 100,
-                centerColor = fillColor,
-                edgeColor = color,
-                edgeSize = edgeSize,
+    if (solid) then
+        currentKeys[id] = Crutch.Drawing.CreateWorldTexture(
+            "CrutchAlerts/assets/floor/square.dds",
+            x,
+            y + yOffset,
+            z,
+            width,
+            height,
+            color,
+            depthBuffers,
+            false,
+            {pitch - math.pi/2, heading, 0},
+            RectangleFunc)
+    else
+        currentKeys[id] = Crutch.Drawing.CreateSpaceControl(
+            x,
+            y + yOffset,
+            z,
+            false,
+            {pitch - math.pi/2, heading, 0},
+            {
+                backdrop = {
+                    width = width * 100,
+                    height = height * 100,
+                    centerColor = fillColor,
+                    edgeColor = color,
+                    edgeSize = edgeSize,
+                },
             },
-        },
-        RectangleFunc)
+            RectangleFunc)
+    end
 end
 
 local function CreateShapeById(id)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     local shapeData = profile.circles[id]
     if (shapeData.type == CAE.CIRCLE) then
-        CreateCircle(id, shapeData.radius, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch)
+        CreateCircle(id, shapeData.radius, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch, shapeData.solid)
     elseif (shapeData.type == CAE.RECTANGLE) then
-        CreateRectangle(id, shapeData.radius, shapeData.height, shapeData.edgeSize, shapeData.rgb, shapeData.color, shapeData.fillColor, shapeData.yOffset, shapeData.forwardOffset, shapeData.pitch)
+        CreateRectangle(id, shapeData.radius, shapeData.height, shapeData.edgeSize, shapeData.rgb, shapeData.color, shapeData.fillColor, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch, shapeData.solid)
     end
 end
 
