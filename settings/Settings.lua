@@ -491,15 +491,15 @@ function CAE.CreateSettingsMenu()
         {
             type = "slider",
             name = "Pitch",
-            tooltip = "The forward rotation of the shape, in radians",
+            tooltip = "The forward rotation of the shape, in degrees",
             min = 0,
-            max = math.pi * 2,
-            step = math.pi / 8,
+            max = 360,
+            step = 45,
             default = 0,
             width = "half",
-            getFunc = function() return currentPitch end,
+            getFunc = function() return currentPitch / math.pi * 180 end,
             setFunc = function(value)
-                currentPitch = value
+                currentPitch = value / 180 * math.pi
                 CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].pitch = currentPitch
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
