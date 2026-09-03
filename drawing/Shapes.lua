@@ -62,8 +62,7 @@ local function CopyShapeToProfile(shapeData)
     local index = CAE.FindFreeId(profile.circles)
     profile.circles[index] = ZO_DeepTableCopy(shapeData)
 
-    CAE.ColorShapeText(shapeData)
-    CAE.msg(zo_strformat("Imported <<1>> to profile <<2>>", presetName, profile.profileName))
+    CAE.msg(zo_strformat("Imported <<1>> |cAAAAAAto profile <<2>>", CAE.ColorShapeText(shapeData), profile.profileName))
     return index
 end
 
@@ -75,7 +74,7 @@ function CAE.AddPresetToProfile(presetName)
     local index
     if (preset[1]) then
         -- multi
-        for _, shapeData in ipairs(preset[presetName]) do
+        for _, shapeData in ipairs(preset) do
             index = CopyShapeToProfile(shapeData)
         end
     else
