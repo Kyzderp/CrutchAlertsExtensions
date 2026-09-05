@@ -54,7 +54,7 @@ CAE.PresetShapes = {
         conditionalAbilityId = {39113},
         depthBuffers = false,
     },
-    ["Pragmatic Fatecarver"] = {
+    ["Fatecarver (Simple)"] = {
         type = CAE.RECTANGLE,
         rgb = false,
         color = {0, 1, 0, 0.2},
@@ -63,10 +63,10 @@ CAE.PresetShapes = {
         height = 23.5,
         yOffset = 5,
         forwardOffset = 1025,
-        conditionalAbilityId = {193398},
+        conditionalAbilityId = {193331, 193397, 193398},
         activeBarOnly = true,
     },
-    ["Fatecarver"] = {
+    ["Fatecarver (Clutter)"] = {
         {
             type = CAE.RECTANGLE,
             rgb = false,
