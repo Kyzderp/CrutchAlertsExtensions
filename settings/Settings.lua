@@ -497,7 +497,7 @@ function CAE.CreateSettingsMenu()
             step = 45,
             default = 0,
             width = "half",
-            getFunc = function() return currentPitch / math.pi * 180 end,
+            getFunc = function() return zo_round(currentPitch / math.pi * 180) end,
             setFunc = function(value)
                 currentPitch = value / 180 * math.pi
                 CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].pitch = currentPitch
