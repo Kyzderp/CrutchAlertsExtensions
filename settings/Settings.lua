@@ -53,11 +53,15 @@ local function ColorShapeText(shapeData)
         return ColorCircleText(shapeData.rgb, shapeData.color, shapeData.radius)
     end
 
-    if (shapeData.rgb) then
-        return zo_strformat("<<1>>|r: <<2>> × <<3>>", CAE.Utils.Rainbowify("Rectangle"), shapeData.radius, shapeData.height)
-    else
-        return zo_strformat("|c<<1>>Rectangle|r: <<2>> × <<3>>", ColorToHexString(shapeData.color), shapeData.height, shapeData.radius)
+    if (shapeData.type == CAE.RECTANGLE) then
+        if (shapeData.rgb) then
+            return zo_strformat("<<1>>|r: <<2>> × <<3>>", CAE.Utils.Rainbowify("Rectangle"), shapeData.radius, shapeData.height)
+        else
+            return zo_strformat("|c<<1>>Rectangle|r: <<2>> × <<3>>", ColorToHexString(shapeData.color), shapeData.height, shapeData.radius)
+        end
     end
+
+    return "Cone" -- TODO
 end
 CAE.ColorShapeText = ColorShapeText
 
@@ -301,7 +305,7 @@ function CAE.CreateSettingsMenu()
             name = "Remove shape",
             tooltip = "Remove the currently selected shape",
             func = function()
-                CAE.RemoveCircleFromProfile(currentShape)
+                CAE.RemoveShapeFromProfile(currentShape)
                 currentShape = nil
                 CAE.LoadCurrentProfile()
                 RefreshShapes()
@@ -309,7 +313,7 @@ function CAE.CreateSettingsMenu()
             end,
             warning = "Remove the selected shape from the profile?",
             isDangerous = true,
-            width = "full",
+            width = "half",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
         },
         {
@@ -323,7 +327,7 @@ function CAE.CreateSettingsMenu()
                 currentShape = id
                 RefreshShapes()
             end,
-            width = "full",
+            width = "half",
             disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
@@ -337,13 +341,28 @@ function CAE.CreateSettingsMenu()
                 currentShape = id
                 RefreshShapes()
             end,
-            width = "full",
+            width = "half",
+            disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
+        },
+        {
+            type = "button",
+            name = "Add cone",
+            tooltip = "Add a new cone to the current profile. The properties can be edited later",
+            func = function()
+                ResetCurrentValues()
+                currentPitch = math.pi / 2
+                local id = CAE.AddConeToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch, currentSolid)
+                CAE.LoadCurrentProfile()
+                currentShape = id
+                RefreshShapes()
+            end,
+            width = "half",
             disabled = function() return CAE.csvs.currentProfile == -1 end, -- Don't allow editing default
         },
         {
             type = "slider",
             name = "Size (cm)",
-            tooltip = "The size in centimeters of the shape. For circles, this is the radius. For rectangles, this is the width",
+            tooltip = "The size in centimeters of the shape. For circles and cones, this is the radius. For rectangles, this is the width",
             min = 0,
             max = 4800,
             step = 50,
@@ -360,8 +379,8 @@ function CAE.CreateSettingsMenu()
         },
         {
             type = "slider",
-            name = "Length (cm)",
-            tooltip = "The size in centimeters of the shape. For rectangles, this is the length",
+            name = "Length (cm) / Thickness",
+            tooltip = "The size in centimeters of the shape. For rectangles, this is the length. For cones, this is the thickness of the side lines",
             min = 0,
             max = 4800,
             step = 50,
@@ -490,11 +509,11 @@ function CAE.CreateSettingsMenu()
         },
         {
             type = "slider",
-            name = "Pitch",
-            tooltip = "The forward rotation of the shape, in degrees",
+            name = "Pitch / Angle",
+            tooltip = "For circles or rectangles, the forward rotation of the shape, in degrees. For cones, the angle of the cone",
             min = 0,
             max = 360,
-            step = 45,
+            step = 5,
             default = 0,
             width = "half",
             getFunc = function() return zo_round(currentPitch / math.pi * 180) end,
@@ -633,7 +652,7 @@ function CAE.CreateSettingsMenu()
             controls = {
                 {
                     type = "description",
-                    text = "Select from example presets here to add shapes that are already set up for use. Yell at Kyzer if any of these seem wrong. Note: some skills may actually be pill-shaped or rounded, but the display for that is not supported.",
+                    text = "Select from example presets here to add shapes that are already set up for use. There may be slight inaccuracies because these were the results of testing; yell at Kyzer if any seem wrong. Note: some skills may actually be pill-shaped or rounded, but the display for that is not supported.",
                     width = "full",
                 },
                 {

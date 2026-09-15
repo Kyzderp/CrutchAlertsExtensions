@@ -30,7 +30,6 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
     return index
 end
 
--- TODO: renderspace rectangle with solid color only
 function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSize, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch, solid)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
@@ -55,6 +54,33 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSiz
     }
 
     CAE.msg(zo_strformat("Added rectangle <<1>> × <<2>> to profile <<3>>", height, width, profile.profileName))
+
+    return index
+end
+
+function CAE.AddConeToProfile(rgb, color, fillColor, radius, height, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch, solid)
+    local profile = CAE.profiles[CAE.csvs.currentProfile]
+
+    local index = CAE.FindFreeId(profile.circles)
+    profile.circles[index] = {
+        type = CAE.CONE,
+        rgb = rgb,
+        color = color,
+        fillColor = fillColor,
+        radius = radius, -- width is called radius, just to reuse the circle property
+        height = height,
+        yOffset = yOffset,
+        forwardOffset = forwardOffset,
+        conditionalAbilityId = ZO_DeepTableCopy(conditionalAbilityId),
+        conditionalSetId = ZO_DeepTableCopy(conditionalSetId),
+        conditionalEffectId = ZO_DeepTableCopy(conditionalEffectId),
+        activeBarOnly = activeBarOnly,
+        depthBuffers = depthBuffers,
+        pitch = pitch,
+        solid = solid,
+    }
+
+    CAE.msg(zo_strformat("Added cone <<1>> × <<2>> to profile <<3>>", height, width, profile.profileName)) -- TODO
 
     return index
 end
@@ -91,9 +117,9 @@ function CAE.AddPresetToProfile(presetName)
     return index
 end
 
-function CAE.RemoveCircleFromProfile(index)
+function CAE.RemoveShapeFromProfile(index)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
-    CAE.msg(zo_strformat("Removing circle of radius <<1>> from profile <<2>>", profile.circles[index].radius, profile.profileName))
+    CAE.msg(zo_strformat("Removing shape of size <<1>> from profile <<2>>", profile.circles[index].radius, profile.profileName))
     profile.circles[index] = nil
 end
 
@@ -101,10 +127,12 @@ end
 ---------------------------------------------------------------------
 -- Loading / Drawing
 ---------------------------------------------------------------------
-local currentKeys = {}
+local currentKeys = {} -- {[id] = {1, 2, 3}}
 local function CleanShapes()
-    for _, key in pairs(currentKeys) do
-        Crutch.Drawing.RemoveWorldTexture(key)
+    for _, keys in pairs(currentKeys) do
+        for _, key in ipairs(keys) do
+            Crutch.Drawing.RemoveWorldTexture(key)
+        end
     end
     ZO_ClearTable(currentKeys)
 end
@@ -133,7 +161,7 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwa
         end
     end
 
-    currentKeys[id] = Crutch.Drawing.CreateWorldTexture(
+    local key = Crutch.Drawing.CreateWorldTexture(
         solid and "CrutchAlertsExtensions/assets/solidcircle.dds" or "CrutchAlerts/assets/floor/circle.dds",
         x,
         y + yOffset,
@@ -145,6 +173,11 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwa
         false,
         {pitch - math.pi/2, 0, 0},
         CircleFunc)
+
+    if (not currentKeys[id]) then
+        currentKeys[id] = {}
+    end
+    table.insert(currentKeys[id], key)
 end
 
 local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColor, yOffset, depthBuffers, forwardOffset, pitch, solid)
@@ -177,8 +210,9 @@ local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColo
         end
     end
 
+    local key
     if (solid) then
-        currentKeys[id] = Crutch.Drawing.CreateWorldTexture(
+        key = Crutch.Drawing.CreateWorldTexture(
             "CrutchAlerts/assets/floor/square.dds",
             x,
             y + yOffset,
@@ -191,7 +225,7 @@ local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColo
             {pitch - math.pi/2, heading, 0},
             RectangleFunc)
     else
-        currentKeys[id] = Crutch.Drawing.CreateSpaceControl(
+        key = Crutch.Drawing.CreateSpaceControl(
             x,
             y + yOffset,
             z,
@@ -208,6 +242,75 @@ local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColo
             },
             RectangleFunc)
     end
+
+    if (not currentKeys[id]) then
+        currentKeys[id] = {}
+    end
+    table.insert(currentKeys[id], key)
+end
+
+local function CreateCone(id, radius, height, rgb, color, yOffset, depthBuffers, forwardOffset, angle)
+    local _, pX, y, pZ = GetUnitRawWorldPosition("player")
+    local _, _, heading = GetMapPlayerPosition("player")
+    local x = math.sin(heading) * -forwardOffset + pX
+    local z = math.cos(heading) * -forwardOffset + pZ
+
+    local function EndpointsFunc(offsetAngle)
+        if (not CAE.freeze) then
+            -- Make it follow the player
+            local _, pX, y, pZ = GetUnitRawWorldPosition("player")
+            local _, _, heading = GetMapPlayerPosition("player")
+            local x = math.sin(heading) * -forwardOffset + pX
+            local z = math.cos(heading) * -forwardOffset + pZ
+
+            local x1 = math.sin(heading + offsetAngle) * -radius * 100 + x
+            local z1 = math.cos(heading + offsetAngle) * -radius * 100 + z
+
+            -- Crutch.dbgSpam(zo_strformat("<<1>> <<2>> ; <<3>> <<4>>", x, z, x1, z1))
+            return x, y + yOffset, z, x1, y + yOffset, z1
+        end
+    end
+
+    local function LineFunc(icon)
+        -- Make color change every update
+        if (rgb) then
+            local time = GetGameTimeMilliseconds() % 2000 / 2000
+            local r, g, b = Crutch.ConvertHSLToRGB(time, 1, 0.5)
+            icon:SetColor(r, g, b, color[4])
+        end
+    end
+
+    local key1 = Crutch.Drawing.CreateLine(
+        x,
+        y + yOffset,
+        z,
+        x,
+        y + yOffset,
+        z,
+        height / 100,
+        color,
+        depthBuffers,
+        LineFunc,
+        function() return EndpointsFunc(angle / 2) end)
+
+    local key2 = Crutch.Drawing.CreateLine(
+        x,
+        y + yOffset,
+        z,
+        x,
+        y + yOffset,
+        z,
+        height / 100,
+        color,
+        depthBuffers,
+        LineFunc,
+        function() return EndpointsFunc(-angle / 2) end)
+
+    if (not currentKeys[id]) then
+        currentKeys[id] = {}
+    end
+    table.insert(currentKeys[id], key1)
+    table.insert(currentKeys[id], key2)
 end
 
 local function CreateShapeById(id)
@@ -217,6 +320,8 @@ local function CreateShapeById(id)
         CreateCircle(id, shapeData.radius, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch, shapeData.solid)
     elseif (shapeData.type == CAE.RECTANGLE) then
         CreateRectangle(id, shapeData.radius, shapeData.height, shapeData.edgeSize, shapeData.rgb, shapeData.color, shapeData.fillColor, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch, shapeData.solid)
+    elseif (shapeData.type == CAE.CONE) then
+        CreateCone(id, shapeData.radius, shapeData.height, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch)
     end
 end
 
@@ -227,8 +332,10 @@ end
 
 local function HideShape(id)
     if (not currentKeys[id]) then return end -- already hidden
-    Crutch.Drawing.RemoveWorldTexture(currentKeys[id])
-    currentKeys[id] = nil
+    for _, key in ipairs(currentKeys[id]) do
+        Crutch.Drawing.RemoveWorldTexture(key)
+    end
+    ZO_ClearTable(currentKeys[id])
 end
 
 local function UpdateShapes()

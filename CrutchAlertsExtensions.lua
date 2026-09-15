@@ -8,6 +8,7 @@ CrutchAlertsExtensions = {
 
     CIRCLE = "Circle",
     RECTANGLE = "Rectangle",
+    CONE = "Cone",
 
     Utils = {},
 }
