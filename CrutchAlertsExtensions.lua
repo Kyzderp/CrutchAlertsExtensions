@@ -118,6 +118,11 @@ local function FillMissingDefaults()
             if (shapeData.pitch == nil) then
                 shapeData.pitch = 0
             end
+
+            -- default will be true, but migrate the old ones to keep the same behavior
+            if (shapeData.useCameraHeading == nil) then
+                shapeData.useCameraHeading = false
+            end
         end
     end
 end

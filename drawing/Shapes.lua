@@ -5,7 +5,7 @@ local Crutch = CrutchAlerts
 ---------------------------------------------------------------------
 -- Profile data
 ---------------------------------------------------------------------
-function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch, solid)
+function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch, solid, useCameraHeading)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -23,6 +23,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
         depthBuffers = depthBuffers,
         pitch = pitch,
         solid = solid,
+        useCameraHeading = useCameraHeading,
     }
 
     CAE.msg(zo_strformat("Added circle of radius <<1>> to profile <<2>>", radius, profile.profileName))
@@ -30,7 +31,7 @@ function CAE.AddCircleToProfile(rgb, color, radius, yOffset, forwardOffset, cond
     return index
 end
 
-function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSize, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch, solid)
+function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSize, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch, solid, useCameraHeading)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -51,6 +52,7 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSiz
         depthBuffers = depthBuffers,
         pitch = pitch,
         solid = solid,
+        useCameraHeading = useCameraHeading,
     }
 
     CAE.msg(zo_strformat("Added rectangle <<1>> × <<2>> to profile <<3>>", height, width, profile.profileName))
@@ -58,7 +60,7 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSiz
     return index
 end
 
-function CAE.AddConeToProfile(rgb, color, fillColor, radius, height, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch, solid)
+function CAE.AddConeToProfile(rgb, color, fillColor, radius, height, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch, solid, useCameraHeading)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -78,6 +80,7 @@ function CAE.AddConeToProfile(rgb, color, fillColor, radius, height, yOffset, fo
         depthBuffers = depthBuffers,
         pitch = pitch,
         solid = solid,
+        useCameraHeading = useCameraHeading,
     }
 
     CAE.msg(zo_strformat("Added cone <<1>> × <<2>>° to profile <<3>>", height, pitch / math.pi * 180, profile.profileName))
@@ -137,7 +140,16 @@ local function CleanShapes()
     ZO_ClearTable(currentKeys)
 end
 
-local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwardOffset, pitch, solid)
+local function GetHeading(useCameraHeading)
+    if (useCameraHeading) then
+        return GetPlayerCameraHeading()
+    else
+        local _, _, heading = GetMapPlayerPosition("player")
+        return heading
+    end
+end
+
+local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwardOffset, pitch, solid, useCameraHeading)
     local _, x, y, z = GetUnitRawWorldPosition("player")
 
     -- Places circle at player's feet
@@ -145,7 +157,7 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwa
         if (not CAE.freeze) then
             -- Make circle follow the player
             local _, pX, y, pZ = GetUnitRawWorldPosition("player")
-            local _, _, heading = GetMapPlayerPosition("player")
+            local heading = GetHeading(useCameraHeading)
             local x = math.sin(heading) * -forwardOffset + pX
             local z = math.cos(heading) * -forwardOffset + pZ
 
@@ -180,9 +192,9 @@ local function CreateCircle(id, radius, rgb, color, yOffset, depthBuffers, forwa
     table.insert(currentKeys[id], key)
 end
 
-local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColor, yOffset, depthBuffers, forwardOffset, pitch, solid)
+local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColor, yOffset, depthBuffers, forwardOffset, pitch, solid, useCameraHeading)
     local _, pX, y, pZ = GetUnitRawWorldPosition("player")
-    local _, _, heading = GetMapPlayerPosition("player")
+    local heading = GetHeading(useCameraHeading)
     local x = math.sin(heading) * -forwardOffset + pX
     local z = math.cos(heading) * -forwardOffset + pZ
 
@@ -190,7 +202,7 @@ local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColo
         if (not CAE.freeze) then
             -- Make it follow the player
             local _, pX, y, pZ = GetUnitRawWorldPosition("player")
-            local _, _, heading = GetMapPlayerPosition("player")
+            local heading = GetHeading(useCameraHeading)
             local x = math.sin(heading) * -forwardOffset + pX
             local z = math.cos(heading) * -forwardOffset + pZ
 
@@ -249,9 +261,9 @@ local function CreateRectangle(id, width, height, edgeSize, rgb, color, fillColo
     table.insert(currentKeys[id], key)
 end
 
-local function CreateCone(id, radius, height, rgb, color, yOffset, depthBuffers, forwardOffset, angle)
+local function CreateCone(id, radius, height, rgb, color, yOffset, depthBuffers, forwardOffset, angle, useCameraHeading)
     local _, pX, y, pZ = GetUnitRawWorldPosition("player")
-    local _, _, heading = GetMapPlayerPosition("player")
+    local heading = GetHeading(useCameraHeading)
     local x = math.sin(heading) * -forwardOffset + pX
     local z = math.cos(heading) * -forwardOffset + pZ
 
@@ -259,7 +271,7 @@ local function CreateCone(id, radius, height, rgb, color, yOffset, depthBuffers,
         if (not CAE.freeze) then
             -- Make it follow the player
             local _, pX, y, pZ = GetUnitRawWorldPosition("player")
-            local _, _, heading = GetMapPlayerPosition("player")
+            local heading = GetHeading(useCameraHeading)
             local x = math.sin(heading) * -forwardOffset + pX
             local z = math.cos(heading) * -forwardOffset + pZ
 
@@ -316,12 +328,13 @@ end
 local function CreateShapeById(id)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
     local shapeData = profile.circles[id]
+    -- TODO: prob just pass in the shapeData at this point
     if (shapeData.type == CAE.CIRCLE) then
-        CreateCircle(id, shapeData.radius, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch, shapeData.solid)
+        CreateCircle(id, shapeData.radius, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch, shapeData.solid, shapeData.useCameraHeading)
     elseif (shapeData.type == CAE.RECTANGLE) then
-        CreateRectangle(id, shapeData.radius, shapeData.height, shapeData.edgeSize, shapeData.rgb, shapeData.color, shapeData.fillColor, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch, shapeData.solid)
+        CreateRectangle(id, shapeData.radius, shapeData.height, shapeData.edgeSize, shapeData.rgb, shapeData.color, shapeData.fillColor, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch, shapeData.solid, shapeData.useCameraHeading)
     elseif (shapeData.type == CAE.CONE) then
-        CreateCone(id, shapeData.radius, shapeData.height, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch)
+        CreateCone(id, shapeData.radius, shapeData.height, shapeData.rgb, shapeData.color, shapeData.yOffset, shapeData.depthBuffers, shapeData.forwardOffset, shapeData.pitch, shapeData.useCameraHeading)
     end
 end
 

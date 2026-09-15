@@ -17,6 +17,7 @@ local currentConditionalEffectId = {}
 local currentActiveBarOnly = false
 local currentDepthBuffers = false
 local currentSolid = false
+local currentUseCameraHeading = true
 
 local currentShape, currentLine
 
@@ -123,6 +124,7 @@ local function LoadShapeValues()
     currentActiveBarOnly = profile.circles[currentShape].activeBarOnly
     currentDepthBuffers = profile.circles[currentShape].depthBuffers
     currentSolid = profile.circles[currentShape].solid
+    currentUseCameraHeading = profile.circles[currentShape].useCameraHeading
 end
 
 local function ResetCurrentValues()
@@ -141,6 +143,7 @@ local function ResetCurrentValues()
     currentActiveBarOnly = false
     currentDepthBuffers = false
     currentSolid = false
+    currentUseCameraHeading = true
 end
 
 local function ResetCurrentLineValues()
@@ -326,7 +329,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new circle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch, currentSolid)
+                local id = CAE.AddCircleToProfile(currentRgb, currentColor, currentSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch, currentSolid, currentUseCameraHeading)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -340,7 +343,7 @@ function CAE.CreateSettingsMenu()
             tooltip = "Add a new rectangle to the current profile. The properties can be edited later",
             func = function()
                 ResetCurrentValues()
-                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentEdgeSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch, currentSolid)
+                local id = CAE.AddRectangleToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentEdgeSize, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch, currentSolid, currentUseCameraHeading)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -355,7 +358,7 @@ function CAE.CreateSettingsMenu()
             func = function()
                 ResetCurrentValues()
                 currentPitch = math.pi / 2
-                local id = CAE.AddConeToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch, currentSolid)
+                local id = CAE.AddConeToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch, currentSolid, currentUseCameraHeading)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -496,7 +499,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "slider",
             name = "Forward offset (cm)",
-            tooltip = "The offset of the center of the shape from your feet, for where your character (not your camera!) is facing",
+            tooltip = "The offset of the center of the shape from your feet, for where your character or camera is facing",
             min = -3500,
             max = 3500,
             step = 50,
@@ -528,6 +531,21 @@ function CAE.CreateSettingsMenu()
                 RefreshShapes()
             end,
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+        },
+        {
+            type = "checkbox",
+            name = "Use camera heading",
+            tooltip = "Whether to follow the direction your camera is pointing, or the direction your character is pointing",
+            default = true,
+            getFunc = function() return currentUseCameraHeading end,
+            setFunc = function(value)
+                currentUseCameraHeading = value
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].useCameraHeading = currentUseCameraHeading
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            width = "half",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil  end,
         },
         {
             type = "description",

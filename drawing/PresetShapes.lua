@@ -18,6 +18,7 @@ CAE.PresetShapes = {
         forwardOffset = 750,
         conditionalSetId = {232},
         activeBarOnly = true,
+        useCameraHeading = false,
     },
     ["Perfected Void Bash (vVH)"] = {
         type = CAE.CIRCLE,
@@ -40,6 +41,7 @@ CAE.PresetShapes = {
         forwardOffset = 500,
         conditionalSetId = {622},
         activeBarOnly = true,
+        useCameraHeading = true,
     },
 
 ---------------------------------------------------------------------
@@ -66,6 +68,7 @@ CAE.PresetShapes = {
         conditionalAbilityId = {58855, 58879},
         activeBarOnly = true,
         depthBuffers = false,
+        useCameraHeading = true,
     },
     ["Claw Fury"] = {
         type = CAE.CONE,
@@ -79,6 +82,7 @@ CAE.PresetShapes = {
         conditionalAbilityId = {58864},
         activeBarOnly = true,
         depthBuffers = false,
+        useCameraHeading = true,
     },
     ["Twisting Path"] = {
         type = CAE.CONE,
@@ -92,6 +96,7 @@ CAE.PresetShapes = {
         conditionalAbilityId = {36049},
         activeBarOnly = true,
         depthBuffers = false,
+        useCameraHeading = true,
     },
     ["Cleave"] = {
         type = CAE.CONE,
@@ -105,6 +110,7 @@ CAE.PresetShapes = {
         conditionalAbilityId = {20919, 38745, 38754},
         activeBarOnly = true,
         depthBuffers = false,
+        useCameraHeading = true,
     },
     ["Fatecarver (Simple)"] = {
         type = CAE.RECTANGLE,
@@ -117,6 +123,7 @@ CAE.PresetShapes = {
         forwardOffset = 1025,
         conditionalAbilityId = {193331, 193397, 193398},
         activeBarOnly = true,
+        useCameraHeading = true,
     },
     ["Fatecarver (Clutter)"] = {
         {
@@ -130,6 +137,7 @@ CAE.PresetShapes = {
             forwardOffset = 1100,
             conditionalAbilityId = {193331, 193397, 193398},
             activeBarOnly = true,
+            useCameraHeading = true,
         },
         {
             type = CAE.CIRCLE,
@@ -152,6 +160,7 @@ CAE.PresetShapes = {
             conditionalAbilityId = {193331, 193397, 193398},
             activeBarOnly = true,
             depthBuffers = true,
+            useCameraHeading = true,
         },
     },
     ["Blockade of Fire"] = {
@@ -165,6 +174,7 @@ CAE.PresetShapes = {
         forwardOffset = 900,
         conditionalAbilityId = {39012},
         activeBarOnly = true,
+        useCameraHeading = true,
     },
     ["Blockade of Storms"] = {
         type = CAE.RECTANGLE,
@@ -177,6 +187,7 @@ CAE.PresetShapes = {
         forwardOffset = 900,
         conditionalAbilityId = {39018},
         activeBarOnly = true,
+        useCameraHeading = true,
     },
     ["Blockade of Frost"] = {
         type = CAE.RECTANGLE,
@@ -189,6 +200,7 @@ CAE.PresetShapes = {
         forwardOffset = 900,
         conditionalAbilityId = {39028},
         activeBarOnly = true,
+        useCameraHeading = true,
     },
     ["Streak (flat ground)"] = {
         {
@@ -200,6 +212,7 @@ CAE.PresetShapes = {
             forwardOffset = 1500,
             conditionalAbilityId = {23234, 23236, 23277},
             depthBuffers = false,
+            useCameraHeading = true,
         },
         {
             type = CAE.RECTANGLE,
@@ -213,6 +226,7 @@ CAE.PresetShapes = {
             conditionalAbilityId = {23234, 23236, 23277},
             depthBuffers = true,
             pitch = math.pi / 2,
+            useCameraHeading = true,
         },
     },
 
@@ -228,5 +242,6 @@ CAE.PresetShapes = {
         yOffset = 5,
         forwardOffset = 1000,
         conditionalEffectId = {178028},
+        useCameraHeading = false,
     },
 }
