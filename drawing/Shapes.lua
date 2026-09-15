@@ -80,7 +80,7 @@ function CAE.AddConeToProfile(rgb, color, fillColor, radius, height, yOffset, fo
         solid = solid,
     }
 
-    CAE.msg(zo_strformat("Added cone <<1>> × <<2>> to profile <<3>>", height, width, profile.profileName)) -- TODO
+    CAE.msg(zo_strformat("Added cone <<1>> × <<2>>° to profile <<3>>", height, pitch / math.pi * 180, profile.profileName))
 
     return index
 end

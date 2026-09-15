@@ -61,7 +61,11 @@ local function ColorShapeText(shapeData)
         end
     end
 
-    return "Cone" -- TODO
+    if (shapeData.rgb) then
+        return zo_strformat("<<1>>|r: <<2>> × <<3>>°", CAE.Utils.Rainbowify("Cone"), shapeData.radius, zo_round(shapeData.pitch / math.pi * 180))
+    else
+        return zo_strformat("|c<<1>>Cone|r: <<2>> × <<3>>°", ColorToHexString(shapeData.color), shapeData.height, zo_round(shapeData.pitch / math.pi * 180))
+    end
 end
 CAE.ColorShapeText = ColorShapeText
 
@@ -398,7 +402,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "checkbox",
             name = "Solid color",
-            tooltip = "Whether to use a solid circle or rectangle instead of an outline or rectangle with border. Non-solid rectangles do not support hiding behind objects",
+            tooltip = "Whether to use a solid circle or rectangle instead of an outline or rectangle with border. Non-solid rectangles do not support hiding behind objects. Does not apply to cones",
             default = false,
             getFunc = function() return currentSolid end,
             setFunc = function(value)
@@ -408,12 +412,12 @@ function CAE.CreateSettingsMenu()
                 RefreshShapes()
             end,
             width = "half",
-            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil end, -- Don't allow editing default
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.CONE end, -- Don't allow editing default, not valid for cones
         },
         {
             type = "checkbox",
             name = "Use RGB",
-            tooltip = "Whether to cycle through all colors instead of being a static color. The alpha (opacity) of the \"Outline color\" below will be inherited",
+            tooltip = "Whether to cycle through all hues instead of being a static color. The alpha (opacity) of the \"Outline color\" below will be inherited",
             default = false,
             getFunc = function() return currentRgb end,
             setFunc = function(value)
@@ -443,7 +447,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "colorpicker",
             name = "Fill color",
-            tooltip = "The center fill color of the rectangle (does not work for circle). Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
+            tooltip = "The center fill color of the rectangle (does not work for circles or cones). Note that this color includes opacity, so it may appear darker in the settings menu than it actually is",
             default = ZO_ColorDef:New(1, 1, 1, 0),
             getFunc = function() return unpack(currentFillColor) end,
             setFunc = function(r, g, b, a)
