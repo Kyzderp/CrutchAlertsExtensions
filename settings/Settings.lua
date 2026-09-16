@@ -169,6 +169,7 @@ local function BuildPresetShapes()
     for name, _ in pairs(CAE.PresetShapes) do
         table.insert(tab, name)
     end
+    table.sort(tab)
     return tab
 end
 
