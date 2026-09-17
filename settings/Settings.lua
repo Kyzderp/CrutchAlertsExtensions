@@ -58,14 +58,14 @@ local function ColorShapeText(shapeData)
         if (shapeData.rgb) then
             return zo_strformat("<<1>>|r: <<2>> × <<3>>", CAE.Utils.Rainbowify("Rectangle"), shapeData.radius, shapeData.height)
         else
-            return zo_strformat("|c<<1>>Rectangle|r: <<2>> × <<3>>", ColorToHexString(shapeData.color), shapeData.height, shapeData.radius)
+            return zo_strformat("|c<<1>>Rectangle|r: <<2>> × <<3>>", ColorToHexString(shapeData.color), shapeData.radius, shapeData.height)
         end
     end
 
     if (shapeData.rgb) then
         return zo_strformat("<<1>>|r: <<2>> × <<3>>°", CAE.Utils.Rainbowify("Cone"), shapeData.radius, zo_round(shapeData.pitch / math.pi * 180))
     else
-        return zo_strformat("|c<<1>>Cone|r: <<2>> × <<3>>°", ColorToHexString(shapeData.color), shapeData.height, zo_round(shapeData.pitch / math.pi * 180))
+        return zo_strformat("|c<<1>>Cone|r: <<2>> × <<3>>°", ColorToHexString(shapeData.color), shapeData.radius, zo_round(shapeData.pitch / math.pi * 180))
     end
 end
 CAE.ColorShapeText = ColorShapeText
