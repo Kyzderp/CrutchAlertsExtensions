@@ -339,7 +339,7 @@ local function CreateShapeById(id)
 end
 
 local function ShowShape(id)
-    if (currentKeys[id]) then return end -- already showing
+    if (currentKeys[id] and #currentKeys[id] > 0) then return end -- already showing
     CreateShapeById(id)
 end
 
