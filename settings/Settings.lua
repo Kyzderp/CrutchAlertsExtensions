@@ -43,9 +43,9 @@ end
 
 local function ColorCircleText(rgb, color, radius)
     if (rgb) then
-        return CAE.Utils.Rainbowify("Circle") .. "|r: " .. radius
+        return zo_strformat("<<1>>|r <<2>>m", CAE.Utils.Rainbowify("Circle"), radius)
     else
-        return zo_strformat("|c<<1>>Circle|r: <<2>>", ColorToHexString(color), radius)
+        return zo_strformat("|c<<1>>Circle|r: <<2>>m", ColorToHexString(color), radius)
     end
 end
 
@@ -56,16 +56,16 @@ local function ColorShapeText(shapeData)
 
     if (shapeData.type == CAE.RECTANGLE) then
         if (shapeData.rgb) then
-            return zo_strformat("<<1>>|r: <<2>> × <<3>>", CAE.Utils.Rainbowify("Rectangle"), shapeData.radius, shapeData.height)
+            return zo_strformat("<<1>>|r: <<2>>m × <<3>>m", CAE.Utils.Rainbowify("Rectangle"), shapeData.radius, shapeData.height)
         else
-            return zo_strformat("|c<<1>>Rectangle|r: <<2>> × <<3>>", ColorToHexString(shapeData.color), shapeData.radius, shapeData.height)
+            return zo_strformat("|c<<1>>Rectangle|r: <<2>>m × <<3>>m", ColorToHexString(shapeData.color), shapeData.radius, shapeData.height)
         end
     end
 
     if (shapeData.rgb) then
-        return zo_strformat("<<1>>|r: <<2>> × <<3>>°", CAE.Utils.Rainbowify("Cone"), shapeData.radius, zo_round(shapeData.pitch / math.pi * 180))
+        return zo_strformat("<<1>>|r: <<2>>m × <<3>>°", CAE.Utils.Rainbowify("Cone"), shapeData.radius, zo_round(shapeData.pitch / math.pi * 180))
     else
-        return zo_strformat("|c<<1>>Cone|r: <<2>> × <<3>>°", ColorToHexString(shapeData.color), shapeData.radius, zo_round(shapeData.pitch / math.pi * 180))
+        return zo_strformat("|c<<1>>Cone|r: <<2>>m × <<3>>°", ColorToHexString(shapeData.color), shapeData.radius, zo_round(shapeData.pitch / math.pi * 180))
     end
 end
 CAE.ColorShapeText = ColorShapeText
