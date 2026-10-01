@@ -24,6 +24,7 @@ local defaultGlobalOptions = {
             hungerRequireModifier = false,
             lowerHunger = false,
             higherFrenzyAndAtro = false,
+            evenHigherFrenzy = false,
             iconsForKnownPets = false, -- hardcoded ones
             iconsForPets = false, -- fallback poop
             iconsForCompanions = false,
