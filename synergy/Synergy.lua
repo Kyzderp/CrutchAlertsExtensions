@@ -155,5 +155,23 @@ function CAE.GetSynergySettings()
             end,
             width = "full",
         },
+        {
+            type = "checkbox",
+            name = "    Even higher Feeding Frenzy priority",
+            tooltip = "Sets Feeding Frenzy synergy priority to 6, meaning it's even higher priority than the defaults for Healing Combustion, Purify, etc.",
+            default = false,
+            getFunc = function() return CAE.profiles[CAE.csvs.currentProfile].evenHigherFrenzy end,
+            setFunc = function(value)
+                CAE.profiles[CAE.csvs.currentProfile].evenHigherFrenzy = value
+                if (value) then
+                    OnPlayerActivated()
+                else
+                    ClearSynergyPriorityOverride(FRENZY_ID)
+                    ClearSynergyPriorityOverride(CHARGED_LIGHTNING_ID)
+                end
+            end,
+            width = "full",
+            disabled = function() return not CAE.profiles[CAE.csvs.currentProfile].higherFrenzyAndAtro end,
+        },
     }
 end
