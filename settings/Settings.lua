@@ -466,7 +466,7 @@ function CAE.CreateSettingsMenu()
         {
             type = "checkbox",
             name = "Hide behind objects",
-            tooltip = "Whether to use depth buffers to have shapes be hidden by objects. For example, if this is ON, parts of the shape can be covered by hills. This does not work for rectangles with outlines. In order for this setting to work while ON, you must have \"SubSampling Quality\" set to \"High\" in your Video settings",
+            tooltip = "Whether to use depth buffers to have shapes be hidden by objects. For example, if this is ON, parts of the shape can be covered by hills. This does not work for rectangles with outlines or the arc portion of cones. In order for this setting to work while ON, you must have \"SubSampling Quality\" set to \"High\" in your Video settings",
             default = false,
             getFunc = function() return currentDepthBuffers end,
             setFunc = function(value)

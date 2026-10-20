@@ -318,11 +318,48 @@ local function CreateCone(id, radius, height, rgb, color, yOffset, depthBuffers,
         LineFunc,
         function() return EndpointsFunc(-angle / 2) end)
 
+    local function ArcFunc(icon)
+        if (not CAE.freeze) then
+            -- Make it follow the player
+            local _, pX, y, pZ = GetUnitRawWorldPosition("player")
+            local heading = GetHeading(useCameraHeading)
+            local x = math.sin(heading) * -forwardOffset + pX
+            local z = math.cos(heading) * -forwardOffset + pZ
+
+            icon:SetPosition(x, y + yOffset, z)
+            icon:SetOrientation(-math.pi/2, heading + angle / 2, 0)
+        end
+
+        -- Make color change every update
+        if (rgb) then
+            local time = GetGameTimeMilliseconds() % 2000 / 2000
+            local r, g, b = Crutch.ConvertHSLToRGB(time, 1, 0.5)
+            icon:SetCooldownColor(r, g, b, color[4])
+        end
+    end
+
+    local key3 = Crutch.Drawing.CreateSpaceControl(
+        x,
+        y + yOffset,
+        z,
+        false,
+        {-math.pi/2, heading, 0},
+        {
+            cooldown = {
+                progress = angle / math.pi / 2,
+                color = color,
+                size = radius * 2,
+            },
+        },
+        ArcFunc)
+
+
     if (not currentKeys[id]) then
         currentKeys[id] = {}
     end
     table.insert(currentKeys[id], key1)
     table.insert(currentKeys[id], key2)
+    table.insert(currentKeys[id], key3)
 end
 
 local function CreateShapeById(id)
