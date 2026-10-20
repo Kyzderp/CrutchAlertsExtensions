@@ -18,6 +18,7 @@ local currentActiveBarOnly = false
 local currentDepthBuffers = false
 local currentSolid = false
 local currentUseCameraHeading = true
+local currentConeStyle
 
 local currentShape, currentLine
 
@@ -125,6 +126,7 @@ local function LoadShapeValues()
     currentDepthBuffers = profile.circles[currentShape].depthBuffers
     currentSolid = profile.circles[currentShape].solid
     currentUseCameraHeading = profile.circles[currentShape].useCameraHeading
+    currentConeStyle = profile.circles[currentShape].coneStyle
 end
 
 local function ResetCurrentValues()
@@ -144,6 +146,7 @@ local function ResetCurrentValues()
     currentDepthBuffers = false
     currentSolid = false
     currentUseCameraHeading = true
+    currentConeStyle = 3
 end
 
 local function ResetCurrentLineValues()
@@ -359,7 +362,7 @@ function CAE.CreateSettingsMenu()
             func = function()
                 ResetCurrentValues()
                 currentPitch = math.pi / 2
-                local id = CAE.AddConeToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch, currentSolid, currentUseCameraHeading)
+                local id = CAE.AddConeToProfile(currentRgb, currentColor, currentFillColor, currentSize, currentHeight, currentYOffset, currentForwardOffset, currentConditionalAbility, currentConditionalSetId, currentConditionalEffectId, currentActiveBarOnly, currentDepthBuffers, currentPitch, currentSolid, currentUseCameraHeading, currentConeStyle)
                 CAE.LoadCurrentProfile()
                 currentShape = id
                 RefreshShapes()
@@ -417,6 +420,22 @@ function CAE.CreateSettingsMenu()
             end,
             width = "half",
             disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type == CAE.CONE end, -- Don't allow editing default, not valid for cones
+        },
+        {
+            type = "dropdown",
+            name = "Cone style",
+            tooltip = "Style for cones only",
+            choices = {"Arc + lines", "Curved arc only", "Straight lines only"},
+            choicesValues = {3, 2, 1}
+            getFunc = function() return currentConeStyle end,
+            setFunc = function(value)
+                currentConeStyle = value
+                CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].coneStyle = currentConeStyle
+                CAE.LoadCurrentProfile()
+                RefreshShapes()
+            end,
+            width = "half",
+            disabled = function() return CAE.csvs.currentProfile == -1 or currentShape == nil or CAE.profiles[CAE.csvs.currentProfile].circles[currentShape].type ~= CAE.CONE end, -- only valid for cones
         },
         {
             type = "checkbox",

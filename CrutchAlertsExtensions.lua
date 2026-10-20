@@ -124,6 +124,10 @@ local function FillMissingDefaults()
             if (shapeData.useCameraHeading == nil) then
                 shapeData.useCameraHeading = false
             end
+
+            if (shapeData.type == CAE.CONE and shapeData.coneStyle == nil) then
+                shapeData.coneStyle = 3 -- 1 = lines only, 2 = arc only, 3 = lines+arc
+            end
         end
     end
 end
