@@ -38,6 +38,8 @@ local function InitializeBossTriggers()
         MaybeRegisterScavenging()
     else
         EVENT_MANAGER:UnregisterForEvent("CAEBossTriggersPlayerActivated", EVENT_PLAYER_ACTIVATED)
+        Crutch.UnregisterForCombatEvent("CAEScavengingMawHide")
+        Crutch.UnregisterForCombatEvent("CAEScavengingMawDevour")
         OnScavengingMawUnhide()
     end
 end

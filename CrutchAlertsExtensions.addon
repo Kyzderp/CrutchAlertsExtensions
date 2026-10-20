@@ -41,3 +41,4 @@ synergy/Synergy.xml
 infopanel/DamagedEnemies.lua
 
 misc/BossTriggers.lua
+misc/AchievementDebug.lua
