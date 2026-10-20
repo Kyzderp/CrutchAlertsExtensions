@@ -3,34 +3,28 @@ local Crutch = CrutchAlerts
 
 
 ---------------------------------------------------------------------
-local function GetBossName(id)
-    return Crutch.GetCapitalizedString(id)
+-- DoM Scavenging Maw
+---------------------------------------------------------------------
+local function OnScavengingMawHide()
+    Crutch.dbgOther("hiding boss bar")
+    COMPASS_FRAME:SetBossBarHiddenForReason("CAEScavengingMawHide", true)
 end
 
+local function OnScavengingMawUnhide()
+    Crutch.dbgOther("showing boss bar")
+    COMPASS_FRAME:SetBossBarHiddenForReason("CAEScavengingMawHide", false)
+end
 
----------------------------------------------------------------------
--- Hide boss bar at the Scavenging Maw
----------------------------------------------------------------------
-local hideBossBar = false
-local hooked = false
-local function CheckScavengingMaw()
-    local bossName = GetUnitName("boss1")
-    hideBossBar = (bossName == GetBossName(CRUTCH_BHB_THE_SCAVENGING_MAW))
-
-    if (hideBossBar and not hooked) then
-        ZO_PreHook(COMPASS_FRAME, "SetBossBarActive", function(self, ...)
-            self.bossBarActive = not hideBossBar
-            return hideBossBar
-        end)
-        hooked = true
+-- Register events for Scavenging Maw only when in DoM
+local function MaybeRegisterScavenging()
+    if (GetZoneId(GetUnitZoneIndex("player")) == 1081) then
+        Crutch.RegisterForCombatEvent("CAEScavengingMawHide", OnScavengingMawHide, ACTION_RESULT_BEGIN, 113923)
+        Crutch.RegisterForCombatEvent("CAEScavengingMawDevour", OnScavengingMawUnhide, ACTION_RESULT_BEGIN, 113940)
+    else
+        Crutch.UnregisterForCombatEvent("CAEScavengingMawHide")
+        Crutch.UnregisterForCombatEvent("CAEScavengingMawDevour")
+        OnScavengingMawUnhide()
     end
-end
-
-
----------------------------------------------------------------------
----------------------------------------------------------------------
-local function OnBossesChanged()
-    CheckScavengingMaw()
 end
 
 
@@ -40,12 +34,12 @@ local function InitializeBossTriggers()
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     if (profile.hideBossBarScavengingMaw) then
-        Crutch.RegisterBossChangedListener("CrutchAlertsExtensionsBossTriggers", OnBossesChanged)
+        EVENT_MANAGER:RegisterForEvent("CAEBossTriggersPlayerActivated", EVENT_PLAYER_ACTIVATED, MaybeRegisterScavenging)
+        MaybeRegisterScavenging()
     else
-        Crutch.UnregisterBossChangedListener("CrutchAlertsExtensionsBossTriggers")
+        EVENT_MANAGER:UnregisterForEvent("CAEBossTriggersPlayerActivated", EVENT_PLAYER_ACTIVATED)
+        OnScavengingMawUnhide()
     end
-
-    OnBossesChanged()
 end
 CAE.InitializeBossTriggers = InitializeBossTriggers
 
@@ -62,7 +56,7 @@ function CAE.GetBossTriggersSettings()
         {
             type = "checkbox",
             name = "Hide boss bar at the Scavenging Maw",
-            tooltip = "Prevents the base game boss health bar from showing while at the Scavenging Maw encounter in Depths of Malatar, so that the compass will be visible for identifying enemy location",
+            tooltip = "Hides the base game boss health bar when the Scavenging Maw starts to hide in Depths of Malatar, so that the compass will be visible for identifying enemy location",
             default = false,
             getFunc = function() return CAE.profiles[CAE.csvs.currentProfile].hideBossBarScavengingMaw end,
             setFunc = function(value)
