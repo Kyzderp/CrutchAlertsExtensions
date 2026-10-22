@@ -18,7 +18,7 @@ local currentActiveBarOnly = false
 local currentDepthBuffers = false
 local currentSolid = false
 local currentUseCameraHeading = true
-local currentConeStyle
+local currentConeStyle = 3
 
 local currentShape, currentLine
 

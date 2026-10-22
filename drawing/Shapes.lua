@@ -60,7 +60,7 @@ function CAE.AddRectangleToProfile(rgb, color, fillColor, width, height, edgeSiz
     return index
 end
 
-function CAE.AddConeToProfile(rgb, color, fillColor, radius, height, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch, solid, useCameraHeading)
+function CAE.AddConeToProfile(rgb, color, fillColor, radius, height, yOffset, forwardOffset, conditionalAbilityId, conditionalSetId, conditionalEffectId, activeBarOnly, depthBuffers, pitch, solid, useCameraHeading, coneStyle)
     local profile = CAE.profiles[CAE.csvs.currentProfile]
 
     local index = CAE.FindFreeId(profile.circles)
@@ -81,6 +81,7 @@ function CAE.AddConeToProfile(rgb, color, fillColor, radius, height, yOffset, fo
         pitch = pitch,
         solid = solid,
         useCameraHeading = useCameraHeading,
+        coneStyle = coneStyle,
     }
 
     CAE.msg(zo_strformat("Added cone <<1>> × <<2>>° to profile <<3>>", height, pitch / math.pi * 180, profile.profileName))
