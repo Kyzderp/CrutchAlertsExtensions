@@ -426,7 +426,7 @@ function CAE.CreateSettingsMenu()
             name = "Cone style",
             tooltip = "Style for cones only",
             choices = {"Arc + lines", "Curved arc only", "Straight lines only"},
-            choicesValues = {3, 2, 1}
+            choicesValues = {3, 2, 1},
             getFunc = function() return currentConeStyle end,
             setFunc = function(value)
                 currentConeStyle = value
