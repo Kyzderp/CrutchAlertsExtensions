@@ -51,12 +51,12 @@ local function ColorShapeName(name, rgb, color)
 end
 
 local function GetAnyConditionalName(shapeData)
-    if (#(shapeData.conditionalAbilityId) > 0) then
+    if (shapeData.conditionalAbilityId and #(shapeData.conditionalAbilityId) > 0) then
         return GetAbilityName(shapeData.conditionalAbilityId[1])
-    elseif (#(shapeData.conditionalSetId) > 0) then
+    elseif (shapeData.conditionalSetId and #(shapeData.conditionalSetId) > 0) then
         local _, setName = GetItemSetInfo(shapeData.conditionalSetId[1])
         return setName
-    elseif (#(shapeData.conditionalEffectId) > 0) then
+    elseif (shapeData.conditionalEffectId and #(shapeData.conditionalEffectId) > 0) then
         return GetAbilityName(shapeData.conditionalEffectId[1])
     end
 end
