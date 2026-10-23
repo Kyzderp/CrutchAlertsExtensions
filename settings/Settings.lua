@@ -42,32 +42,41 @@ local function ColorToHexString(color)
         math.floor(color[3] * 255))
 end
 
-local function ColorCircleText(rgb, color, radius)
+local function ColorShapeName(name, rgb, color)
     if (rgb) then
-        return zo_strformat("<<1>>|r <<2>>m", CAE.Utils.Rainbowify("Circle"), radius)
+        return CAE.Utils.Rainbowify(name)
     else
-        return zo_strformat("|c<<1>>Circle|r: <<2>>m", ColorToHexString(color), radius)
+        return "|c" .. ColorToHexString(color) .. name
+    end
+end
+
+local function GetAnyConditionalName(shapeData)
+    if (#(shapeData.conditionalAbilityId) > 0) then
+        return GetAbilityName(shapeData.conditionalAbilityId[1])
+    elseif (#(shapeData.conditionalSetId) > 0) then
+        local _, setName = GetItemSetInfo(shapeData.conditionalSetId[1])
+        return setName
+    elseif (#(shapeData.conditionalEffectId) > 0) then
+        return GetAbilityName(shapeData.conditionalEffectId[1])
     end
 end
 
 local function ColorShapeText(shapeData)
+    local text = ""
     if (shapeData.type == CAE.CIRCLE) then
-        return ColorCircleText(shapeData.rgb, shapeData.color, shapeData.radius)
+        text = zo_strformat("<<1>>|r <<2>>m", ColorShapeName("Circle", shapeData.rgb, shapeData.color), shapeData.radius)
+    elseif (shapeData.type == CAE.RECTANGLE) then
+        text = zo_strformat("<<1>>|r: <<2>>m × <<3>>m", ColorShapeName("Rectangle", shapeData.rgb, shapeData.color), shapeData.radius, shapeData.height)
+    elseif (shapeData.type == CAE.CONE) then
+        text = zo_strformat("<<1>>|r: <<2>>m × <<3>>°", ColorShapeName("Cone", shapeData.rgb, shapeData.color), shapeData.radius, zo_round(shapeData.pitch / math.pi * 180))
     end
 
-    if (shapeData.type == CAE.RECTANGLE) then
-        if (shapeData.rgb) then
-            return zo_strformat("<<1>>|r: <<2>>m × <<3>>m", CAE.Utils.Rainbowify("Rectangle"), shapeData.radius, shapeData.height)
-        else
-            return zo_strformat("|c<<1>>Rectangle|r: <<2>>m × <<3>>m", ColorToHexString(shapeData.color), shapeData.radius, shapeData.height)
-        end
+    local conditionalName = GetAnyConditionalName(shapeData)
+    if (conditionalName) then
+        text = string.format("%s |c888888- %s|r", text, conditionalName)
     end
 
-    if (shapeData.rgb) then
-        return zo_strformat("<<1>>|r: <<2>>m × <<3>>°", CAE.Utils.Rainbowify("Cone"), shapeData.radius, zo_round(shapeData.pitch / math.pi * 180))
-    else
-        return zo_strformat("|c<<1>>Cone|r: <<2>>m × <<3>>°", ColorToHexString(shapeData.color), shapeData.radius, zo_round(shapeData.pitch / math.pi * 180))
-    end
+    return text
 end
 CAE.ColorShapeText = ColorShapeText
 
