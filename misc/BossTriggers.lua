@@ -15,15 +15,21 @@ local function OnScavengingMawUnhide()
     COMPASS_FRAME:SetBossBarHiddenForReason("CAEScavengingMawHide", false)
 end
 
+local function UnregisterScavengingEvents()
+    Crutch.UnregisterForCombatEvent("CAEScavengingMawHide")
+    Crutch.UnregisterForCombatEvent("CAEScavengingMawDevour")
+    Crutch.UnregisterExitedGroupCombatListener("CAEScavengingMawExitedCombat")
+    OnScavengingMawUnhide()
+end
+
 -- Register events for Scavenging Maw only when in DoM
 local function MaybeRegisterScavenging()
     if (GetZoneId(GetUnitZoneIndex("player")) == 1081) then
         Crutch.RegisterForCombatEvent("CAEScavengingMawHide", OnScavengingMawHide, ACTION_RESULT_BEGIN, 113923)
         Crutch.RegisterForCombatEvent("CAEScavengingMawDevour", OnScavengingMawUnhide, ACTION_RESULT_BEGIN, 113940)
+        Crutch.RegisterExitedGroupCombatListener("CAEScavengingMawExitedCombat", OnScavengingMawUnhide)
     else
-        Crutch.UnregisterForCombatEvent("CAEScavengingMawHide")
-        Crutch.UnregisterForCombatEvent("CAEScavengingMawDevour")
-        OnScavengingMawUnhide()
+        UnregisterScavengingEvents()
     end
 end
 
@@ -38,9 +44,7 @@ local function InitializeBossTriggers()
         MaybeRegisterScavenging()
     else
         EVENT_MANAGER:UnregisterForEvent("CAEBossTriggersPlayerActivated", EVENT_PLAYER_ACTIVATED)
-        Crutch.UnregisterForCombatEvent("CAEScavengingMawHide")
-        Crutch.UnregisterForCombatEvent("CAEScavengingMawDevour")
-        OnScavengingMawUnhide()
+        UnregisterScavengingEvents()
     end
 end
 CAE.InitializeBossTriggers = InitializeBossTriggers
